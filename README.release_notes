@@ -1,0 +1,21 @@
+NOTE:
+** CVS rtags can't accept "." in strings, substitute "_"
+
+October 16, 2003:
+
+	RRTMG_LW is now being officially archived in CVS.  This code
+	evolved from the standard RRTM_LW release.  It includes  
+	modifications to enhance performance such as a reduced g-point
+	set, and it is intended for application to GCMs.  Both a 
+	column version and subroutine version of this code are archived.
+
+	Release_3_0 - Initial release version.  This version includes
+		modifications to implement a spectrally varying diffusivity
+                angle based on the column precipitable water amount.
+		No reference
+
+		This version was distributed to Kerry Emanuel (MIT) for
+		use in the MIT radiative-convective single column model.
+
+	
+
