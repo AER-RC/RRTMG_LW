@@ -326,6 +326,7 @@ C     Read in atmospheric profile.
       COMMON /XSEC/     WX(MAXXSEC,MXLAY)
       COMMON /PATHX/    IXMAX,NXMOL0,IXINDX0(MAXINPX),WX0(MAXINPX,MXLAY)    
       COMMON /XRRTATM/  IXSECT
+      COMMON /PWV/      PWVCM
 
       CHARACTER*80 FORM1(0:1),FORM2(0:1),FORM3(0:1)
       CHARACTER*1 CTEST, CDOLLAR, CPRCNT,CDUM
@@ -438,6 +439,8 @@ C     Test for mixing ratio input.
          ELSE
             COLDRY(L) = WBRODL(L) + SUMMOL
          ENDIF
+         AMTTL = AMTTL + COLDRY(L)+WKL(1,L)
+         WVTTL = WVTTL + WKL(1,L)
          IF (IXSECT .EQ. 1) THEN
             DO 4400 IX = 1, NXMOL0
                IF (IXINDX(IX) .NE. 0) THEN
@@ -450,7 +453,10 @@ C     Test for mixing ratio input.
  4400       CONTINUE
          ENDIF
  5000 CONTINUE
-
+ 
+      WVSH = (18.0154*WVTTL)/(28.9644*AMTTL)
+      PWVCM = WVSH*(1.E3*PZ(0))/(1.E2*9.8066)
+ 
       GO TO 9000
 
  8800 CONTINUE

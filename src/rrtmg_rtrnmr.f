@@ -14,12 +14,14 @@ C
 C  This program calculates the upward fluxes, downward fluxes, and
 C  heating rates for an arbitrary clear or cloudy atmosphere.  The input
 C  to this program is the atmospheric profile, all Planck function
-C  information, and the cloud fraction by layer.  The diffusivity angle 
-C  (SECDIFF=1.66) is used for the angle integration for consistency with 
-C  the NCAR CCM; the Gaussian weight appropriate to this angle (WTDIFF=0.5) 
-C  is applied here.  Note that use of the emissivity angle for the flux
-C  integration can cause errors of 1 to 4 W/m2 within cloudy layers.
-C  Clouds are treated with a maximum-random cloud overlap method.
+C  information, and the cloud fraction by layer.  A variable diffusivity 
+C  angle (SECDIFF) is used for the angle integration.  Bands 2-3 and 5-9 
+C  use a value for SECDIFF that varies from 1.50 to 1.80 as a function of 
+C  the column water vapor, and other bands use a value of 1.66.  The Gaussian 
+C  weight appropriate to this angle (WTDIFF=0.5) is applied here.  Note that 
+C  use of the emissivity angle for the flux integration can cause errors of 
+C  1 to 4 W/m2 within cloudy layers.  Clouds are treated with a maximum-random 
+C  cloud overlap method.
 C***************************************************************************
 
 C Parameters
@@ -49,6 +51,7 @@ C Input
       COMMON /TAUGCOM/   TAUG(MXLAY,NGPT)
       COMMON /RTTBL/     BPADE,
      &                   TAUTBL(0:NTBL),TRANS(0:NTBL),TF(0:NTBL)
+      COMMON /PWV/       PWVCM
 
       COMMON /CVRRTX/    HVRRTX
 
@@ -132,6 +135,7 @@ C Dimensions for radiative transfer
       DIMENSION ODCLD(MXLAY,NBANDS)
       DIMENSION ATOT(MXLAY)
       DIMENSION IPAT(16,0:2)
+      DIMENSION SECDIFF(NBANDS),A0(NBANDS),A1(NBANDS),A2(NBANDS)
 
 C Dimensions for cloud overlap adjustment
       DIMENSION ICLDLYR(MXLAY)
@@ -149,12 +153,31 @@ C     to each spectral band.  See cldprop.f for more details.
      &           1,2,3,3,3,4,4,4,5, 5, 5, 5, 5, 5, 5, 5,
      &           1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16/
 
-C *** These weights correspond to angles of 24.30,53.81,77.75
-C     degrees, resp.  They are used when "numerical" Gaussian
-C     quadrature is chosen.
-      DATA SECDIFF /1.66/
+
+C *** This secant and weight corresponds to the standard diffusivity 
+C     angle.  This initial value is redefined below for some bands.
+C      DATA SECDIFF /16*1.66/
       DATA WTDIFF /0.5/
+
       DATA REC_6 /0.166667/
+
+C Reset diffusivity angle for Bands 2-3 and 5-9 to vary (between 1.50
+C and 1.80) as a function of total column water vapor.  The function
+C has been defined to minimize flux and cooling rate errors in these bands
+C over a wide range of precipitable water values.
+      DATA A0 / 1.66, 1.55, 1.58, 1.66, 1.54,1.454, 1.89, 1.33, 
+     &         1.668, 1.66, 1.66, 1.66, 1.66, 1.66, 1.66, 1.66 /
+      DATA A1 / 0.00, 0.25, 0.22, 0.00, 0.13,0.446,-0.10, 0.40,
+     &        -0.006, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 /
+      DATA A2 / 0.00,-12.0,-11.7, 0.00,-0.72,-0.243,0.19,-0.062,
+     &         0.414, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 /
+
+      DO 50 IBND = 1,NBANDS
+         SECDIFF(IBND) = A0(IBND) + A1(IBND)*EXP(A2(IBND)*PWVCM)
+50    CONTINUE
+      IF (PWVCM.LT.1.0) SECDIFF(6) = 1.80
+      IF (PWVCM.GT.7.1) SECDIFF(7) = 1.50
+
 
       HVRRTX = '$Revision$'
 
@@ -179,7 +202,7 @@ C     quadrature is chosen.
 
          DO 100 IB = 1, NCBANDS
             IF (CLDFRAC(LAY) .GE. 1.E-6) THEN
-               ODCLD(LAY,IB) = SECDIFF * TAUCLOUD(LAY,IB)
+               ODCLD(LAY,IB) = SECDIFF(IB) * TAUCLOUD(LAY,IB)
                ICLDLYR(LAY) = 1
             ELSE
                ODCLD(LAY,IB) = 0.0
@@ -381,7 +404,7 @@ C ***    DOWNWARD RADIATIVE TRANSFER loop.
                BLAY = PLANKLAY(LEV,IBAND)
                DPLANKUP = PLANKLEV(LEV,IBAND) - BLAY
                DPLANKDN = PLANKLEV(LEV-1,IBAND) - BLAY
-               ODEPTH = SECDIFF * TAUG(LEV,IGC)
+               ODEPTH = SECDIFF(IBAND) * TAUG(LEV,IGC)
                IF (ODEPTH .LT. 0.0) ODEPTH = 0.0
 C Cloudy layer
                IF (ICLDLYR(LEV).EQ.1) THEN

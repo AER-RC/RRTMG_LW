@@ -372,7 +372,7 @@ C Output
      &                   ICEFLAG,LIQFLAG,CLDDAT3(MXLAY),CLDDAT4(MXLAY)
       COMMON /CLOUDDAT/ NCBANDS,CLDFRAC(MXLAY),TAUCLOUD(MXLAY,NBANDS)
       COMMON /SURFACE/  TBOUND,IREFLECT,SEMISS(NBANDS)
-
+      COMMON /PWV/      PWVCM
 C RRTM Definitions
 C    MXLAY                        ! Maximum number of model layers
 C    MAXXSEC                      ! Maximum number of cross sections
@@ -390,6 +390,7 @@ C    WKL(35,MXLAY)                ! Molecular amounts (molecules/cm2)
 C    WX(MAXXSEC)                  ! Cross-section amounts (molecules/cm2)
 C    CLDFRAC(MXLAY)               ! Layer cloud fraction
 C    TAUCLOUD(MXLAY)              ! Layer cloud optical depth
+C    PWVCM                        ! Precipitable water vapor (cm)
 C    SBC                          ! Stefan-Boltzmann constant
 C    AMD                          ! Atomic weight of dry air
 C    AMW                          ! Atomic weight of water
@@ -646,6 +647,8 @@ C  water vapor for diffusivity angle adjustments in RTRN and RTRNMR.
          DO 4200 IMOL = 1, NMOL
             WKL(IMOL,L) = COLDRY(L) * WKL(IMOL,L)
  4200    CONTINUE
+         AMTTL = AMTTL + COLDRY(L)+WKL(1,L)
+         WVTTL = WVTTL + WKL(1,L)
          DO 4400 IX = 1,MAXXSEC
             IF (IXINDX(IX) .NE. 0) THEN
                WX(IXINDX(IX),L) = COLDRY(L) * WX(IX,L) * 1.E-20
@@ -653,11 +656,15 @@ C  water vapor for diffusivity angle adjustments in RTRN and RTRNMR.
  4400    CONTINUE
  5000 CONTINUE
 
+      WVSH = (amw*WVTTL)/(amd*AMTTL)
+      PWVCM = WVSH*(1.E3*PZ(0))/(1.E2*GRAV)
+
 c      write(23,*) 'INATM'
 c      write(23,*) 'cldfra:'
 c      write(23,9990) (cldfra(iplon,k),k=1,klev)
 c      write(23,*) 'emis:'
 c      write(23,9990) emis(iplon)
+c      write(23,*) 'pwvcm: ', pwvcm
 
 C  Set spectral surface emissivity for each longwave band.  
       DO 5500 N=1,NBANDS
