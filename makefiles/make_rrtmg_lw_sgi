@@ -1,0 +1,170 @@
+# $Id$
+# Makefile for column version of rrtmg_lw - SGI platform
+
+SHELL = /bin/sh
+
+###############################
+# Set variables
+###############################
+
+PLATFORM = sgi
+VERSION = v3.0
+
+FC = f90
+FCFLAG =  -mips4 -r10000 -lfastm -O3 -TENV:X=0
+OUTPUT = rrtmg_$(PLATFORM)_$(VERSION)
+CPATH = src
+CDOTO = $(PLATFORM)_$(FC)_sgl.o
+    
+CRTM = rrtmg_atm
+CRTR = rrtmg_rtrn
+CATM = rrtatm
+CINI = rrtmg_init
+CSET = rrtmg_setcoef
+CTAU = rrtmg_taumol
+CUTL = util_$(PLATFORM)
+CEXT = extra
+CRTX = rrtmg_rtrnmr
+CKGS = rrtmg_k_g
+CCLD = rrtmg_cldprop
+
+OBJFIL = $(CRTM).o \
+	 $(CRTR).o \
+	 $(CATM).o \
+	 $(CINI).o \
+	 $(CSET).o \
+	 $(CTAU).o \
+	 $(CUTL).o \
+	 $(CEXT).o \
+	 $(CRTX).o \
+	 $(CCLD).o \
+	 $(CKGS).o 
+
+OBPATH = $(CDOTO)/$(CRTM).o \
+	 $(CDOTO)/$(CRTR).o \
+	 $(CDOTO)/$(CATM).o \
+	 $(CDOTO)/$(CINI).o \
+	 $(CDOTO)/$(CSET).o \
+	 $(CDOTO)/$(CTAU).o \
+	 $(CDOTO)/$(CUTL).o \
+	 $(CDOTO)/$(CEXT).o \
+	 $(CDOTO)/$(CRTX).o \
+	 $(CDOTO)/$(CCLD).o \
+	 $(CDOTO)/$(CKGS).o 
+
+MODULE = $(CPATH)/$(CRTM).o \
+	 $(CPATH)/$(CRTR).o \
+	 $(CPATH)/$(CATM).o \
+	 $(CPATH)/$(CINI).o \
+	 $(CPATH)/$(CSET).o \
+	 $(CPATH)/$(CTAU).o \
+	 $(CPATH)/$(CUTL).o \
+	 $(CPATH)/$(CEXT).o \
+	 $(CPATH)/$(CRTX).o \
+	 $(CPATH)/$(CCLD).o \
+	 $(CPATH)/$(CKGS).o 
+
+###############################
+# Load line
+###############################
+
+$(OUTPUT) : \
+	intro makedir $(OBPATH) conclude
+	$(FC) $(FCFLAG) -o $(OUTPUT) $(OBPATH)
+
+###############################
+# Object compile lines
+###############################
+
+$(CDOTO)/$(CRTM).o : $(CPATH)/$(CRTM).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CRTM).f
+	\mv $(CRTM).o $(CDOTO)
+
+$(CDOTO)/$(CRTR).o : $(CPATH)/$(CRTR).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CRTR).f
+	\mv $(CRTR).o $(CDOTO)
+
+$(CDOTO)/$(CATM).o : $(CPATH)/$(CATM).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CATM).f
+	\mv $(CATM).o $(CDOTO)
+
+$(CDOTO)/$(CINI).o : $(CPATH)/$(CINI).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CINI).f
+	\mv $(CINI).o $(CDOTO)
+
+$(CDOTO)/$(CSET).o : $(CPATH)/$(CSET).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CSET).f
+	\mv $(CSET).o $(CDOTO)
+
+$(CDOTO)/$(CTAU).o : $(CPATH)/$(CTAU).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CTAU).f
+	\mv $(CTAU).o $(CDOTO)
+
+$(CDOTO)/$(CUTL).o : $(CPATH)/$(CUTL).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CUTL).f
+	\mv $(CUTL).o $(CDOTO)
+
+$(CDOTO)/$(CEXT).o : $(CPATH)/$(CEXT).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CEXT).f
+	\mv $(CEXT).o $(CDOTO)
+
+$(CDOTO)/$(CRTX).o : $(CPATH)/$(CRTX).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CRTX).f
+	\mv $(CRTX).o $(CDOTO)
+
+$(CDOTO)/$(CCLD).o : $(CPATH)/$(CCLD).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CCLD).f
+	\mv $(CCLD).o $(CDOTO)
+
+$(CDOTO)/$(CKGS).o : $(CPATH)/$(CKGS).f
+	$(FC) $(FCFLAG) -c $(CPATH)/$(CKGS).f
+	\mv $(CKGS).o $(CDOTO)
+
+###############################
+# Create object file directory
+###############################
+
+makedir :
+	if [ ! -d $(CDOTO) ] ; \
+	then \
+	   mkdir $(CDOTO) ; \
+	fi
+
+
+###############################
+# Intro information
+###############################
+
+.SILENT:
+intro :
+	echo
+	echo '-----------------'
+	echo '  $(OUTPUT) Makefile'
+	echo '-----------------'
+	echo
+	echo 'This Makefile was designed for the $(PLATFORM) platform.'
+	echo
+	echo 'It uses the $(FC) compiler, with the following options:'
+	echo '      $(FCFLAG)'
+	echo
+	echo 'The object files used are as follows:'
+	echo
+	echo '      $(OBJFIL)'
+	echo
+	echo
+	echo '$(OUTPUT) make in progress ...'
+	echo
+
+
+
+###############################
+# Concluding information
+###############################
+
+conclude :
+	echo
+	echo '================='
+	echo '  Makefile done'
+	echo '================='
+
+
