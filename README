@@ -1,0 +1,103 @@
+
+******************************************************************************
+ RRTM Longwave Radiative Transfer Model
+ Atmospheric and Environmental Research, Inc., Cambridge, MA
+
+ Original version:   E. J. Mlawer, et al.
+ Revision for GCMs:  Michael J. Iacono
+
+ References: 
+             Iacono, M.J., J.S. Delamere, E.J. Mlawer, and S.A. Clough,
+             Evaluation of upper tropospheric water vapor in the NCAR
+             Community Climate Model (CCM3) using modeled and observed
+             HIRS radiances. J. Geophys. Res., 108(D2), 4037, doi:10.1029/
+             2002JD002539, 2003.
+
+             Iacono, M.J., E.J. Mlawer, S.A. Clough, and J.-J. Morcrette,
+             Impact of an improved longwave radiation model, RRTM, on the
+             energy budget and thermodynamic properties of the NCAR Community
+             Climate Model, CCM3, J. Geophys. Res., 105, 14873-14890, 2000.
+
+             Mlawer, E.J., S.J. Taubman, P.D. Brown, M.J. Iacono, and S.A.
+             Clough:  Radiative transfer for inhomogeneous atmospheres: RRTM,
+             a validated correlated-k model for the longwave.  J. Geophys.
+             Res., 102, 16663-16682, 1997.
+******************************************************************************
+
+This directory contains the source code and sample makefile necessary to run
+RRTMG_LW version 3.0, a correlated k-distribution longwave radiative transfer 
+model developed at AER, Inc for application to GCMs.  This version of RRTMG_LW 
+has been modified from the standard RRTM_LW distributed by AER to enhance its 
+performance for use within general circulation models.  Two modes of operation 
+are possible.  RRTMG_LW can be run in stand-alone mode using the input files 
+and source modules described below, or it can be attached to an atmospheric 
+general circulation model. 
+
+The version of RRTMG_LW provided here has been modified from the standard 
+RRTM_LW to enhance performance with little effect on the accuracy.  The total 
+number of g-points used have been reduced from 256 to 140. Fluxes are accurate
+to within 0.5 W/m2 and cooling rate within 0.1 K/day relative to the standard
+RRTM_LW, which is itself accurate to within 1 W/m2 of the data-validated 
+line-by-line radiative transfer model, LBLRTM.  
+
+
+***********************
+RRTMG_LW column version
+***********************
+
+The following files (in /src directory) must be used to run RRTMG_LW in 
+stand-alone mode:
+
+   rrtmg_atm.f           : RRTM main module
+   rrtmg_init.f          : RRTM initialization routine; reduces g-points to 140
+   rrtmg_k_g.f           : Main absorption coefficient block data file
+   rrtmg_cldprop.f       : Cloud optical properties
+   rrtmg_rtrn.f          : Calculates clear and cloudy radiative transfer 
+                           using random cloud overlap
+   rrtmg_rtrnmr.f        : Calculates clear and cloudy radiative transfer
+                           using maximum-random cloud overlap
+   rrtmg_setcoef.f       : Set up routine
+   rrtmg_taumol.f        : Calculates optical depths and Planck fractions for 
+                           each spectral band
+   rrtatm.f              : Processes input data files
+   extra.f               : Processes input data files
+   util_sgi.f            : Utilities
+   make_rrtmg_lw_sgi     : Sample makefile set up for an SGI system
+   INPUT_RRTM            : Input file for (clear sky) atmospheric profile 
+   IN_CLD_RRTM           : Input file for cloud information
+   OUTPUT_RRTM           : Output file for (clear sky) atmospheric profile
+   rrtm_instructions     : Instrucions for INPUT_RRTM and IN_CLD_RRTM format
+
+Several sample input (and output) files are included in the /examples directory 
+Note that user-defined profiles may be used for as many as 200 layers.
+
+   INPUT_RRTM.mls          : Standard 51 layer mid-latitude summer profile
+   INPUT_RRTM.mls-cld      : Standard MLS with cloud flag turned on
+   INPUT_RRTM.saw          : Standard 51 layer sub-arctic winter profile
+   INPUT_RRTM.trp          : Standard 51 layer tropical profile
+   IN_CLD_RRTM_cld1        : Sample cloud input file; Single cloud in layer 4, 
+                             with cloud fraction of 1.0 and optical depth of 10
+   IN_CLD_RRTM_cld3        : Sample cloud input file; Three clouds in layers 4, 5
+                             & 7 with differing properties and cloud fractions
+
+
+***********************
+RRTMG_LW GCM version
+***********************
+
+The following files (in /src directory) are the source files needed to
+implement RRTMG_LW to a GCM (changes to the main routine may be necessary for 
+complete implementation in a specific GCM):
+
+   rrtmg.f               : RRTM main callable module (set up for use in a GCM)
+   rrtmg_init.f          : RRTM initialization routine; reduces g-points to 140
+   rrtmg_k_g.f           : Main absorption coefficient block data file
+   rrtmg_cldprop.f       : Cloud optical properties
+   rrtmg_rtrn.f          : Calculates clear and cloudy radiative transfer 
+                          using random cloud overlap
+   rrtmg_rtrnmr.f        : Calculates clear and cloudy radiative transfer
+                          using maximum-random cloud overlap
+   rrtmg_setcoef.f       : Set up routine
+   rrtmg_taumol.f        : Calculates optical depths and Planck fractions for 
+                          each spectral band
+
