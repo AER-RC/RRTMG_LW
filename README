@@ -34,14 +34,14 @@ has been modified from the standard RRTM_LW distributed by AER to enhance its
 performance for use within general circulation models.  Two modes of operation 
 are possible.  RRTMG_LW can be run in stand-alone mode using the input files 
 and source modules described below, or it can be attached to an atmospheric 
-general circulation model. 
+general circulation model or single column model.
 
 The version of RRTMG_LW provided here has been modified from the standard 
 RRTM_LW to enhance performance with little effect on the accuracy.  The total 
 number of g-points used have been reduced from 256 to 140. Fluxes are accurate
 to within 0.5 W/m2 and cooling rate within 0.1 K/day relative to the standard
 RRTM_LW, which is itself accurate to within 1 W/m2 of the data-validated 
-line-by-line radiative transfer model, LBLRTM.  
+line-by-line radiative transfer model, LBLRTM.
 
 
 ***********************
@@ -51,16 +51,16 @@ RRTMG_LW column version
 The following files (in /src directory) must be used to run RRTMG_LW in 
 stand-alone mode:
 
-   rrtmg_atm.f           : RRTM main module
-   rrtmg_init.f          : RRTM initialization routine; reduces g-points to 140
-   rrtmg_k_g.f           : Main absorption coefficient block data file
-   rrtmg_cldprop.f       : Cloud optical properties
-   rrtmg_rtrn.f          : Calculates clear and cloudy radiative transfer 
+   rrtmg_lw.f            : RRTM main module
+   rrtmg_lw_init.f       : RRTM initialization routine; reduces g-points to 140
+   rrtmg_lw_k_g.f        : Main absorption coefficient block data file
+   rrtmg_lw_cldprop.f    : Cloud optical properties
+   rrtmg_lw_rtrn.f       : Calculates clear and cloudy radiative transfer 
                            using random cloud overlap
-   rrtmg_rtrnmr.f        : Calculates clear and cloudy radiative transfer
+   rrtmg_lw_rtrnmr.f     : Calculates clear and cloudy radiative transfer
                            using maximum-random cloud overlap
-   rrtmg_setcoef.f       : Set up routine
-   rrtmg_taumol.f        : Calculates optical depths and Planck fractions for 
+   rrtmg_lw_setcoef.f    : Set up routine
+   rrtmg_lw_taumol.f     : Calculates optical depths and Planck fractions for 
                            each spectral band
    rrtatm.f              : Processes input data files
    extra.f               : Processes input data files
@@ -84,23 +84,31 @@ Note that user-defined profiles may be used for as many as 200 layers.
                              & 7 with differing properties and cloud fractions
 
 
-***********************
+********************
 RRTMG_LW GCM version
-***********************
+********************
 
 The following files (in /src directory) are the source files needed to
 implement RRTMG_LW to a GCM (changes to the main routine may be necessary for 
 complete implementation in a specific GCM):
 
-   rrtmg.f               : RRTM main callable module (set up for use in a GCM)
-   rrtmg_init.f          : RRTM initialization routine; reduces g-points to 140
-   rrtmg_k_g.f           : Main absorption coefficient block data file
-   rrtmg_cldprop.f       : Cloud optical properties
-   rrtmg_rtrn.f          : Calculates clear and cloudy radiative transfer 
+   rrtmg_lw_140.f        : RRTM main callable module (set up for use in a GCM)
+   rrtmg_lw_init.f       : RRTM initialization routine; reduces g-points to 140
+   rrtmg_lw_k_g.f        : Main absorption coefficient block data file
+   rrtmg_lw_cldprop.f    : Cloud optical properties
+   rrtmg_lw_rtrn.f       : Calculates clear and cloudy radiative transfer 
                           using random cloud overlap
-   rrtmg_rtrnmr.f        : Calculates clear and cloudy radiative transfer
+   rrtmg_lw_rtrnmr.f     : Calculates clear and cloudy radiative transfer
                           using maximum-random cloud overlap
-   rrtmg_setcoef.f       : Set up routine
-   rrtmg_taumol.f        : Calculates optical depths and Planck fractions for 
+   rrtmg_lw_setcoef.f    : Set up routine
+   rrtmg_lw_taumol.f     : Calculates optical depths and Planck fractions for 
                           each spectral band
+
+Notes regarding GCM version:
+1) The module rrtmg_lw_init.f is the initialization routine that has to be 
+called only once.  The call to this subroutine should be moved to the 
+initialization area of the host model if RRTMG_LW is called by a GCM or SCM. 
+2) The number of model layers is set by default to the maximum allowable
+number (203).  For use in a GCM this should be changed to the actual number 
+of layers used in the GCM to conserve memory.
 

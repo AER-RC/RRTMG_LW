@@ -17,5 +17,12 @@ October 16, 2003:
 		This version was distributed to Kerry Emanuel (MIT) for
 		use in the MIT radiative-convective single column model.
 
+April 22, 2004:
+	
+	Release_3_0_1 - Source file names were changed for consistency to
+		use the prefix rrtmg_lw. The README file and makefile were
+                also updated.
+
+
 	
 

@@ -8,25 +8,25 @@ SHELL = /bin/sh
 ###############################
 
 PLATFORM = sgi
-VERSION = v3.0
+VERSION = v3.0.1
 
 FC = f90
 FCFLAG =  -mips4 -r10000 -lfastm -O3 -TENV:X=0
-OUTPUT = rrtmg_$(PLATFORM)_$(VERSION)
+OUTPUT = rrtmg_lw_$(PLATFORM)_$(VERSION)
 CPATH = src
 CDOTO = $(PLATFORM)_$(FC)_sgl.o
     
-CRTM = rrtmg_atm
-CRTR = rrtmg_rtrn
+CRTM = rrtmg_lw
+CINI = rrtmg_lw_init
+CSET = rrtmg_lw_setcoef
+CCLD = rrtmg_lw_cldprop
+CKGS = rrtmg_lw_k_g
+CRTR = rrtmg_lw_rtrn
+CRTX = rrtmg_lw_rtrnmr
+CTAU = rrtmg_lw_taumol
 CATM = rrtatm
-CINI = rrtmg_init
-CSET = rrtmg_setcoef
-CTAU = rrtmg_taumol
-CUTL = util_$(PLATFORM)
 CEXT = extra
-CRTX = rrtmg_rtrnmr
-CKGS = rrtmg_k_g
-CCLD = rrtmg_cldprop
+CUTL = util_$(PLATFORM)
 
 OBJFIL = $(CRTM).o \
 	 $(CRTR).o \
