@@ -2,13 +2,17 @@ C     path:      $Source$
 C     author:    $Author$
 C     revision:  $Revision$
 C     created:   $Date$
+C
+C  --------------------------------------------------------------------------
+C |                                                                          |
+C |  Copyright 2002-2005, Atmospheric & Environmental Research, Inc. (AER).  |
+C |  This software may be used, copied, or redistributed as long as it is    |
+C |  not sold and this copyright notice is reproduced on each copy made.     |
+C |  This model is provided as is without any express or implied warranties. |
+C |                       (http://www.rtweb.aer.com/)                        |
+C |                                                                          |
+C  --------------------------------------------------------------------------
 
-* Copyright 2002, 2003, 2004, Atmospheric & Environmental Research, Inc. (AER).
-* This software may be used, copied, or redistributed as long as it is
-* not sold and this copyright notice is reproduced on each copy made.
-* This model is provided as is without any express or implied warranties.
-*                      (http://www.rtweb.aer.com/)
-*
 ****************************************************************************
 *                                                                          *
 *                               RRTM                                       *
@@ -322,6 +326,8 @@ C                 = 3 -- CFC12
 C                 = 4 -- CFC22
       DATA NXMOL  /2/
       DATA IXINDX /0,2,3,0,31*0/
+
+      DATA PI / 3.1415926535 /
 c
 c    Constants from NIST 01/11/2002
 c
@@ -330,6 +336,8 @@ c
      *     AVOGAD / 6.02214199E+23 /, ALOSMT / 2.6867775E+19 /,
      *     GASCON / 8.314472  E+07 /
      *     RADCN1 / 1.191042722E-12 /, RADCN2 / 1.4387752    /
+c
+c     Pi was obtained from   PI = 2.*ASIN(1.)         
 c
 c     units are generally cgs
 c
@@ -358,11 +366,9 @@ C***************************************************************************
 
 C Parameters
       PARAMETER (NBANDS=16)
-      PARAMETER (MXLAY=203)
-      PARAMETER (MAXINPX=35)
-      PARAMETER (MXCBANDS=5)
+      PARAMETER (MXLAY=203, MXMOL=38)
+      PARAMETER (MAXINPX=MXMOL)
       PARAMETER (MAXXSEC=4)
-      PARAMETER (MAXPRDW = MXLAY*35)
       PARAMETER (MAXPROD = MXLAY*MAXXSEC)
 C Input                              
       COMMON /CONTROL/  NUMANGS, IOUT, ISTART, IEND, ICLD
@@ -372,7 +378,7 @@ C Input
 C Output
       COMMON /PROFILE/  NLAYERS,PAVEL(MXLAY),TAVEL(MXLAY),
      &                  PZ(0:MXLAY),TZ(0:MXLAY)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBRODL(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBRODL(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /XSEC/     WX(MAXXSEC,MXLAY)
       COMMON /CLOUDIN/   INFLAG,CLDDAT1(MXLAY),CLDDAT2(MXLAY),

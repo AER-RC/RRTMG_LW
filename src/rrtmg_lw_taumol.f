@@ -2,6 +2,17 @@ C     path:      $Source$
 C     author:    $Author$
 C     revision:  $Revision$
 C     created:   $Date$
+C
+C  --------------------------------------------------------------------------
+C |                                                                          |
+C |  Copyright 2002-2005, Atmospheric & Environmental Research, Inc. (AER).  |
+C |  This software may be used, copied, or redistributed as long as it is    |
+C |  not sold and this copyright notice is reproduced on each copy made.     |
+C |  This model is provided as is without any express or implied warranties. |
+C |                       (http://www.rtweb.aer.com/)                        |
+C |                                                                          |
+C  --------------------------------------------------------------------------
+
 *******************************************************************************
 *                                                                             *
 *                  Optical depths developed for the                           *
@@ -174,9 +185,9 @@ C  Input
      &                  SELFREF(10,NG1),KA_MN2(19,NG1),KB_MN2(19,NG1)
       COMMON /PF1C/     FRACREFA(NG1), FRACREFB(NG1)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(65,NG1),ABSB(235,NG1)
 
@@ -192,6 +203,7 @@ C     temperature.  Below LAYTROP, the water vapor self-continuum and
 C     foreign continuum is interpolated (in temperature) separately.
 
       HVRTAU = '$Revision$'
+
       DO 2500 LAY = 1, LAYTROP
 
          IND0 = ((JP(LAY)-1)*5+(JT(LAY)-1))*NSPA(1) + 1
@@ -266,7 +278,7 @@ C     BAND 2:  350-500 cm-1 (low key - H2O; high key - H2O)
 C     NOTE: Previous version of RRTM BAND 2: 
 C           250 - 500 cm-1 (low - H2O; high - H2O)
 
-      PARAMETER (MG=16, MXLAY=203, NBANDS=16)
+      PARAMETER (MG=16, MXLAY=203, MXMOL=38, NBANDS=16)
       PARAMETER (NGPT=140, NG2=12, NGS1=10)
 
 C  Output
@@ -279,7 +291,7 @@ C  Input
       COMMON /FEATURES/ NG(NBANDS),NSPA(NBANDS),NSPB(NBANDS)
       COMMON /PROFILE/  NLAYERS,PAVEL(MXLAY),TAVEL(MXLAY),
      &                  PZ(0:MXLAY),TZ(0:MXLAY)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBROAD(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBROAD(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /PROFDATA/ LAYTROP,                                   
      &                  COLH2O(MXLAY),COLCO2(MXLAY),COLO3(MXLAY),  
@@ -294,9 +306,9 @@ C  Input
      &                  SELFREF(10,NG2)
       COMMON /PF2C/     FRACREFA(NG2), FRACREFB(NG2) 
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(65,NG2),ABSB(235,NG2)
 
@@ -360,7 +372,7 @@ C----------------------------------------------------------------------------
 C     BAND 3:  500-630 cm-1 (low key - H2O,CO2; low minor - n2o)
 C                           (high key - H2O,CO2; high minor - n2o)
 
-      PARAMETER (MG=16, MXLAY=203, NBANDS=16)
+      PARAMETER (MG=16, MXLAY=203, MXMOL=38, NBANDS=16)
       PARAMETER (NGPT=140, NG3=16, NGS2=22)
 
 C  Output
@@ -378,7 +390,7 @@ C  Input
      &                  COLH2O(MXLAY),COLCO2(MXLAY),COLO3(MXLAY),  
      &                  COLN2O(MXLAY),COLCO(MXLAY),COLCH4(MXLAY),  
      &                  COLO2(MXLAY),COLBRD(MXLAY)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBROAD(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBROAD(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /INTFAC/   FAC00(MXLAY),FAC01(MXLAY),                            
      &                  FAC10(MXLAY),FAC11(MXLAY)  
@@ -399,9 +411,9 @@ C  Input
      &                  KB_MN2O(5,19,NG3)
       COMMON /PF3C/     FRACREFA(NG3,9), FRACREFB(NG3,5) 
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       REAL KA,KB
       REAL KA_MN2O, KB_MN2O, MINORFRAC
@@ -768,9 +780,9 @@ C  Input
      &                  SELFREF(10,NG4)
       COMMON /PF4C/     FRACREFA(NG4,9), FRACREFB(NG4,5) 
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(585,NG4),ABSB(1175,NG4)
 
@@ -1061,9 +1073,9 @@ C  Input
      &                  CCL4(NG5)
       COMMON /PF5C/     FRACREFA(NG5,9), FRACREFB(NG5,5)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(585,NG5),ABSB(1175,NG5)
 
@@ -1232,8 +1244,6 @@ C     interpolated (in temperature) separately.
      &              FAC000 * ABSA(IND0+1,IG) +
      &              FAC210 * ABSA(IND0+8,IG) +
      &              FAC110 * ABSA(IND0+9,IG) +
-     &              FAC010 * ABSA(IND0,IG) +
-     &              FAC110 * ABSA(IND0+9,IG) +
      &              FAC010 * ABSA(IND0+10,IG))
      &              + SPECCOMB1 *
      &              (FAC201 * ABSA(IND1-1,IG) +
@@ -1351,7 +1361,7 @@ C----------------------------------------------------------------------------
 C     BAND 6:  820-980 cm-1 (low key - H2O; low minor - CO2)
 C                           (high key - nothing; high minor - CFC11, CFC12)
 
-      PARAMETER (MG=16, MXLAY=203, MAXXSEC=4, NBANDS=16)
+      PARAMETER (MG=16, MXLAY=203, MXMOL=38, MAXXSEC=4, NBANDS=16)
       PARAMETER (NGPT=140, NG6=8, NGS5=68)
 
 C  Output
@@ -1368,7 +1378,7 @@ C  Input
      &                  COLH2O(MXLAY),COLCO2(MXLAY),COLO3(MXLAY),  
      &                  COLN2O(MXLAY),COLCO(MXLAY),COLCH4(MXLAY),  
      &                  COLO2(MXLAY),COLBRD(MXLAY)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBROAD(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBROAD(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /XSEC/     WX(MAXXSEC,MXLAY)
       COMMON /INTFAC/   FAC00(MXLAY),FAC01(MXLAY),                            
@@ -1383,9 +1393,9 @@ C  Input
      &                  KA_MCO2(19,NG6), CFC11ADJ(NG6), CFC12(NG6)
       COMMON /PF6C/     FRACREFA(NG6) 
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(65,NG6)
       REAL KA_MCO2, MINORFRAC
@@ -1467,7 +1477,7 @@ C----------------------------------------------------------------------------
 C     BAND 7:  980-1080 cm-1 (low key - H2O,O3; low minor - CO2)
 C                            (high key - O3; high minor - CO2)
 
-      PARAMETER (MG=16, MXLAY=203, NBANDS=16)
+      PARAMETER (MG=16, MXLAY=203, MXMOL=38, NBANDS=16)
       PARAMETER (NGPT=140, NG7=12, NGS6=76)
 
 C  Output
@@ -1485,7 +1495,7 @@ C  Input
      &                  COLH2O(MXLAY),COLCO2(MXLAY),COLO3(MXLAY),  
      &                  COLN2O(MXLAY),COLCO(MXLAY),COLCH4(MXLAY),  
      &                  COLO2(MXLAY),COLBRD(MXLAY)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBROAD(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBROAD(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /INTFAC/   FAC00(MXLAY),FAC01(MXLAY),                            
      &                  FAC10(MXLAY),FAC11(MXLAY) 
@@ -1505,9 +1515,9 @@ C  Input
      &              SELFREF(10,NG7), KA_MCO2(9,19,NG7), KB_MCO2(19,NG7)
       COMMON /PF7C/     FRACREFA(NG7,9), FRACREFB(NG7)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(585,NG7),ABSB(235,NG7)
       REAL KA_MCO2, KB_MCO2, MINORFRAC
@@ -1799,7 +1809,7 @@ C----------------------------------------------------------------------------
 C     BAND 8:  1080-1180 cm-1 (low key - H2O; low minor - CO2,O3,N2O)
 C                             (high key - O3; high minor - CO2, N2O)
 
-      PARAMETER (MG=16, MXLAY=203, MAXXSEC=4, NBANDS=16)
+      PARAMETER (MG=16, MXLAY=203, MXMOL=38, MAXXSEC=4, NBANDS=16)
       PARAMETER (NGPT=140, NG8=8, NGS7=88)
 
 C  Output
@@ -1816,7 +1826,7 @@ C  Input
      &                  COLH2O(MXLAY),COLCO2(MXLAY),COLO3(MXLAY),  
      &                  COLN2O(MXLAY),COLCO(MXLAY),COLCH4(MXLAY),  
      &                  COLO2(MXLAY),COLBRD(MXLAY)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBROAD(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBROAD(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /XSEC/     WX(MAXXSEC,MXLAY)
       COMMON /INTFAC/   FAC00(MXLAY),FAC01(MXLAY),                            
@@ -1833,9 +1843,9 @@ C  Input
      &                 CFC12(NG8), CFC22ADJ(NG8)
       COMMON /PF8C/    FRACREFA(NG8), FRACREFB(NG8)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       REAL KA,KB,KA_MCO2,KA_MO3,KA_MN2O,KB_MCO2,KB_MN2O, MINORFRAC              
 
@@ -1958,7 +1968,7 @@ C----------------------------------------------------------------------------
 C     BAND 9:  1180-1390 cm-1 (low key - H2O,CH4; low minor - N2O)
 C                             (high key - CH4; high minor - N2O)
 
-      PARAMETER (MG=16, MXLAY=203, NBANDS=16)
+      PARAMETER (MG=16, MXLAY=203, MXMOL=38, NBANDS=16)
       PARAMETER (NGPT=140, NG9=12, NGS8=96)
 
 C  Output
@@ -1976,7 +1986,7 @@ C  Input
      &                  COLH2O(MXLAY),COLCO2(MXLAY),COLO3(MXLAY),  
      &                  COLN2O(MXLAY),COLCO(MXLAY),COLCH4(MXLAY),  
      &                  COLO2(MXLAY),COLBRD(MXLAY)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBROAD(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBROAD(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /MLS_REF/  PREF(59),PREFLOG(59),TREF(59),CHI_MLS(7,59)
       COMMON /INTFAC/   FAC00(MXLAY),FAC01(MXLAY),                            
@@ -1996,9 +2006,9 @@ C  Input
      &              SELFREF(10,NG9), KA_MN2O(9,19,NG9), KB_MN2O(19,NG9)
       COMMON /PF9C/     FRACREFA(NG9,9), FRACREFB(NG9)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       REAL KA,KB
       REAL KA_MN2O,KB_MN2O,MINORFRAC,N2OM1,N2OM2
@@ -2302,9 +2312,9 @@ C  Input
      &                  SELFREF(10,NG10)
       COMMON /PF10C/    FRACREFA(NG10), FRACREFB(NG10)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(65,NG10),ABSB(235,NG10)
 
@@ -2395,9 +2405,9 @@ C  Input
      &               SELFREF(10,NG11), KA_MO2(19,NG11), KB_MO2(19,NG11)
       COMMON /PF11C/   FRACREFA(NG11), FRACREFB(NG11)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(65,NG11),ABSB(235,NG11)
       REAL KA_MO2, KB_MO2, MINORFRAC
@@ -2510,9 +2520,9 @@ C  Input
       COMMON /K12C/     KA(9,5,13,NG12),FORREF(4,NG12),SELFREF(10,NG12)
       COMMON /PF12C/    FRACREFA(NG12,9)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(585,NG12)
 
@@ -2710,7 +2720,7 @@ C----------------------------------------------------------------------------
 
 C     BAND 13:  2080-2250 cm-1 (low key - H2O,N2O; high minor - O3 minor)
 
-      PARAMETER (MG=16, MXLAY=203, NBANDS=16)
+      PARAMETER (MG=16, MXLAY=203, MXMOL=38, NBANDS=16)
       PARAMETER (NGPT=140, NG13=4, NGS12=130)
 
 C  Output
@@ -2728,7 +2738,7 @@ C  Input
      &                  COLH2O(MXLAY),COLCO2(MXLAY),COLO3(MXLAY),  
      &                  COLN2O(MXLAY),COLCO(MXLAY),COLCH4(MXLAY),  
      &                  COLO2(MXLAY),COLBRD(MXLAY)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBROAD(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBROAD(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /MLS_REF/  PREF(59),PREFLOG(59),TREF(59),CHI_MLS(7,59)
       COMMON /INTFAC/   FAC00(MXLAY),FAC01(MXLAY),                            
@@ -2749,9 +2759,9 @@ C  Input
      &                  KB_MO3(19,NG13)
       COMMON /PF13C/    FRACREFA(NG13,9), FRACREFB(NG13)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(585,NG13)
       REAL KA_MCO2,KA_MCO,KB_MO3,MINORFRAC
@@ -3029,6 +3039,7 @@ c     to obtain the proper contribution.
  2500 CONTINUE
 
       DO 3500 LAY = LAYTROP+1, NLAYERS
+         INDM = INDMINOR(LAY)
          DO 3000 IG = 1, NG13
             ABSO3 = KB_MO3(INDM,IG) + 
      &           MINORFRAC(LAY) *
@@ -3073,9 +3084,9 @@ C  Input
      &                  SELFREF(10,NG14)
       COMMON /PF14C/    FRACREFA(NG14), FRACREFB(NG14)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(65,NG14),ABSB(235,NG14)
 
@@ -3133,7 +3144,7 @@ C----------------------------------------------------------------------------
 C     BAND 15:  2380-2600 cm-1 (low - N2O,CO2; low minor - N2)
 C                              (high - nothing)
 
-      PARAMETER (MG=16, MXLAY=203, NBANDS=16)
+      PARAMETER (MG=16, MXLAY=203, MXMOL=38, NBANDS=16)
       PARAMETER (NGPT=140, NG15=2, NGS14=136)
 
 C  Output
@@ -3152,7 +3163,7 @@ C  Input
      &                  COLN2O(MXLAY),COLCO(MXLAY),COLCH4(MXLAY),  
      &                  COLO2(MXLAY),COLBRD(MXLAY)
       COMMON /MLS_REF/  PREF(59),PREFLOG(59),TREF(59),CHI_MLS(7,59)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBROAD(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBROAD(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /INTFAC/   FAC00(MXLAY),FAC01(MXLAY),                            
      &                  FAC10(MXLAY),FAC11(MXLAY)                             
@@ -3171,9 +3182,9 @@ C  Input
      &              FORREF(4,NG15), SELFREF(10,NG15), KA_MN2(9,19,NG15)
       COMMON /PF15C/    FRACREFA(NG15,9)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(585,NG15)
 
@@ -3448,9 +3459,9 @@ C  Input
      &                  FORREF(4,NG16), SELFREF(10,NG16)
       COMMON /PF16C/    FRACREFA(NG16,9), FRACREFB(NG16)
 
-      COMMON /CVRTAU/    HVRTAU
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
 
-      CHARACTER*15       HVRTAU
+      CHARACTER*18       HNAMTAU,HVRTAU
 
       DIMENSION ABSA(585,NG16), ABSB(235,NG16)
 

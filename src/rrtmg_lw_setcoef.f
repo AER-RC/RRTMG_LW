@@ -2,6 +2,17 @@ C     path:      $Source$
 C     author:    $Author$
 C     revision:  $Revision$
 C     created:   $Date$
+C
+C  --------------------------------------------------------------------------
+C |                                                                          |
+C |  Copyright 2002-2005, Atmospheric & Environmental Research, Inc. (AER).  |
+C |  This software may be used, copied, or redistributed as long as it is    |
+C |  not sold and this copyright notice is reproduced on each copy made.     |
+C |  This model is provided as is without any express or implied warranties. |
+C |                       (http://www.rtweb.aer.com/)                        |
+C |                                                                          |
+C  --------------------------------------------------------------------------
+
       SUBROUTINE SETCOEF
 
 C     Purpose:  For a given atmosphere, calculate the indices and
@@ -9,7 +20,7 @@ C     fractions related to the pressure and temperature interpolations.
 C     Also calculate the values of the integrated Planck functions 
 C     for each band at the level and layer temperatures.
 
-      PARAMETER (MXLAY = 203)
+      PARAMETER (MXLAY = 203, MXMOL = 38)
       PARAMETER (NBANDS = 16)
       PARAMETER (NBANDSLG = 16)
       PARAMETER (MG =16)
@@ -19,7 +30,7 @@ C  Input
       COMMON /PROFILE/  NLAYERS,PAVEL(MXLAY),TAVEL(MXLAY),
      &                  PZ(0:MXLAY),TZ(0:MXLAY)
       COMMON /SURFACE/  TBOUND,IREFLECT,SEMISS(NBANDS)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBROAD(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBROAD(MXLAY),
      &                  COLMOL(MXLAY),NMOL
 
 C  Output
@@ -49,9 +60,9 @@ C  Internal
       COMMON /AVGPLNK/  TOTPLNK(181,NBANDSLG), TOTPLK16(181)
 C  --------
 
-      COMMON /CVRSET/    HVRSET
+      COMMON /CVRSET/    HNAMSET,HVRSET
 
-      CHARACTER*15       HVRSET
+      CHARACTER*18       HNAMSET,HVRSET
 
       DIMENSION SELFFAC(MXLAY),SELFFRAC(MXLAY),INDSELF(MXLAY)
       DIMENSION PREF(59),PREFLOG(59),TREF(59),CHI_MLS(7,59)
@@ -121,6 +132,7 @@ C        this band, use integrated Planck values up to 3250 cm-1.
 C        If radiative transfer will be performed across all 16 bands,
 C        then include in the integrated Planck values for this band
 C        contributions from 2600 cm-1 to infinity.
+         IBAND = 16
          IF (ISTART .EQ. 16) THEN
             IF (LAY.EQ.1) THEN
                DBDTLEV = TOTPLK16(INDBOUND+1) - TOTPLK16(INDBOUND)

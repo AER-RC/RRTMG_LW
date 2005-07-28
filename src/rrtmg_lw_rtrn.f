@@ -2,6 +2,17 @@ C     path:      $Source$
 C     author:    $Author$
 C     revision:  $Revision$
 C     created:   $Date$
+C
+C  --------------------------------------------------------------------------
+C |                                                                          |
+C |  Copyright 2002-2005, Atmospheric & Environmental Research, Inc. (AER).  |
+C |  This software may be used, copied, or redistributed as long as it is    |
+C |  not sold and this copyright notice is reproduced on each copy made.     |
+C |  This model is provided as is without any express or implied warranties. |
+C |                       (http://www.rtweb.aer.com/)                        |
+C |                                                                          |
+C  --------------------------------------------------------------------------
+
 C***************************************************************************
       SUBROUTINE RTRN
 C***************************************************************************
@@ -53,9 +64,9 @@ C Input
      &                   TAUTBL(0:NTBL),TRANS(0:NTBL),TF(0:NTBL)
       COMMON /PWV/       PWVCM
 
-      COMMON /CVRRTR/    HVRRTR
+      COMMON /CVRRTR/    HNAMRTR,HVRRTR
 
-      CHARACTER*15       HVRRTR
+      CHARACTER*18       HNAMRTR,HVRRTR
 
 C Output
       COMMON /OUTPUT/    TOTUFLUX(0:MXLAY), TOTDFLUX(0:MXLAY),

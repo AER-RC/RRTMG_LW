@@ -2,13 +2,17 @@ C     path:      $Source$
 C     author:    $Author$
 C     revision:  $Revision$
 C     created:   $Date$
+C
+C  --------------------------------------------------------------------------
+C |                                                                          |
+C |  Copyright 2002-2005, Atmospheric & Environmental Research, Inc. (AER).  |
+C |  This software may be used, copied, or redistributed as long as it is    |
+C |  not sold and this copyright notice is reproduced on each copy made.     |
+C |  This model is provided as is without any express or implied warranties. |
+C |                       (http://www.rtweb.aer.com/)                        |
+C |                                                                          |
+C  --------------------------------------------------------------------------
 
-* Copyright 2002, 2003, 2004, Atmospheric & Environmental Research, Inc. (AER).
-* This software may be used, copied, or redistributed as long as it is
-* not sold and this copyright notice is reproduced on each copy made.
-* This model is provided as is without any express or implied warranties.
-*                      (http://www.rtweb.aer.com/)
-*
 ****************************************************************************
 *                                                                          *
 *                               RRTM                                       *
@@ -81,40 +85,29 @@ C        level and the heating rate for each layer
       COMMON /OUTCLR/    TOTUCLFL(0:MXLAY), TOTDCLFL(0:MXLAY),
      &                   FNETC(0:MXLAY), HTRC(0:MXLAY)
 
-      COMMON /CVRRTM/    HVRRTM
-      COMMON /CVRRTR/    HVRRTR
-      COMMON /CVRATM/    HVRATM
-      COMMON /CVRSET/    HVRSET
-      COMMON /CVRTAU/    HVRTAU
-      COMMON /CVRINI/    HVRINI
-      COMMON /CVRCLD/    HVRCLD
-      COMMON /CVRUTL/    HVRUTL
-      COMMON /CVREXT/    HVREXT
-      COMMON /CVRRTX/    HVRRTX
+      COMMON /CVRRTM/    HNAMRTM,HVRRTM
+      COMMON /CVRRTR/    HNAMRTR,HVRRTR
+      COMMON /CVRATM/    HNAMATM,HVRATM
+      COMMON /CVRSET/    HNAMSET,HVRSET
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
+      COMMON /CVRINI/    HNAMINI,HVRINI
+      COMMON /CVRCLD/    HNAMCLD,HVRCLD
+      COMMON /CVRUTL/    HNAMUTL,HVRUTL
+      COMMON /CVREXT/    HNAMEXT,HVREXT
+      COMMON /CVRRTX/    HNAMRTX,HVRRTX
 
-      COMMON /HVRSN1/    HVRKG1
-      COMMON /HVRSN2/    HVRKG2
-      COMMON /HVRSN3/    HVRKG3
-      COMMON /HVRSN4/    HVRKG4
-      COMMON /HVRSN5/    HVRKG5
-      COMMON /HVRSN6/    HVRKG6
-      COMMON /HVRSN7/    HVRKG7
-      COMMON /HVRSN8/    HVRKG8
-      COMMON /HVRSN9/    HVRKG9
-      COMMON /HVRSN10/   HVRKG10
-      COMMON /HVRSN11/   HVRKG11
-      COMMON /HVRSN12/   HVRKG12
-      COMMON /HVRSN13/   HVRKG13
-      COMMON /HVRSN14/   HVRKG14
-      COMMON /HVRSN15/   HVRKG15
-      COMMON /HVRSN16/   HVRKG16
+      COMMON /CVRSN/     HNAMKG,HVRKG
 
-      CHARACTER*15 HVRRTM,HVRRTR,HVRATM,HVRSET,HVRTAU,HVRINI,
-     *             HVRRTC,HVRCLD,HVRUTL,HVREXT,HVRRTX
+      CHARACTER*18 HVRRTM,HVRRTR,HVRATM,HVRSET,HVRTAU,
+     *             HVRINI,HVRCLD,HVRUTL,HVREXT,HVRRTX
 
-      CHARACTER*15 HVRKG1,HVRKG2,HVRKG3,HVRKG4,HVRKG5
-      CHARACTER*15 HVRKG6,HVRKG7,HVRKG8,HVRKG9,HVRKG10,HVRKG11
-      CHARACTER*15 HVRKG12,HVRKG13,HVRKG14,HVRKG15,HVRKG16
+      CHARACTER*18 HNAMRTM,HNAMRTR,HNAMATM,HNAMSET,HNAMTAU,
+     *             HNAMINI,HNAMCLD,HNAMUTL,HNAMEXT,HNAMRTX
+
+      CHARACTER*18 HVRKG
+
+      CHARACTER*18 HNAMKG
+
       CHARACTER PAGE
 
 C      DATA WAVENUM1(1) /10./, WAVENUM2(1) /350./, DELWAVE(1) /340./
@@ -164,7 +157,6 @@ C  Open the INPUT set of atmospheres
       OPEN (IRD,FILE='INPUT_RRTM',FORM='FORMATTED')
       
 c  Multiple atmosphere option implemented      
-C      NUMATMOS = 100000
       NUMATMOS = 1
       DO 4000 IATMOS = 1, NUMATMOS
 
@@ -263,10 +255,9 @@ C
 C
 C ***    Output module version numbers
 C
-         WRITE(IWR,9910) HVRRTM,HVRATM,HVRRTR,HVRRTX,HVRINI,
-     *     HVRSET,HVRCLD,HVRUTL,HVRTAU,HVRKG1,HVRKG2,
-     *     HVRKG3,HVRKG4,HVRKG5,HVRKG6,HVRKG7,HVRKG8,HVRKG9,HVRKG10,
-     *     HVRKG11,HVRKG12,HVRKG13,HVRKG14,HVRKG15,HVRKG16
+         WRITE(IWR,9910) HNAMRTM,HVRRTM,HNAMINI,HVRINI,HNAMCLD,HVRCLD,
+     *     HNAMRTR,HVRRTR,HNAMRTX,HVRRTX,HNAMSET,HVRSET,HNAMTAU,HVRTAU,
+     *     HNAMATM,HVRATM,HNAMUTL,HVRUTL,HNAMEXT,HVREXT,HNAMKG,HVRKG
 
  4000 CONTINUE
  4444 CONTINUE
@@ -274,13 +265,13 @@ C
       CLOSE(IRD)
       CLOSE(IWR)
 
- 9952 FORMAT(1X,I3,9X,F7.6,3X,F8.4,6X,F8.4,6X,F9.4,10X,F9.5)
- 9953 FORMAT(1X,I3,9X,F6.5,4X,F8.4,6X,F8.4,6X,F9.4,10X,F9.5)
- 9954 FORMAT(1X,I3,9X,F5.4,5X,F8.4,6X,F8.4,6X,F9.4,10X,F9.5)
- 9955 FORMAT(1X,I3,8X,F5.3,6X,F8.4,6X,F8.4,6X,F9.4,10X,F9.5)
- 9956 FORMAT(1X,I3,7X,F5.2,7X,F8.4,6X,F8.4,6X,F9.4,10X,F9.5)
- 9957 FORMAT(1X,I3,6X,F5.1,8X,F8.4,6X,F8.4,6X,F9.4,10X,F9.5)
- 9958 FORMAT(1X,I3,5X,F5.0,9X,F8.4,6X,F8.4,6X,F9.4,10X,F9.5)
+ 9952 FORMAT(1X,I3,9X,F7.6,3X,F8.4,6X,F8.4,6X,F12.7,10X,F9.5)
+ 9953 FORMAT(1X,I3,9X,F6.5,4X,F8.4,6X,F8.4,6X,F12.7,10X,F9.5)
+ 9954 FORMAT(1X,I3,8X,F6.4,5X,F8.4,6X,F8.4,6X,F12.7,10X,F9.5)
+ 9955 FORMAT(1X,I3,7X,F6.3,6X,F8.4,6X,F8.4,6X,F12.7,10X,F9.5)
+ 9956 FORMAT(1X,I3,6X,F6.2,7X,F8.4,6X,F8.4,6X,F12.7,10X,F9.5)
+ 9957 FORMAT(1X,I3,5X,F6.1,8X,F8.4,6X,F8.4,6X,F12.7,10X,F9.5)
+ 9958 FORMAT(1X,I3,5X,F6.1,8X,F8.4,6X,F8.4,6X,F12.7,10X,F9.5)
  9899 FORMAT(1X,'Wavenumbers: ',F6.1,' - ',F6.1,' cm-1, ATM ',i6)
  9900 FORMAT(1X,'LEVEL    PRESSURE   UPWARD FLUX   DOWNWARD FLUX    NET
      &FLUX       HEATING RATE')
@@ -288,20 +279,8 @@ C
      &m2          degree/day')
  9902 FORMAT(1X,I3,3X,F11.6,4X,1P,2(G12.6,2X),G13.6,3X,G16.9,0P)
  9903 FORMAT(A)
- 9910 FORMAT('  Modules and versions used in this calculation:',/,/,5X,
-     *        '    rrtm.f: ',6X,A15,10X, 'rrtatm.f: ',6X,A15,/,5X,
-     *        '    rtrn.f: ',6X,A15,10X, 'rtrnmr.f: ',6X,A15,/,5X,
-     *        '    init.f: ',6X,A15,8X, 'setcoef.f: ',6X,A15,/,5X, 
-     *        ' cldprop.f: ',6X,A15,9X,'util_xxx.f: ',6X,A15,/,5X,
-     *        '  taumol.f: ',6X,A15,10X, 'k_gB01.f: ',6X,A15,/,5X,
-     *        '  k_gB02.f: ',6X,A15,10X, 'k_gB03.f: ',6X,A15,/,5X,
-     *        '  k_gB04.f: ',6X,A15,10X, 'k_gB05.f: ',6X,A15,/,5X,
-     *        '  k_gB06.f: ',6X,A15,10X, 'k_gB07.f: ',6X,A15,/,5X,
-     *        '  k_gB08.f: ',6X,A15,10X, 'k_gB09.f: ',6X,A15,/,5X,
-     *        '  k_gB10.f: ',6X,A15,10X, 'k_gB11.f: ',6X,A15,/,5X,
-     *        '  k_gB12.f: ',6X,A15,10X, 'k_gB13.f: ',6X,A15,/,5X,
-     *        '  k_gB14.f: ',6X,A15,10X, 'k_gB15.f: ',6X,A15,/,5X,
-     *        '  k_gB16.f: ',6X,A15,/)
+ 9910 FORMAT('  Modules and versions used in this calculation:',/,/,
+     *         6(5X,a18,2X,a18,10x,a18,2x,a18,/))
 
       STOP
       END
@@ -314,9 +293,9 @@ C     Read in atmospheric profile.
 
       IMPLICIT DOUBLE PRECISION (V)                                      
                                                                          
-      PARAMETER (MXLAY=203)
+      PARAMETER (MXLAY=203, MXMOL=38)
       PARAMETER (NBANDS = 16)
-      PARAMETER (MAXINPX=35)
+      PARAMETER (MAXINPX=MXMOL)
       PARAMETER (MAXXSEC=4)
       PARAMETER (MAXPROD = MXLAY*MAXXSEC)
 
@@ -326,7 +305,7 @@ C     Read in atmospheric profile.
       COMMON /PROFILE/  NLAYERS,PAVEL(MXLAY),TAVEL(MXLAY),
      &                  PZ(0:MXLAY),TZ(0:MXLAY)
       COMMON /SURFACE/  TBOUND,IREFLECT,SEMISS(NBANDS)
-      COMMON /SPECIES/  COLDRY(MXLAY),WKL(35,MXLAY),WBRODL(MXLAY),
+      COMMON /SPECIES/  COLDRY(MXLAY),WKL(MXMOL,MXLAY),WBRODL(MXLAY),
      &                  COLMOL(MXLAY),NMOL
       COMMON /IFIL/     IRD,IPR,IPU,IDUM(15)
       COMMON /XSECCTRL/ NXMOL,IXINDX(MAXINPX)
@@ -618,40 +597,47 @@ C        Left-justify all inputed names.
       COMMON /XSEC/     WX(MAXXSEC,MXLAY)
 
 
-      COMMON /CVRRTM/    HVRRTM
-      COMMON /CVRRTR/    HVRRTR
-      COMMON /CVRATM/    HVRATM
-      COMMON /CVRSET/    HVRSET
-      COMMON /CVRTAU/    HVRTAU
-      COMMON /CVRINI/    HVRINI
-      COMMON /CVRCLD/    HVRCLD
-      COMMON /CVRUTL/    HVRUTL
-      COMMON /CVREXT/    HVREXT
-      COMMON /CVRRTX/    HVRRTX
+      COMMON /CVRRTM/    HNAMRTM,HVRRTM
+      COMMON /CVRRTR/    HNAMRTR,HVRRTR
+      COMMON /CVRATM/    HNAMATM,HVRATM
+      COMMON /CVRSET/    HNAMSET,HVRSET
+      COMMON /CVRTAU/    HNAMTAU,HVRTAU
+      COMMON /CVRINI/    HNAMINI,HVRINI
+      COMMON /CVRCLD/    HNAMCLD,HVRCLD
+      COMMON /CVRUTL/    HNAMUTL,HVRUTL
+      COMMON /CVREXT/    HNAMEXT,HVREXT
+      COMMON /CVRRTX/    HNAMRTX,HVRRTX
 
-      COMMON /HVRSN1/    HVRKG1
-      COMMON /HVRSN2/    HVRKG2
-      COMMON /HVRSN3/    HVRKG3
-      COMMON /HVRSN4/    HVRKG4
-      COMMON /HVRSN5/    HVRKG5
-      COMMON /HVRSN6/    HVRKG6
-      COMMON /HVRSN7/    HVRKG7
-      COMMON /HVRSN8/    HVRKG8
-      COMMON /HVRSN9/    HVRKG9
-      COMMON /HVRSN10/   HVRKG10
-      COMMON /HVRSN11/   HVRKG11
-      COMMON /HVRSN12/   HVRKG12
-      COMMON /HVRSN13/   HVRKG13
-      COMMON /HVRSN14/   HVRKG14
-      COMMON /HVRSN15/   HVRKG15
-      COMMON /HVRSN16/   HVRKG16
+      COMMON /CVRSN/     HNAMKG,HVRKG
 
-      CHARACTER*15 HVRRTM,HVRRTR,HVRATM,HVRSET,HVRTAU,HVRINI,
-     *             HVRRTC,HVRCLD,HVRUTL,HVREXT,HVRRTX
+      CHARACTER*18 HVRRTM,HVRRTR,HVRATM,HVRSET,HVRTAU,
+     *             HVRINI,HVRCLD,HVRUTL,HVREXT,HVRRTX
 
-      CHARACTER*15 HVRKG1,HVRKG2,HVRKG3,HVRKG4,HVRKG5
-      CHARACTER*15 HVRKG6,HVRKG7,HVRKG8,HVRKG9,HVRKG10,HVRKG11
-      CHARACTER*15 HVRKG12,HVRKG13,HVRKG14,HVRKG15,HVRKG16
+      CHARACTER*18 HNAMRTM,HNAMRTR,HNAMATM,HNAMSET,HNAMTAU,
+     *             HNAMINI,HNAMCLD,HNAMUTL,HNAMEXT,HNAMRTX
+
+      CHARACTER*18 HVRKG
+
+      CHARACTER*18 HNAMKG
+
+      DATA HVRRTM /'NOT USED'/, HVRRTR /'NOT USED'/,
+     *     HVRATM /'NOT USED'/, HVRSET /'NOT USED'/,
+     *     HVRTAU /'NOT USED'/, HVRINI /'NOT USED'/,
+     *     HVRCLD /'NOT USED'/, HVREXT /'NOT USED'/,
+     *     HVRUTL /'NOT USED'/, HVRRTX /'NOT USED'/,
+     *     HVRKG  /'        '/
+
+      DATA HNAMRTM / '       rrtmg_lw.f:' /,
+     *     HNAMINI / '  rrtmg_lw_init.f:' /,
+     *     HNAMCLD / 'rrtmglw_cldprop.f:' /,
+     *     HNAMRTR / '  rrtmg_lw_rtrn.f:' /,
+     *     HNAMRTX / 'rrtmg_lw_rtrnmr.f:' /,
+     *     HNAMSET / 'rrtmglw_setcoef.f:' /,
+     *     HNAMTAU / 'rrtmg_lw_taumol.f:' /,
+     *     HNAMATM / '         rrtatm.f:' /,
+     *     HNAMUTL / '       util_xxx.f:' /,
+     *     HNAMEXT / '          extra.f:' /,
+     *     HNAMKG  / '   rrtmg_lw_k_g.f:' /
 
       DATA WAVENUM1(1) /10./, WAVENUM2(1) /350./, DELWAVE(1) /340./
       DATA WAVENUM1(2) /350./, WAVENUM2(2) /500./, DELWAVE(2) /150./
@@ -683,22 +669,6 @@ C        =  (9.8066)(3600)(1e-5)/(1.004)
 
       DATA WX /MAXPROD*0.0/
 
-      DATA HVRRTM / 'NOT USED' /, HVRRTR / 'NOT USED' /,
-     *     HVRATM / 'NOT USED' /, HVRSET / 'NOT USED' /,
-     *     HVRTAU / 'NOT USED' /, HVRINI / 'NOT USED' /,
-     *     HVRCLD / 'NOT USED' /, HVREXT / 'NOT USED' /,
-     *     HVRUTL / 'NOT USED' /, HVRRTX / 'NOT USED'/
-
-c     DATA HVRSN1 / 'NOT USED' /, HVRSN2 / 'NOT USED' /,
-c          HVRSN3 / 'NOT USED' /, HVRSN4 / 'NOT USED' /,
-c          HVRSN5 / 'NOT USED' /, HVRSN6 / 'NOT USED' /,
-c          HVRSN7 / 'NOT USED' /, HVRSN8 / 'NOT USED' /,
-c          HVRSN9 / 'NOT USED' /, HVRSN10/ 'NOT USED' /,
-c          HVRSN11/ 'NOT USED' /, HVRSN12/ 'NOT USED' /,
-c          HVRSN13/ 'NOT USED' /, HVRSN14/ 'NOT USED' /,
-c          HVRSN15/ 'NOT USED' /, HVRSN16/ 'NOT USED' /
-
-
       END
 c**********************************************************************
       Block Data phys_consts
@@ -706,7 +676,7 @@ c
       COMMON /CONSTS/ PI,PLANCK,BOLTZ,CLIGHT,AVOGAD,ALOSMT,GASCON,
      *                RADCN1,RADCN2 
 c
-      DATA PI / 3.1415927410125732 /
+      DATA PI / 3.1415926535 /
 c
 c    Constants from NIST 01/11/2002
 c

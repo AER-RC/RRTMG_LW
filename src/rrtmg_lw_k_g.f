@@ -2,6 +2,17 @@ C     path:      $Source$
 C     author:    $Author$
 C     revision:  $Revision$
 C     created:   $Date$
+C
+C  --------------------------------------------------------------------------
+C |                                                                          |
+C |  Copyright 2002-2005, Atmospheric & Environmental Research, Inc. (AER).  |
+C |  This software may be used, copied, or redistributed as long as it is    |
+C |  not sold and this copyright notice is reproduced on each copy made.     |
+C |  This model is provided as is without any express or implied warranties. |
+C |                       (http://www.rtweb.aer.com/)                        |
+C |                                                                          |
+C  --------------------------------------------------------------------------
+
 C **************************************************************************
 C      BLOCK DATA KGBn
 C **************************************************************************
@@ -26,13 +37,11 @@ C **************************************************************************
        DIMENSION SELFREF(10,MG), FORREF(4,MG)
        REAL KA_MN2(19,MG),KB_MN2(19,MG)
 
-       COMMON /HVRSN1/ HVRKG1
-
        COMMON /K1/ KA ,KB, FORREF, SELFREF, KA_MN2, KB_MN2
 
-       CHARACTER*15 HVRKG1
-
-       DATA HVRKG1 /'$Revision$'/
+C       COMMON /CVRSN/ HNAMKG,HVRKG
+C       CHARACTER*18   HNAMKG,HVRKG
+C       DATA HVRKG /'$Revision$'/
 
 C     The array KA contains absorption coefs at the 16 chosen g-values 
 C     for a range of pressure levels > ~100mb and temperatures.  The first
@@ -2227,13 +2236,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        REAL KA(5,13,MG), KB(5,13:59,MG)
        DIMENSION SELFREF(10,MG), FORREF(4,MG)
 
-       COMMON /HVRSN2/ HVRKG2
-
        COMMON /K2/ KA ,KB, FORREF, SELFREF
-
-       CHARACTER*15 HVRKG2
-
-       DATA HVRKG2  / '$Revision$' /
 
 C     The array KA contains absorption coefs at the 16 chosen g-values 
 C     for a range of pressure levels > ~100mb and temperatures.  The first
@@ -4268,14 +4271,8 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        REAL KA(9,5,13,MG), KB(5,5,13:59,MG)
        REAL KA_MN2O(9,19,MG),KB_MN2O(5,19,MG)
 
-       COMMON /HVRSN3/ HVRKG3
-
        COMMON /K3/ KA, KB, FORREF, SELFREF, KA_MN2O, KB_MN2O
        
-       CHARACTER*15 HVRKG3
-
-       DATA HVRKG3 /'$Revision$'/
-
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios
 C     of water vapor to CO2.  The first index in the array, JS, runs
@@ -11931,12 +11928,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        REAL KA(9,5,13,MG), KB(5,5,13:59,MG)
        DIMENSION SELFREF(10,MG), FORREF(4,MG)
 
-       COMMON /HVRSN4/ HVRKG4
        COMMON /K4/ KA, KB, FORREF, SELFREF
-
-       CHARACTER*15 HVRKG4
-
-       DATA HVRKG4 /'$Revision$'/
 
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios
@@ -18446,13 +18438,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
       REAL KA(9,5,13,MG), KB(5,5,13:59,MG)
       REAL KA_MO3(9,19,MG)
 
-      COMMON /HVRSN5/ HVRKG5
-
       COMMON /K5/ KA, KB, FORREF, SELFREF, KA_MO3
-
-      CHARACTER*15 HVRKG5
-      DATA HVRKG5  / '$Revision$' /
-
 
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios
@@ -25694,12 +25680,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        REAL KA(5,13,MG), KA_MCO2(19,MG)
        DIMENSION SELFREF(10,MG), FORREF(4,MG)
 
-       COMMON /HVRSN6/ HVRKG6
        COMMON /K6/ KA, FORREF, SELFREF, KA_MCO2
-
-       CHARACTER*15 HVRKG6
-
-       DATA HVRKG6 /'$Revision$'/
 
 C     The array KA contains absorption coefs at the 16 chosen g-values 
 C     for a range of pressure levels > ~100mb and temperatures.  The first
@@ -26305,12 +26286,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        REAL KA(9,5,13,MG), KB(5,13:59,MG)
        REAL KA_MCO2(9,19,MG), KB_MCO2(19,MG)
 
-       COMMON /HVRSN7/ HVRKG7
-
        COMMON /K7/ KA, KB, FORREF, SELFREF, KA_MCO2, KB_MCO2
-
-       CHARACTER*15 HVRKG7
-       DATA HVRKG7 /'$Revision$'/
 
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios
@@ -30629,13 +30605,8 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        REAL KA_MCO2(19,MG), KA_MO3(19,MG), KA_MN2O(19,MG), 
      &             KB_MCO2(19,MG), KB_MN2O(19,MG)
 
-       COMMON /HVRSN8/ HVRKG8
        COMMON /K8/ KA ,KB, FORREF, SELFREF, KA_MCO2, KA_MO3,
      &             KA_MN2O, KB_MCO2, KB_MN2O              
-
-       CHARACTER*15 HVRKG8
-
-       DATA HVRKG8 /'$Revision$'/
 
 C     The array KA contains absorption coefs at the 16 chosen g-values 
 C     for a range of pressure levels > ~100mb and temperatures.  The first
@@ -33087,12 +33058,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        REAL KA(9,5,13,MG), KB(5,13:59,MG)
        REAL KA_MN2O(9,19,MG), KB_MN2O(19,MG)
 
-       COMMON /HVRSN9/ HVRKG9
-
        COMMON /K9/ KA, KB, FORREF, SELFREF, KA_MN2O, KB_MN2O
-
-       CHARACTER*15 HVRKG9
-       DATA HVRKG9 /'$Revision$'/
 
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios
@@ -37409,12 +37375,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
       REAL KA(5,13,MG), KB(5,13:59,MG)
       DIMENSION SELFREF(10,MG), FORREF(4,MG)
 
-      COMMON /HVRSN10/  HVRKG10
       COMMON /K10/ KA ,KB, FORREF, SELFREF
-
-      CHARACTER*15 HVRKG10
-
-      DATA HVRKG10  / '$Revision$' /
 
 C     The array KA contains absorption coefs at the 16 chosen g-values 
 C     for a range of pressure levels > ~100mb and temperatures.  The first
@@ -39446,11 +39407,8 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        DIMENSION SELFREF(10,MG), FORREF(4,MG)
        REAL KA(5,13,MG), KB(5,13:59,MG), KA_MO2(19,MG), KB_MO2(19,MG)
 
-       COMMON /HVRSN11/ HVRKG11
        COMMON /K11/ KA ,KB, FORREF, SELFREF, KA_MO2, KB_MO2
 
-       CHARACTER*15 HVRKG11
-       DATA HVRKG11 /'$Revision$'/
 C     The array KA contains absorption coefs at the 16 chosen g-values 
 C     for a range of pressure levels > ~100mb and temperatures.  The first
 C     index in the array, JT, which runs from 1 to 5, corresponds to 
@@ -41655,12 +41613,8 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        DIMENSION SELFREF(10,MG), FORREF(4,MG)
        REAL KA(9,5,13,MG)
 
-       COMMON /HVRSN12/ HVRKG12
-
        COMMON /K12/ KA, FORREF, SELFREF
 
-       CHARACTER*15 HVRKG12
-       DATA HVRKG12 /'$Revision$'/
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios
 C     of water vapor to CO2.  The first index in the array, JS, runs
@@ -43639,12 +43593,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        REAL KA(9,5,13,MG)
        REAL KA_MCO2(9,19,MG),KA_MCO(9,19,MG),KB_MO3(19,MG)
 
-       COMMON /HVRSN13/ HVRKG13
-
        COMMON /K13/ KA, FORREF, SELFREF, KA_MCO2, KA_MCO, KB_MO3
-
-       CHARACTER*15 HVRKG13
-       DATA HVRKG13 /'$Revision$'/
 
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios
@@ -47163,12 +47112,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        REAL KA(5,13,MG),KB(5,13:59,MG)
        DIMENSION SELFREF(10,MG), FORREF(4,MG)
 
-       COMMON /HVRSN14/ HVRKG14
        COMMON /K14/ KA ,KB, FORREF, SELFREF
-
-       CHARACTER*15 HVRKG14
-
-      DATA HVRKG14  / '$Revision$' /
 
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios
@@ -49208,12 +49152,7 @@ C     etc.  The second index runs over the g-channel (1 to 16).
        DIMENSION SELFREF(10,MG), FORREF(4, MG)
        REAL KA_MN2(9,19,MG)
 
-       COMMON /HVRSN15/ HVRKG15
        COMMON /K15/ KA, FORREF, SELFREF, KA_MN2
-
-       CHARACTER*15 HVRKG15
-       DATA HVRKG15 /'$Revision$'/
-
 
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios
@@ -51839,6 +51778,78 @@ C     runs over the g-channel (1 to 16).
      & 1.44998e-06, 1.41945e-06, 1.38957e-06, 1.36032e-06, 1.33168e-06,
      & 1.30365e-06, 1.27620e-06, 1.24934e-06, 1.22304e-06/
 
+
+C     The array FORREF contains the coefficient of the water vapor
+C     foreign-continuum (including the energy term).  The first 
+C     index refers to reference temperature (296,260,224,260) and 
+C     pressure (970,475,219,3 mbar) levels.  The second index 
+C     runs over the g-channel (1 to 16).
+
+      DATA (FORREF(1,IG),IG=1,16) /
+     &1.1755e-06,6.5398e-07,4.3915e-07,3.0753e-07,1.9677e-07,1.4362e-07,
+     &9.4598e-08,1.1848e-07,1.4280e-07,1.5821e-07,1.5816e-07,1.5769e-07,
+     &1.5844e-07,1.6016e-07,1.6232e-07,1.6320e-07/
+      DATA (FORREF(2,IG),IG=1,16) /
+     &1.0703e-06,6.2783e-07,4.7122e-07,2.6300e-07,1.8538e-07,1.5076e-07,
+     &1.9474e-07,2.9543e-07,2.0093e-07,1.5819e-07,1.5826e-07,1.5737e-07,
+     &1.5751e-07,1.5910e-07,1.6181e-07,1.6320e-07/
+      DATA (FORREF(3,IG),IG=1,16) /
+     &1.0470e-06,5.8184e-07,4.8218e-07,2.7771e-07,1.9036e-07,1.5737e-07,
+     &1.8633e-07,2.5754e-07,4.0647e-07,1.5839e-07,1.5914e-07,1.5788e-07,
+     &1.5731e-07,1.5836e-07,1.6103e-07,1.6320e-07/
+      DATA (FORREF(4,IG),IG=1,16) /
+     &1.3891e-06,5.4901e-07,2.8850e-07,1.9176e-07,1.4549e-07,1.3603e-07,
+     &1.7472e-07,2.9796e-07,3.2452e-07,2.5231e-07,2.8195e-07,1.5527e-07,
+     &1.5507e-07,1.5442e-07,1.5275e-07,1.6057e-07/
+      DATA (SELFREF(JT, 1),JT=1,10)  /
+     & 1.73980e-03, 1.41928e-03, 1.15780e-03, 9.44496e-04, 7.70490e-04,
+     & 6.28541e-04, 5.12744e-04, 4.18280e-04, 3.41219e-04, 2.78356e-04/
+      DATA (SELFREF(JT, 2),JT=1,10)  /
+     & 1.84082e-03, 1.50228e-03, 1.22600e-03, 1.00053e-03, 8.16525e-04,
+     & 6.66359e-04, 5.43811e-04, 4.43800e-04, 3.62182e-04, 2.95574e-04/
+      DATA (SELFREF(JT, 3),JT=1,10)  /
+     & 1.92957e-03, 1.57727e-03, 1.28930e-03, 1.05390e-03, 8.61484e-04,
+     & 7.04197e-04, 5.75627e-04, 4.70530e-04, 3.84622e-04, 3.14399e-04/
+      DATA (SELFREF(JT, 4),JT=1,10)  /
+     & 2.12958e-03, 1.73572e-03, 1.41470e-03, 1.15305e-03, 9.39798e-04,
+     & 7.65984e-04, 6.24317e-04, 5.08850e-04, 4.14739e-04, 3.38034e-04/
+      DATA (SELFREF(JT, 5),JT=1,10)  /
+     & 2.30636e-03, 1.88401e-03, 1.53900e-03, 1.25717e-03, 1.02695e-03,
+     & 8.38891e-04, 6.85270e-04, 5.59780e-04, 4.57270e-04, 3.73533e-04/
+      DATA (SELFREF(JT, 6),JT=1,10)  /
+     & 2.47824e-03, 2.03278e-03, 1.66740e-03, 1.36769e-03, 1.12185e-03,
+     & 9.20206e-04, 7.54803e-04, 6.19130e-04, 5.07844e-04, 4.16561e-04/
+      DATA (SELFREF(JT, 7),JT=1,10)  /
+     & 2.54196e-03, 2.10768e-03, 1.74760e-03, 1.44904e-03, 1.20148e-03,
+     & 9.96215e-04, 8.26019e-04, 6.84900e-04, 5.67890e-04, 4.70870e-04/
+      DATA (SELFREF(JT, 8),JT=1,10)  /
+     & 2.52650e-03, 2.11773e-03, 1.77510e-03, 1.48790e-03, 1.24717e-03,
+     & 1.04539e-03, 8.76251e-04, 7.34480e-04, 6.15646e-04, 5.16039e-04/
+      DATA (SELFREF(JT, 9),JT=1,10)  /
+     & 2.82351e-03, 2.34652e-03, 1.95010e-03, 1.62065e-03, 1.34686e-03,
+     & 1.11933e-03, 9.30232e-04, 7.73080e-04, 6.42477e-04, 5.33939e-04/
+      DATA (SELFREF(JT,10),JT=1,10)  /
+     & 2.98189e-03, 2.46741e-03, 2.04170e-03, 1.68944e-03, 1.39795e-03,
+     & 1.15676e-03, 9.57176e-04, 7.92030e-04, 6.55377e-04, 5.42302e-04/
+      DATA (SELFREF(JT,11),JT=1,10)  /
+     & 2.98239e-03, 2.46774e-03, 2.04190e-03, 1.68954e-03, 1.39799e-03,
+     & 1.15675e-03, 9.57137e-04, 7.91970e-04, 6.55305e-04, 5.42224e-04/
+      DATA (SELFREF(JT,12),JT=1,10)  /
+     & 2.97833e-03, 2.46461e-03, 2.03950e-03, 1.68772e-03, 1.39661e-03,
+     & 1.15571e-03, 9.56370e-04, 7.91410e-04, 6.54903e-04, 5.41942e-04/
+      DATA (SELFREF(JT,13),JT=1,10)  /
+     & 2.97779e-03, 2.46463e-03, 2.03990e-03, 1.68836e-03, 1.39741e-03,
+     & 1.15659e-03, 9.57278e-04, 7.92310e-04, 6.55771e-04, 5.42762e-04/
+      DATA (SELFREF(JT,14),JT=1,10)  /
+     & 2.98326e-03, 2.46943e-03, 2.04410e-03, 1.69203e-03, 1.40060e-03,
+     & 1.15936e-03, 9.59673e-04, 7.94380e-04, 6.57557e-04, 5.44301e-04/
+      DATA (SELFREF(JT,15),JT=1,10)  /
+     & 2.99407e-03, 2.47825e-03, 2.05130e-03, 1.69790e-03, 1.40539e-03,
+     & 1.16327e-03, 9.62862e-04, 7.96980e-04, 6.59676e-04, 5.46028e-04/
+      DATA (SELFREF(JT,16),JT=1,10)  /
+     & 3.00005e-03, 2.48296e-03, 2.05500e-03, 1.70080e-03, 1.40765e-03,
+     & 1.16503e-03, 9.64224e-04, 7.98030e-04, 6.60481e-04, 5.46641e-04/
+
       END
 
        BLOCK DATA KGB16
@@ -51846,11 +51857,8 @@ C     runs over the g-channel (1 to 16).
        PARAMETER (MG=16)
        DIMENSION SELFREF(10,MG), FORREF(4,MG)
        REAL KA(9,5,13,MG),KB(5,13:59,MG) 
-       COMMON /HVRSN16/ HVRKG16
-       COMMON /K16/ KA, KB, FORREF, SELFREF
 
-       CHARACTER*15 HVRKG16
-       DATA HVRKG16 /'$Revision$'/
+       COMMON /K16/ KA, KB, FORREF, SELFREF
 
 C     The array KA contains absorption coefs for each of the 16 g-intervals
 C     for a range of pressure levels > ~100mb, temperatures, and ratios

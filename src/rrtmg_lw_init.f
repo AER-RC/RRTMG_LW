@@ -2,6 +2,17 @@ C     path:      $Source$
 C     author:    $Author$
 C     revision:  $Revision$
 C     created:   $Date$
+C
+C  --------------------------------------------------------------------------
+C |                                                                          |
+C |  Copyright 2002-2005, Atmospheric & Environmental Research, Inc. (AER).  |
+C |  This software may be used, copied, or redistributed as long as it is    |
+C |  not sold and this copyright notice is reproduced on each copy made.     |
+C |  This model is provided as is without any express or implied warranties. |
+C |                       (http://www.rtweb.aer.com/)                        |
+C |                                                                          |
+C  --------------------------------------------------------------------------
+
 C **************************************************************************
       SUBROUTINE RRTMINIT
 C **************************************************************************
@@ -41,7 +52,11 @@ C Output
      &                  TAUTBL(0:NTBL), TRANS(0:NTBL), TF(0:NTBL)
       COMMON /RWT/      RWGT(MG*NBANDS)
 C Local
+      COMMON /CVRINI/    HNAMINI,HVRINI
+      CHARACTER*18       HNAMINI,HVRINI
       DIMENSION WTSM(MG)
+
+      HVRINI = '$Revision$'
 
 C  Compute lookup tables for transmittance, tau transition function,
 C  and clear sky tau (for the cloudy sky radiative transfer).  Tau is 
