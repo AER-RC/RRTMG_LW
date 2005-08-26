@@ -1,6 +1,18 @@
 NOTE:
 ** CVS rtags can't accept "." in strings, substitute "_"
 
+August 26, 2005:
+
+        Release_3_2_1
+
+        Added several minor code changes that do not affect results.
+
+        Not publicly released at this time.
+        This version was utilized to test McICA in RRTMG_LW.
+
+        - Converted several trace gases from scalars to arrays in rrtmg_lw_140.f
+        - Corrected use of index IBND in rrtmg_lw_rtrn.f and rrtmg_lw_rtrnmr.f
+
 July 28, 2005:
 
         Release_3_2

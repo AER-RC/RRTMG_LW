@@ -157,8 +157,11 @@ C
       real tsol(klon)                 ! Surface temperature (K)
       real q(klon,klev)               ! H2O specific humidity (mmr)
       real wo(klon,klev)              ! O3 mass mixing ratio
-      real co2mmr, ch4mmr, n2ommr     ! CO2, CH4, and N2O mmr
-      real cfc11mmr, cfc12mmr         ! CFC11, CFC12 mass mixing ratio
+      real co2mmr(klon,klev)          ! CO2 mass mixing ratio
+      real ch4mmr(klon,klev)          ! CH4 mass mixing ratio
+      real n2ommr(klon,klev)          ! N2O mass mixing ratio
+      real cfc11mmr(klon,klev)        ! CFC11 mass mixing ratio
+      real cfc12mmr(klon,klev)        ! CFC12 mass mixing ratio
       real emis(klon)                 ! Surface emissivity
       real cldfra(klon,klev)          ! Cloud fraction
       real cldd1lw(klon,klev)         ! Cloud optical depth or water path
@@ -441,8 +444,11 @@ C
       real tsol(klon)                 ! Surface temperature (K)
       real q(klon,klev)               ! H2O specific humidity (mmr)
       real wo(klon,klev)              ! O3 mass mixing ratio
-      real co2mmr, ch4mmr, n2ommr     ! CO2, CH4, and N2O mmr
-      real cfc11mmr, cfc12mmr         ! CFC11, CFC12 mass mixing ratio
+      real co2mmr(klon,klev)          ! CO2 mass mixing ratio
+      real ch4mmr(klon,klev)          ! CH4 mass mixing ratio
+      real n2ommr(klon,klev)          ! N2O mass mixing ratio
+      real cfc11mmr(klon,klev)        ! CFC11 mass mixing ratio
+      real cfc12mmr(klon,klev)        ! CFC12 mass mixing ratio
       real cldfra(klon,klev)          ! Cloud fraction
       real emis(klon)                 ! Surface emissivity
       real cldd1lw(klon,klev)         ! Cloud optical depth or water path
@@ -547,25 +553,6 @@ C  for each layer.
 C  Note: By default, both the incoming pressure levels and RRTM levels 
 C  count from bottom to top.
 
-c      write(23,*) 'INATM'
-c      write(23,*) 'iplon,klon,klev:',iplon, klon, klev
-c      write(23,*) 'paprs:'
-c      write(23,9990) (paprs(iplon,k),k=1,klev+1)
-c      write(23,*) 'pplay:'
-c      write(23,9990) (pplay(iplon,k),k=1,klev)
-c      write(23,*) 'tlev:'
-c      write(23,9990) (tlev(iplon,k),k=1,klev+1)
-c      write(23,*) 't:'
-c      write(23,9990) (t(iplon,k),k=1,klev)
-c      write(23,*) 'q:'
-c      write(23,9990) (q(iplon,k),k=1,klev)
-c      write(23,*) 'wo:'
-c      write(23,9990) (wo(iplon,k),k=1,klev)
-c      write(23,*) 'co2mmr, ch4mmr, n2ommr:', co2mmr, ch4mmr, n2ommr
-c      write(23,*) 'cfc11mmr, cfc12mmr:', cfc11mmr, cfc12mmr
-c      write(23,*) 'grav,avogad: ', grav, avogad
-c 9990 format(1p6e12.5)
-
       NLAYERS = klev
       NMOL = 7
       PZ(0) = paprs(iplon,1)*1.E-2
@@ -576,10 +563,10 @@ c 9990 format(1p6e12.5)
          PZ(L) = paprs(iplon,L+1)*1.E-2
          TZ(L) = tlev(iplon,L+1)
          WKL(1,L) = q(iplon,L)*amdw
-         WKL(2,L) = co2mmr*amdc
+         WKL(2,L) = co2mmr(iplon,L)*amdc
          WKL(3,L) = wo(iplon,L)*amdo
-         WKL(4,L) = n2ommr*amdn
-         WKL(6,L) = ch4mmr*amdm
+         WKL(4,L) = n2ommr(iplon,L)*amdn
+         WKL(6,L) = ch4mmr(iplon,L)*amdm
          WKL(7,L) = o2mmr*amdo2
          amm = (1-WKL(1,L))*amd + WKL(1,L)*amw            
          COLDRY(L) = (PZ(L-1)-PZ(L))*1.E3*avogad/
@@ -588,38 +575,10 @@ c 9990 format(1p6e12.5)
 
 C  Set cross section molecule amounts from input; convert to vmr
       DO 2100 L=1, NLAYERS
-         WX(2,L) = cfc11mmr*amdc1
-         WX(3,L) = cfc12mmr*amdc2
+         WX(2,L) = cfc11mmr(iplon,L)*amdc1
+         WX(3,L) = cfc12mmr(iplon,L)*amdc2
  2100 CONTINUE
 
-c      write(23,*) ' '
-c      write(23,*) 'pz:'
-c      write(23,9990) (pz(k),k=0,klev)
-c      write(23,*) 'pavel:'
-c      write(23,9990) (pavel(k),k=1,klev)
-c      write(23,*) 'tz:'
-c      write(23,9990) (tz(k),k=0,klev)
-c      write(23,*) 'tavel:'
-c      write(23,9990) (tavel(k),k=1,klev)
-c      write(23,*) 'coldry:'
-c      write(23,9990) (coldry(k),k=1,klev)
-c      write(23,*) 'wbrodl:'
-c      write(23,9990) (wbrodl(k),k=1,klev)
-c      write(23,*) 'wkl(1), h2o:'
-c      write(23,9990) (wkl(1,k),k=1,klev)
-c      write(23,*) 'wkl(2), co2:'
-c      write(23,9990) (wkl(2,k),k=1,klev)
-c      write(23,*) 'wkl(3), ozone:'
-c      write(23,9990) (wkl(3,k),k=1,klev)
-c      write(23,*) 'wkl(4), n2o:'
-c      write(23,9990) (wkl(4,k),k=1,klev)
-c      write(23,*) 'wkl(6), ch4:'
-c      write(23,9990) (wkl(6,k),k=1,klev)
-c      write(23,*) 'wx(2), cfc11:'
-c      write(23,9990) (wx(2,k),k=1,klev)
-c      write(23,*) 'wx(3), cfc12:'
-c      write(23,9990) (wx(3,k),k=1,klev)
-      
 C  Following section is commented.  It can be used to set profile for
 C  additional layer from model top to 0 mb.
 C  Set up values for extra layer at top of the atmosphere.
@@ -672,13 +631,6 @@ C  water vapor for diffusivity angle adjustments in RTRN and RTRNMR.
       WVSH = (amw*WVTTL)/(amd*AMTTL)
       PWVCM = WVSH*(1.E3*PZ(0))/(1.E2*GRAV)
 
-c      write(23,*) 'INATM'
-c      write(23,*) 'cldfra:'
-c      write(23,9990) (cldfra(iplon,k),k=1,klev)
-c      write(23,*) 'emis:'
-c      write(23,9990) emis(iplon)
-c      write(23,*) 'pwvcm: ', pwvcm
-
 C  Set spectral surface emissivity for each longwave band.  
       DO 5500 N=1,NBANDS
          SEMISS(N) = emis(iplon)
@@ -702,20 +654,6 @@ C  Ice particle effective radius or generalized effective size (microns)
 C  Liquid droplet effective radius (microns)
          CLDDAT4(L) = cldd4lw(iplon,L)
  7000 CONTINUE
-
-c      write(23,*) ' '
-c      write(23,*) 'cldfrac:'
-c      write(23,9990) (cldfrac(k),k=1,klev)
-c      write(23,*) 'clddat1:'
-c      write(23,9990) (clddat1(k),k=1,klev)
-c      write(23,*) 'clddat2:'
-c      write(23,9990) (clddat2(k),k=1,klev)
-c      write(23,*) 'clddat3:'
-c      write(23,9990) (clddat3(k),k=1,klev)
-c      write(23,*) 'clddat4:'
-c      write(23,9990) (clddat4(k),k=1,klev)
-c      write(23,*) 'semiss:'
-c      write(23,9990) (semiss(n),n=1,nbands)
 
       RETURN
       END 

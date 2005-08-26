@@ -184,7 +184,7 @@ C over a wide range of precipitable water values.
      &         0.414, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 /
 
       DO 50 IBND = 1,NBANDS
-         IF (J.EQ.1 .OR. J.EQ.4 .OR. J.GE.10) THEN
+         IF (IBND.EQ.1 .OR. IBND.EQ.4 .OR. IBND.GE.10) THEN
            SECDIFF(IBND) = 1.66
          ELSE
            SECDIFF(IBND) = A0(IBND) + A1(IBND)*EXP(A2(IBND)*PWVCM)
