@@ -1,5 +1,35 @@
-NOTE:
-** CVS rtags can't accept "." in strings, substitute "_"
+
+RRTMG_LW Release Notes
+
+NOTE: ** CVS rtags can't accept "." in strings, substitute "_"
+
+
+April 17, 2007:
+
+        Release_4_0
+
+        Major source code format revisions and addition of McICA capability. 
+
+        Publicly released in April 2007.
+
+        - Reformatted entire model to utilize more FORTRAN90 coding features.
+          All COMMON blocks have been removed.  Arrays are declared and dimensioned
+          in modules, and array passing is done through subroutine calls.
+          Excluded from the reformatting are files rrtatm.f, extra.f, and util_*.f,
+          which are shared with and retain the formatting of RRTM_LW. 
+        - Code package can be used as a stand-alone column model or as a callable
+          subroutine (such as in a GCM).
+        - McICA capability has been added for stochastic representation of sub-grid
+          cloud variability such as cloud fraction and cloud overlap.
+        - Sub-column generator for McICA is called from within main source module
+          in column mode, but it must be called prior to RRTMG_LW in GCM mode.
+        - Installed two options for the random number generator required for
+          McICA (selected by changing the hard-wired flag irnd).
+        - Modified code to accept either cloud physical properties or cloud optical
+          properties when using McICA. 
+        - Created makefiles consistent with RRTMG_SW for SGI, SUN, LINUX (pgi) and
+          OS_X (g95) platforms.
+       
 
 August 26, 2005:
 
