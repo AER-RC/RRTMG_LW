@@ -28,8 +28,6 @@
       use rrlw_vsn, only: hvrclc, hnamclc
 
       implicit none
-! This save needed on some systems for an as yet undetermined reason. 
-      save
 
 ! ------- Input -------
 
@@ -56,15 +54,15 @@
       integer(kind=jpim) :: ig                  ! g-point interval index
       integer(kind=jpim) :: index 
 
-      real(kind=jprb) :: abscoice(nbands)       ! ice absorption coefficients
-      real(kind=jprb) :: abscoliq(nbands)       ! liquid absorption coefficients
-      real(kind=jprb) :: eps                    ! 
+      real(kind=jprb) :: abscoice(ngpt)         ! ice absorption coefficients
+      real(kind=jprb) :: abscoliq(ngpt)         ! liquid absorption coefficients
       real(kind=jprb) :: cwp                    ! cloud water path
       real(kind=jprb) :: radice                 ! cloud ice effective radius (microns)
       real(kind=jprb) :: dgeice                 ! cloud ice generalized effective size
       real(kind=jprb) :: factor                 ! 
       real(kind=jprb) :: fint                   ! 
       real(kind=jprb) :: radliq                 ! cloud liquid droplet radius (microns)
+      real(kind=jprb), parameter :: eps = 1.e-6 ! 
 
 ! ------- Definitions -------
 
@@ -121,8 +119,6 @@
 !                     Linear interpolation is used to get the absorption 
 !                     coefficients for the input effective radius.
 
-      data eps /1.e-6_jprb/
-
       hvrclc = '$Revision$'
 
       ncbands = 1
@@ -157,15 +153,15 @@
                radice = reicmc(lay)
 
 ! Calculation of absorption coefficients due to ice clouds.
-               if (ciwpmc(ig,lay) .eq. 0.0) then
-                  abscoice(ig) = 0.0
+               if (ciwpmc(ig,lay) .eq. 0.0_jprb) then
+                  abscoice(ig) = 0.0_jprb
 
                elseif (iceflag .eq. 0) then
-                  if (radice .lt. 10.0) stop 'ICE RADIUS TOO SMALL'
+                  if (radice .lt. 10.0_jprb) stop 'ICE RADIUS TOO SMALL'
                   abscoice(ig) = absice0(1) + absice0(2)/radice
 
                elseif (iceflag .eq. 1) then
-                  if (radice .lt. 13.0 .or. radice .gt. 130.) stop &
+                  if (radice .lt. 13.0_jprb .or. radice .gt. 130._jprb) stop &
                       'ICE RADIUS OUT OF BOUNDS'
                   ncbands = 5
                   ib = ngb(ig)
@@ -178,10 +174,10 @@
 ! *** NOTE: Transition between two methods has not been smoothed. 
 
                elseif (iceflag .eq. 2) then
-                  if (radice .lt. 5.0) stop 'ICE RADIUS OUT OF BOUNDS'
-                  if (radice .ge. 5.0 .and. radice .le. 131.) then
+                  if (radice .lt. 5.0_jprb) stop 'ICE RADIUS OUT OF BOUNDS'
+                  if (radice .ge. 5.0_jprb .and. radice .le. 131._jprb) then
                      ncbands = 16
-                     factor = (radice - 2.)/3.
+                     factor = (radice - 2._jprb)/3._jprb
                      index = int(factor)
                      if (index .eq. 43) index = 42
                      fint = factor - float(index)
@@ -189,7 +185,7 @@
                      abscoice(ig) = &
                          absice2(index,ib) + fint * &
                          (absice2(index+1,ib) - (absice2(index,ib))) 
-                  elseif (radice .gt. 131.) then
+                  elseif (radice .gt. 131._jprb) then
                      abscoice(ig) = absice0(1) + absice0(2)/radice
                   endif
                
@@ -202,10 +198,10 @@
 
                elseif (iceflag .eq. 3) then
                   dgeice = radice
-                  if (dgeice .lt. 5.0) stop 'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
-                  if (dgeice .ge. 5.0 .and. dgeice .le. 140.) then
+                  if (dgeice .lt. 5.0_jprb) stop 'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
+                  if (dgeice .ge. 5.0_jprb .and. dgeice .le. 140._jprb) then
                      ncbands = 16
-                     factor = (dgeice - 2.)/3.
+                     factor = (dgeice - 2._jprb)/3._jprb
                      index = int(factor)
                      if (index .eq. 46) index = 45
                      fint = factor - float(index)
@@ -213,27 +209,27 @@
                      abscoice(ig) = &
                          absice3(index,ib) + fint * &
                          (absice3(index+1,ib) - (absice3(index,ib)))
-                  elseif (dgeice .gt. 140.) then
+                  elseif (dgeice .gt. 140._jprb) then
                      abscoice(ig) = absice0(1) + absice0(2)/radice
                   endif
    
                endif
                   
 ! Calculation of absorption coefficients due to water clouds.
-               if (clwpmc(ig,lay) .eq. 0.0) then
-                  abscoliq(ig) = 0.0
+               if (clwpmc(ig,lay) .eq. 0.0_jprb) then
+                  abscoliq(ig) = 0.0_jprb
 
                elseif (liqflag .eq. 0) then
                    abscoliq(ig) = absliq0
 
                elseif (liqflag .eq. 1) then
                   radliq = relqmc(lay)
-                  if (radliq .lt. 1.5 .or. radliq .gt. 60.) stop &
+                  if (radliq .lt. 1.5_jprb .or. radliq .gt. 60._jprb) stop &
                        'LIQUID EFFECTIVE RADIUS OUT OF BOUNDS'
-                  index = radliq - 1.5
+                  index = radliq - 1.5_jprb
                   if (index .eq. 58) index = 57
                   if (index .eq. 0) index = 1
-                  fint = radliq - 1.5 - index
+                  fint = radliq - 1.5_jprb - index
                   ib = ngb(ig)
                   abscoliq(ig) = &
                         absliq1(index,ib) + fint * &

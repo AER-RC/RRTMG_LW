@@ -432,12 +432,15 @@
       save 
  
 ! Longwave spectral band limits (wavenumbers)
-      wavenum1(:) = (/ 10., 350., 500., 630., 700., 820., 980.,1080., &
-                     1180.,1390.,1480.,1800.,2080.,2250.,2390.,2600./)
-      wavenum2(:) = (/350., 500., 630., 700., 820., 980.,1080.,1180., &
-                     1390.,1480.,1800.,2080.,2250.,2390.,2600.,3250./)
-      delwave(:) =  (/340., 150., 130.,  70., 120., 160., 100., 100., &
-                      210.,  90., 320., 280., 170., 130., 220., 650./)
+      wavenum1(:) = (/ 10._jprb, 350._jprb, 500._jprb, 630._jprb, 700._jprb, 820._jprb, &
+                      980._jprb,1080._jprb,1180._jprb,1390._jprb,1480._jprb,1800._jprb, &
+                     2080._jprb,2250._jprb,2390._jprb,2600._jprb/)
+      wavenum2(:) = (/350._jprb, 500._jprb, 630._jprb, 700._jprb, 820._jprb, 980._jprb, &
+                     1080._jprb,1180._jprb,1390._jprb,1480._jprb,1800._jprb,2080._jprb, &
+                     2250._jprb,2390._jprb,2600._jprb,3250._jprb/)
+      delwave(:) =  (/340._jprb, 150._jprb, 130._jprb,  70._jprb, 120._jprb, 160._jprb, &
+                      100._jprb, 100._jprb, 210._jprb,  90._jprb, 320._jprb, 280._jprb, &
+                      170._jprb, 130._jprb, 220._jprb, 650._jprb/)
 
 ! Spectral band information
       ng(:) = (/16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16/)
@@ -679,7 +682,7 @@
 
 !      pavel(nlayers) = 0.5_jprb * pz(nlayers-1)
 !      tavel(nlayers) = tavel(nlayers-1)
-!      pz(nlayers) = 1.e-4jprb
+!      pz(nlayers) = 1.e-4_jprb
 !      tz(nlayers-1) = 0.5_jprb * (tavel(nlayers)+tavel(nlayers-1))
 !      tz(nlayers) = tz(nlayers-1)
 !      wkl(1,nlayers) = wkl(1,nlayers-1)
@@ -723,7 +726,7 @@
 
       do n=1,nbands
          semiss(n) = emis(iplon,n)
-!          semiss(n) = 1.0
+!          semiss(n) = 1.0_jprb
       enddo
 
 ! Transfer cloud fraction and cloud optical properties to RRTM variables,
@@ -765,13 +768,4 @@
       
       return
       end 
-
-
-
-
-
-
-
-
-
 

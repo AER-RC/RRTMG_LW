@@ -58,7 +58,6 @@
 
       real(kind=jprb) :: abscoice(nbands)       ! ice absorption coefficients
       real(kind=jprb) :: abscoliq(nbands)       ! liquid absorption coefficients
-      real(kind=jprb) :: eps                    ! 
       real(kind=jprb) :: cwp                    ! cloud water path
       real(kind=jprb) :: radliq                 ! cloud liquid droplet radius (microns)
       real(kind=jprb) :: radice                 ! cloud ice effective radius (microns)
@@ -66,6 +65,7 @@
       real(kind=jprb) :: factor                 ! 
       real(kind=jprb) :: fint                   ! 
       real(kind=jprb) :: tauctot(mxlay)         ! band integrated cloud optical depth
+      real(kind=jprb), parameter :: eps = 1.e-6 ! epsilon
 
 !      dimension abscoice(nbands), abscoliq(nbands)
 !      dimension ipat(16,0:2)
@@ -131,8 +131,6 @@
 
       hvrcld = '$Revision$'
 
-      eps = 1.e-6_jprb
-
       ncbands = 1
       tauctot(:) = 0._jprb
 
@@ -167,17 +165,17 @@
                radice = rei(lay)
 
 ! Calculation of absorption coefficients due to ice clouds.
-               if (ciwp(lay) .eq. 0.0) then
-                  abscoice(1) = 0.0
+               if (ciwp(lay) .eq. 0.0_jprb) then
+                  abscoice(1) = 0.0_jprb
                   icepat = 0
 
                elseif (iceflag .eq. 0) then
-                  if (radice .lt. 10.0) stop 'ICE RADIUS TOO SMALL'
+                  if (radice .lt. 10.0_jprb) stop 'ICE RADIUS TOO SMALL'
                   abscoice(1) = absice0(1) + absice0(2)/radice
                   icepat = 0
 
                elseif (iceflag .eq. 1) then
-                  if (radice .lt. 13.0 .or. radice .gt. 130.) stop &
+                  if (radice .lt. 13.0_jprb .or. radice .gt. 130._jprb) stop &
                        'ICE RADIUS OUT OF BOUNDS'
                   ncbands = 5
                   do ib = 1, ncbands
@@ -192,10 +190,10 @@
 ! *** NOTE: Transition between two methods has not been smoothed. 
 
                elseif (iceflag .eq. 2) then
-                  if (radice .lt. 5.0) stop 'ICE RADIUS OUT OF BOUNDS'
-                  if (radice .ge. 5.0 .and. radice .le. 131.) then
+                  if (radice .lt. 5.0_jprb) stop 'ICE RADIUS OUT OF BOUNDS'
+                  if (radice .ge. 5.0_jprb .and. radice .le. 131._jprb) then
                      ncbands = 16
-                     factor = (radice - 2.)/3.
+                     factor = (radice - 2._jprb)/3._jprb
                      index = int(factor)
                      if (index .eq. 43) index = 42
                      fint = factor - float(index)
@@ -205,7 +203,7 @@
                             (absice2(index+1,ib) - (absice2(index,ib)))
                      enddo
                      icepat = 2
-                  elseif (radice .gt. 131.) then
+                  elseif (radice .gt. 131._jprb) then
                      do ib = 1, ncbands
                        abscoice(ib) = absice0(1) + absice0(2)/radice
                        icepat = 0
@@ -221,10 +219,10 @@
 
                elseif (iceflag .eq. 3) then
                    dgeice = radice
-                  if (dgeice .lt. 5.0) stop 'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
-                  if (dgeice .ge. 5.0 .and. dgeice .le. 140.) then
+                  if (dgeice .lt. 5.0_jprb) stop 'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
+                  if (dgeice .ge. 5.0_jprb .and. dgeice .le. 140._jprb) then
                      ncbands = 16
-                     factor = (dgeice - 2.)/3.
+                     factor = (dgeice - 2._jprb)/3._jprb
                      index = int(factor)
                      if (index .eq. 46) index = 45
                      fint = factor - float(index)
@@ -234,7 +232,7 @@
                           (absice3(index+1,ib) - (absice3(index,ib)))
                      enddo
                      icepat = 2
-                  elseif (dgeice .gt. 140.) then
+                  elseif (dgeice .gt. 140._jprb) then
                      do ib = 1, ncbands
                        abscoice(ib) = absice0(1) + absice0(2)/radice
                        icepat = 0
@@ -244,8 +242,8 @@
                endif
                   
 ! Calculation of absorption coefficients due to water clouds.
-               if (clwp(lay) .eq. 0.0) then
-                  abscoliq(1) = 0.0
+               if (clwp(lay) .eq. 0.0_jprb) then
+                  abscoliq(1) = 0.0_jprb
                   liqpat = 0
                   if (icepat .eq. 1) icepat = 2
 
@@ -256,12 +254,12 @@
 
                elseif (liqflag .eq. 1) then
                   radliq = rel(lay)
-                  if (radliq .lt. 1.5 .or. radliq .gt. 60.) stop &
+                  if (radliq .lt. 1.5_jprb .or. radliq .gt. 60._jprb) stop &
                        'LIQUID EFFECTIVE RADIUS OUT OF BOUNDS'
-                  index = radliq - 1.5
+                  index = radliq - 1.5_jprb
                   if (index .eq. 58) index = 57
                   if (index .eq. 0) index = 1
-                  fint = radliq - 1.5 - index
+                  fint = radliq - 1.5_jprb - index
                   ncbands = 16
                   do ib = 1, ncbands
                      abscoliq(ib) = &

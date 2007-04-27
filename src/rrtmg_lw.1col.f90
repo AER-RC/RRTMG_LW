@@ -468,7 +468,7 @@
                write(iwr,9901)
 
                do i = nlayers, 0, -1
-                  if (pz(i) .lt. 1.e-2) then
+                  if (pz(i) .lt. 1.e-2_jprb) then
                      write(iwr,9952) i,pz(i),totuflux(i),totdflux(i),fnet(i),htr(i)
                   elseif (pz(i) .lt. 1.e-1) then
                      write(iwr,9953) i,pz(i),totuflux(i),totdflux(i),fnet(i),htr(i)
@@ -511,7 +511,7 @@
                   write(iwr,9901)
 
                   do i = nlayers, 0, -1
-                     if (pz(i) .lt. 1.e-2) then
+                     if (pz(i) .lt. 1.e-2_jprb) then
                         write(iwr,9952) i,pz(i),uflxsum(i),dflxsum(i),fnetsum(i),htrsum(i)
                      elseif (pz(i) .lt. 1.e-1) then
                         write(iwr,9953) i,pz(i),uflxsum(i),dflxsum(i),fnetsum(i),htrsum(i)
@@ -530,7 +530,7 @@
                   write(iwr,9903)page
 
 !               do i = nlayers, 0, -1
-!                  if (pz(i) .lt. 1.e-2) then
+!                  if (pz(i) .lt. 1.e-2_jprb) then
 !                     write(iwr,9952) i,pz(i),totuflux(i),totdflux(i),fnet(i),htr(i)
 !                  elseif (pz(i) .lt. 1.e-1) then
 !                     write(iwr,9953) i,pz(i),totuflux(i),totdflux(i),fnet(i),htr(i)
@@ -619,12 +619,15 @@
       save 
  
 ! Longwave spectral band limits (wavenumbers)
-      wavenum1(:) = (/ 10., 350., 500., 630., 700., 820., 980.,1080., &
-                     1180.,1390.,1480.,1800.,2080.,2250.,2390.,2600./)
-      wavenum2(:) = (/350., 500., 630., 700., 820., 980.,1080.,1180., &
-                     1390.,1480.,1800.,2080.,2250.,2390.,2600.,3250./)
-      delwave(:) =  (/340., 150., 130.,  70., 120., 160., 100., 100., &
-                      210.,  90., 320., 280., 170., 130., 220., 650./)
+      wavenum1(:) = (/ 10._jprb, 350._jprb, 500._jprb, 630._jprb, 700._jprb, 820._jprb, &
+                      980._jprb,1080._jprb,1180._jprb,1390._jprb,1480._jprb,1800._jprb, &
+                     2080._jprb,2250._jprb,2390._jprb,2600._jprb/)
+      wavenum2(:) = (/350._jprb, 500._jprb, 630._jprb, 700._jprb, 820._jprb, 980._jprb, &
+                     1080._jprb,1180._jprb,1390._jprb,1480._jprb,1800._jprb,2080._jprb, &
+                     2250._jprb,2390._jprb,2600._jprb,3250._jprb/)
+      delwave(:) =  (/340._jprb, 150._jprb, 130._jprb,  70._jprb, 120._jprb, 160._jprb, &
+                      100._jprb, 100._jprb, 210._jprb,  90._jprb, 320._jprb, 280._jprb, &
+                      170._jprb, 130._jprb, 220._jprb, 650._jprb/)
 
 ! Spectral band information
       ng(:) = (/16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16/)
@@ -806,7 +809,7 @@
 
       do l = 1, mxlay
          do ix = 1, maxxsec
-           wx(ix,l) = 0.0
+           wx(ix,l) = 0.0_jprb
          enddo
       enddo
 
@@ -829,11 +832,11 @@
       read (ird,9012) tbound,iemiss,ireflect,(semis(i),i=1,16)
 
       do iband = 1, nbands
-         semiss(iband) = 1.0
-         if (iemiss .eq. 1 .and. semis(1) .ne. 0.) then
+         semiss(iband) = 1.0_jprb
+         if (iemiss .eq. 1 .and. semis(1) .ne. 0._jprb) then
             semiss(iband) = semis(1)
          elseif (iemiss .eq. 2) then
-            if (semis(iband) .ne. 0.) then
+            if (semis(iband) .ne. 0._jprb) then
                semiss(iband) = semis(iband)
             endif
          endif
@@ -882,7 +885,7 @@
 !  Test for mixing ratio input.
       imix = 1
       do m = 1, nmol
-         if (wkl(m,1) .gt. 1.0) then
+         if (wkl(m,1) .gt. 1.0_jprb) then
             imix = 0
             goto 3600
          endif
@@ -891,15 +894,15 @@
 
       if (ixsect .eq. 1) then
          imixx = 0
-         if (wx0(1,1) .le. 1.0) imixx = 1
+         if (wx0(1,1) .le. 1.0_jprb) imixx = 1
       endif
       do l = 1, nlayers
-         summol = 0.0
+         summol = 0.0_jprb
          do imol = 2, nmol
             summol = summol + wkl(imol,l)
          enddo
          if (imix .eq. 1) then
-            coldry(l) = wbrodl(l) / (1. - summol)
+            coldry(l) = wbrodl(l) / (1._jprb - summol)
             do imol = 1, nmol
                wkl(imol,l) = coldry(l) * wkl(imol,l)
             enddo
@@ -912,9 +915,9 @@
             do ix = 1, nxmol0
                if (ixindx(ix) .ne. 0) then
                   if (imixx .eq. 1) then
-                     wx(ixindx(ix),l) = coldry(l) * wx0(ix,l) * 1.e-20
+                     wx(ixindx(ix),l) = coldry(l) * wx0(ix,l) * 1.e-20_jprb
                   else
-                     wx(ixindx(ix),l) = wx0(ix,l) * 1.e-20
+                     wx(ixindx(ix),l) = wx0(ix,l) * 1.e-20_jprb
                   endif
                endif
             enddo
@@ -922,8 +925,8 @@
       enddo
 
 !  Calculate total precipitable water 
-      wvsh = (amw*wvttl)/(amd*amttl)
-      pwvcm = wvsh*(1.e3*pz(0))/(1.e2*grav)
+      wvsh = (amw * wvttl) / (amd * amttl)
+      pwvcm = wvsh * (1.e3_jprb * pz(0)) / (1.e2_jprb * grav)
 
 ! Pass output arrays to new variables for transfer to rrtmg through subroutine call.
       nlayers_out = nlayers
@@ -961,19 +964,19 @@
          if (inflag.eq.0) then
             do n = 1, nbands
                tauc(n,l) = clddat1(l)
-!               ssac(n,l) = 1.
-!               asmc(n,l) = 1.
+!               ssac(n,l) = 1._jprb
+!               asmc(n,l) = 1._jprb
             enddo
-            ciwp(l) = 0.
-            clwp(l) = 0.
-            fice(l) = 0.
-            rei(l) = 0.
-            rel(l) = 0.
+            ciwp(l) = 0._jprb
+            clwp(l) = 0._jprb
+            fice(l) = 0._jprb
+            rei(l) = 0._jprb
+            rel(l) = 0._jprb
          else
             do n = 1, nbands
-               tauc(n,l) = 0.
-!               ssac(n,l) = 1.
-!               asmc(n,l) = 1.
+               tauc(n,l) = 0._jprb
+!               ssac(n,l) = 1._jprb
+!               asmc(n,l) = 1._jprb
             enddo
             cwp = clddat1(l)
             fice(l) = clddat2(l)
@@ -986,9 +989,9 @@
 
 !      do l = 1, mxlay
 !         do n = 1, nbands
-!            tauaer_out(l,n) = 0.
-!            ssaaer_out(l,n) = 1.
-!            asmaer_out(l,n) = 1.
+!            tauaer_out(l,n) = 0._jprb
+!            ssaaer_out(l,n) = 1._jprb
+!            asmaer_out(l,n) = 1._jprb
 !         enddo
 !      enddo
 
@@ -1011,6 +1014,10 @@
 !*************************************************************************
       subroutine readcld
 !*************************************************************************
+
+! --------- Modules ----------
+
+      use parkind, only : jpim, jprb 
 
 ! Purpose:  To read in IN_CLD_RRTM, the file that contains input 
 !           cloud properties.
@@ -1035,7 +1042,7 @@
       read(irdcld,9050) inflag, iceflag, liqflag
 
       do lay = 1, nlayers
-         cldfrac(lay) = 0.
+         cldfrac(lay) = 0._jprb
       enddo
 
 ! Top of read input loop

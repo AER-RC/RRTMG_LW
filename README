@@ -55,7 +55,7 @@ general circulation model or single column model.
 
 The version of RRTMG_LW provided here has been modified from the standard 
 RRTM_LW to enhance performance with little effect on the accuracy.  The total 
-number of g-points used have been reduced from 256 to 140. Fluxes are accurate
+number of g-points used has been reduced from 256 to 140. Fluxes are accurate
 to within 0.5 W/m2 and cooling rate within 0.1 K/day relative to the standard
 RRTM_LW, which is itself accurate to within 1 W/m2 of the data-validated 
 line-by-line radiative transfer model, LBLRTM.  
@@ -128,7 +128,7 @@ MAKEFILES:
 
 
 SAMPLE INPUT/OUTPUT: 
-   Several sample input (and output) files are included in the /atm_std_runs directory.
+   Several sample input (and output) files are included in the /runs_std_atm directory.
    Note that user-defined profiles may be used for as many as 200 layers.
 
    INPUT_RRTM                : Required input file for (clear sky) atmospheric 
@@ -138,9 +138,9 @@ SAMPLE INPUT/OUTPUT:
    OUTPUT_RRTM               : Main output file for atmospheric fluxes and heating rates
    input_rrtm.MLS            : Sample 51 layer mid-latitude summer standard atmosphere
    input_rrtm.MLS-cld-imca0  : Sample 51 layer mid-latitude summer standard atmosphere
-                               with cloud flag turn on (without McICA)
+                               with cloud flag turned on (without McICA)
    input_rrtm.MLS-cld-imca1  : Sample 51 layer mid-latitude summer standard atmosphere
-                               with cloud flag turn on (with McICA)
+                               with cloud flag turned on (with McICA)
    input_rrtm.MLS-xsec       : Sample 51 layer mid-latitude summer standard atmosphere
                                with cross-section input (CFCs, etc.)
    input_rrtm.SAW            : Sample 51 layer sub-arctic winter standard atmosphere
