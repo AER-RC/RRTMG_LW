@@ -4,13 +4,29 @@ RRTMG_LW Release Notes
 NOTE: ** CVS rtags can't accept "." in strings, substitute "_"
 
 
+April 27, 2007:
+
+        Release_4_0_1
+
+        Minor bug fix and other minor changes.
+
+        Publicly released on AER RT web site in April 2007.
+
+        - Fixed dimensions of arrays abscoice and abscoliq from nbands to ngpt
+          in source module rrtmg_lw_cldprmc.f90.  This did not affect results in
+          most situations, but caused a fault in some cases on some compilers. 
+        - Added several missing kind type suffixes to real constants in a few 
+          source modules.
+        - Made minor changes to README file.  
+
+
 April 17, 2007:
 
         Release_4_0
 
         Major source code format revisions and addition of McICA capability. 
 
-        Publicly released in April 2007.
+        Released to Robert Pincus/NOAA on 18 April 2007.
 
         - Reformatted entire model to utilize more FORTRAN90 coding features.
           All COMMON blocks have been removed.  Arrays are declared and dimensioned
