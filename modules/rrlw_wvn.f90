@@ -1,7 +1,7 @@
       module rrlw_wvn
 
       use parkind, only : jpim, jprb
-      use parrrtm, only : nbands, mg, ngpt, maxinpx
+      use parrrtm, only : nbndlw, mg, ngptlw, maxinpx
 
       implicit none
       save
@@ -48,25 +48,25 @@
 ! ixindx :  integer: Flag for active cross-sections in calculation
 !------------------------------------------------------------------
 
-      integer(kind=jpim) :: ng(nbands)
-      integer(kind=jpim) :: nspa(nbands)
-      integer(kind=jpim) :: nspb(nbands)
+      integer(kind=jpim) :: ng(nbndlw)
+      integer(kind=jpim) :: nspa(nbndlw)
+      integer(kind=jpim) :: nspb(nbndlw)
 
-      real(kind=jprb) :: wavenum1(nbands)
-      real(kind=jprb) :: wavenum2(nbands)
-      real(kind=jprb) :: delwave(nbands)
+      real(kind=jprb) :: wavenum1(nbndlw)
+      real(kind=jprb) :: wavenum2(nbndlw)
+      real(kind=jprb) :: delwave(nbndlw)
 
-      real(kind=jprb) :: totplnk(181,nbands)
+      real(kind=jprb) :: totplnk(181,nbndlw)
       real(kind=jprb) :: totplk16(181)
 
-      integer(kind=jpim) :: ngc(nbands)
-      integer(kind=jpim) :: ngs(nbands)
-      integer(kind=jpim) :: ngn(ngpt)
-      integer(kind=jpim) :: ngb(ngpt)
-      integer(kind=jpim) :: ngm(nbands*mg)
+      integer(kind=jpim) :: ngc(nbndlw)
+      integer(kind=jpim) :: ngs(nbndlw)
+      integer(kind=jpim) :: ngn(ngptlw)
+      integer(kind=jpim) :: ngb(ngptlw)
+      integer(kind=jpim) :: ngm(nbndlw*mg)
 
       real(kind=jprb) :: wt(mg)
-      real(kind=jprb) :: rwgt(nbands*mg)
+      real(kind=jprb) :: rwgt(nbndlw*mg)
 
       integer(kind=jpim) :: nxmol
       integer(kind=jpim) :: ixindx(maxinpx)

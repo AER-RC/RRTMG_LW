@@ -3,6 +3,8 @@
 !     revision:  $Revision$
 !     created:   $Date$
 !
+      module rrtmg_lw_taumol
+
 !  --------------------------------------------------------------------------
 ! |                                                                          |
 ! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
@@ -12,6 +14,18 @@
 ! |                       (http://www.rtweb.aer.com/)                        |
 ! |                                                                          |
 !  --------------------------------------------------------------------------
+
+! ------- Modules -------
+
+      use parkind, only : jpim, jprb 
+      use parrrtm, only : mg, nbndlw, maxxsec, ngptlw
+      use rrlw_con, only: oneminus
+      use rrlw_wvn, only: nspa, nspb
+      use rrlw_vsn, only: hvrtau, hnamtau
+
+      implicit none
+
+      contains
 
 !----------------------------------------------------------------------------
       subroutine taumol(nlayers, pavel, wx, coldry, &
@@ -158,67 +172,86 @@
 ! *                                                                             *
 !*******************************************************************************
 
-! ------- Modules -------
-
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mxlay, mg, nbands, maxxsec, ngpt
-      use rrlw_con, only: oneminus
-      use rrlw_wvn, only: nspa, nspb
-      use rrlw_vsn, only: hvrtau, hnamtau
-
-      implicit none
-
 ! ------- Declarations -------
 
-! Input
-      integer(kind=jpim), intent(in) :: nlayers            ! total number of layers
-      real(kind=jprb), intent(in) :: pavel(mxlay)          ! layer pressures (mb) 
-      real(kind=jprb), intent(in) :: wx(maxxsec,mxlay)     ! cross-section amounts (mol/cm-2)
-      real(kind=jprb), intent(in) :: coldry(mxlay)         ! column amount (dry air)
+! ----- Input -----
+      integer(kind=jpim), intent(in) :: nlayers         ! total number of layers
+      real(kind=jprb), intent(in) :: pavel(:)           ! layer pressures (mb) 
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: wx(:,:)            ! cross-section amounts (mol/cm2)
+                                                        !    Dimensions: (maxxsec,nlayers)
+      real(kind=jprb), intent(in) :: coldry(:)          ! column amount (dry air)
+                                                        !    Dimensions: (nlayers)
 
-      integer(kind=jpim), intent(in) :: laytrop            ! tropopause layer index
-      integer(kind=jpim), intent(in) :: jp(mxlay)          ! 
-      integer(kind=jpim), intent(in) :: jt(mxlay)          !
-      integer(kind=jpim), intent(in) :: jt1(mxlay)         !
-      real(kind=jprb), intent(in) :: planklay(mxlay,nbands)  ! 
-      real(kind=jprb), intent(in) :: planklev(0:mxlay,nbands)! 
-      real(kind=jprb), intent(in) :: plankbnd(nbands)      ! 
+      integer(kind=jpim), intent(in) :: laytrop         ! tropopause layer index
+      integer(kind=jpim), intent(in) :: jp(:)           ! 
+                                                        !    Dimensions: (nlayers)
+      integer(kind=jpim), intent(in) :: jt(:)           !
+                                                        !    Dimensions: (nlayers)
+      integer(kind=jpim), intent(in) :: jt1(:)          !
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: planklay(:,:)      ! 
+                                                        !    Dimensions: (nlayers,nbndlw)
+      real(kind=jprb), intent(in) :: planklev(0:,:)     ! 
+                                                        !    Dimensions: (nlayers,nbndlw)
+      real(kind=jprb), intent(in) :: plankbnd(:)        ! 
+                                                        !    Dimensions: (nbndlw)
 
-      real(kind=jprb), intent(in) :: colh2o(mxlay)         ! column amount (h2o)
-      real(kind=jprb), intent(in) :: colco2(mxlay)         ! column amount (co2)
-      real(kind=jprb), intent(in) :: colo3(mxlay)          ! column amount (o3)
-      real(kind=jprb), intent(in) :: coln2o(mxlay)         ! column amount (n2o)
-      real(kind=jprb), intent(in) :: colco(mxlay)          ! column amount (co)
-      real(kind=jprb), intent(in) :: colch4(mxlay)         ! column amount (ch4)
-      real(kind=jprb), intent(in) :: colo2(mxlay)          ! column amount (o2)
-      real(kind=jprb), intent(in) :: colbrd(mxlay)         ! column amount (broadening gases)
+      real(kind=jprb), intent(in) :: colh2o(:)          ! column amount (h2o)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: colco2(:)          ! column amount (co2)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: colo3(:)           ! column amount (o3)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: coln2o(:)          ! column amount (n2o)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: colco(:)           ! column amount (co)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: colch4(:)          ! column amount (ch4)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: colo2(:)           ! column amount (o2)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: colbrd(:)          ! column amount (broadening gases)
+                                                        !    Dimensions: (nlayers)
 
-      integer(kind=jpim), intent(in) :: indself(mxlay)
-      integer(kind=jpim), intent(in) :: indfor(mxlay)
-      real(kind=jprb), intent(in) :: selffac(mxlay)
-      real(kind=jprb), intent(in) :: selffrac(mxlay)
-      real(kind=jprb), intent(in) :: forfac(mxlay)
-      real(kind=jprb), intent(in) :: forfrac(mxlay)
+      integer(kind=jpim), intent(in) :: indself(:)
+                                                        !    Dimensions: (nlayers)
+      integer(kind=jpim), intent(in) :: indfor(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: selffac(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: selffrac(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: forfac(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: forfrac(:)
+                                                        !    Dimensions: (nlayers)
 
-      integer(kind=jpim), intent(in) :: indminor(mxlay)
-      real(kind=jprb), intent(in) :: minorfrac(mxlay)
-      real(kind=jprb), intent(in) :: scaleminor(mxlay)
-      real(kind=jprb), intent(in) :: scaleminorn2(mxlay)
+      integer(kind=jpim), intent(in) :: indminor(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: minorfrac(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: scaleminor(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: scaleminorn2(:)
+                                                        !    Dimensions: (nlayers)
 
-      real(kind=jprb), intent(in) :: &                     !
-                         fac00(mxlay), fac01(mxlay), &
-                         fac10(mxlay), fac11(mxlay) 
-      real(kind=jprb), intent(in) :: &                     !
-                         rat_h2oco2(mxlay),rat_h2oco2_1(mxlay), &
-                         rat_h2oo3(mxlay),rat_h2oo3_1(mxlay), &
-                         rat_h2on2o(mxlay),rat_h2on2o_1(mxlay), &
-                         rat_h2och4(mxlay),rat_h2och4_1(mxlay), &
-                         rat_n2oco2(mxlay),rat_n2oco2_1(mxlay), &
-                         rat_o3co2(mxlay),rat_o3co2_1(mxlay)
+      real(kind=jprb), intent(in) :: &                  !
+                         fac00(:), fac01(:), &          !    Dimensions: (nlayers)
+                         fac10(:), fac11(:) 
+      real(kind=jprb), intent(in) :: &                  !
+                         rat_h2oco2(:),rat_h2oco2_1(:), &
+                         rat_h2oo3(:),rat_h2oo3_1(:), & !    Dimensions: (nlayers)
+                         rat_h2on2o(:),rat_h2on2o_1(:), &
+                         rat_h2och4(:),rat_h2och4_1(:), &
+                         rat_n2oco2(:),rat_n2oco2_1(:), &
+                         rat_o3co2(:),rat_o3co2_1(:)
 
-! Output
-      real(kind=jprb), intent(out) :: fracs(mxlay,ngpt)      ! planck fractions
-      real(kind=jprb), intent(out) :: taug(mxlay,ngpt)       ! gaseous optical depth 
+! ----- Output -----
+      real(kind=jprb), intent(out) :: fracs(:,:)        ! planck fractions
+                                                        !    Dimensions: (nlayers,ngptlw)
+      real(kind=jprb), intent(out) :: taug(:,:)         ! gaseous optical depth 
+                                                        !    Dimensions: (nlayers,ngptlw)
 
       hvrtau = '$Revision$'
 
@@ -241,9 +274,7 @@
       call taugb15
       call taugb16
 
-!-------------
       contains
-!-------------
 
 !----------------------------------------------------------------------------
       subroutine taugb1
@@ -262,12 +293,9 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng1
       use rrlw_kg01, only : fracrefa, fracrefb, absa, absb, &
                             ka_mn2, kb_mn2, selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -342,7 +370,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb1
 
 !----------------------------------------------------------------------------
@@ -357,12 +384,9 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng2, ngs1
       use rrlw_kg02, only : fracrefa, fracrefb, absa, absb, &
                             selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -418,7 +442,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb2
 
 !----------------------------------------------------------------------------
@@ -431,13 +454,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng3, ngs2
       use rrlw_ref, only : chi_mls
       use rrlw_kg03, only : fracrefa, fracrefb, absa, absb, &
                             ka_mn2o, kb_mn2o, selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -756,7 +776,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb3
 
 !----------------------------------------------------------------------------
@@ -768,13 +787,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng4, ngs3
       use rrlw_ref, only : chi_mls
       use rrlw_kg04, only : fracrefa, fracrefb, absa, absb, &
                             selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -1023,7 +1039,6 @@
 
       enddo
 
-      return
       end subroutine taugb4
 
 !----------------------------------------------------------------------------
@@ -1036,13 +1051,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng5, ngs4
       use rrlw_ref, only : chi_mls
       use rrlw_kg05, only : fracrefa, fracrefb, absa, absb, &
                             ka_mo3, selfref, forref, ccl4
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -1321,7 +1333,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb5
 
 !----------------------------------------------------------------------------
@@ -1334,13 +1345,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng6, ngs5
       use rrlw_ref, only : chi_mls
       use rrlw_kg06, only : fracrefa, absa, ka_mco2, &
                             selfref, forref, cfc11adj, cfc12
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -1411,7 +1419,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb6
 
 !----------------------------------------------------------------------------
@@ -1424,13 +1431,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng7, ngs6
       use rrlw_ref, only : chi_mls
       use rrlw_kg07, only : fracrefa, fracrefb, absa, absb, &
                             ka_mco2, kb_mco2, selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -1707,7 +1711,6 @@
 
       enddo
 
-      return
       end subroutine taugb7
 
 !----------------------------------------------------------------------------
@@ -1720,14 +1723,11 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng8, ngs7
       use rrlw_ref, only : chi_mls
       use rrlw_kg08, only : fracrefa, fracrefb, absa, absb, &
                             ka_mco2, ka_mn2o, ka_mo3, kb_mco2, kb_mn2o, &
                             selfref, forref, cfc12, cfc22adj
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -1834,7 +1834,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb8
 
 !----------------------------------------------------------------------------
@@ -1847,13 +1846,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng9, ngs8
       use rrlw_ref, only : chi_mls
       use rrlw_kg09, only : fracrefa, fracrefb, absa, absb, &
                             ka_mn2o, kb_mn2o, selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -2118,7 +2114,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb9
 
 !----------------------------------------------------------------------------
@@ -2130,12 +2125,9 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng10, ngs9
       use rrlw_kg10, only : fracrefa, fracrefb, absa, absb, &
                             selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -2189,7 +2181,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb10
 
 !----------------------------------------------------------------------------
@@ -2202,12 +2193,9 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng11, ngs10
       use rrlw_kg11, only : fracrefa, fracrefb, absa, absb, &
                             ka_mo2, kb_mo2, selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -2273,7 +2261,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb11
 
 !----------------------------------------------------------------------------
@@ -2285,13 +2272,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng12, ngs11
       use rrlw_ref, only : chi_mls
       use rrlw_kg12, only : fracrefa, absa, &
                             selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -2485,7 +2469,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb12
 
 !----------------------------------------------------------------------------
@@ -2497,13 +2480,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng13, ngs12
       use rrlw_ref, only : chi_mls
       use rrlw_kg13, only : fracrefa, fracrefb, absa, &
                             ka_mco2, ka_mco, kb_mo3, selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -2778,7 +2758,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb13
 
 !----------------------------------------------------------------------------
@@ -2790,12 +2769,9 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng14, ngs13
       use rrlw_kg14, only : fracrefa, fracrefb, absa, absb, &
                             selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -2843,7 +2819,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb14
 
 !----------------------------------------------------------------------------
@@ -2856,13 +2831,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng15, ngs14
       use rrlw_ref, only : chi_mls
       use rrlw_kg15, only : fracrefa, absa, &
                             ka_mn2, selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -3091,7 +3063,6 @@
          enddo
       enddo
 
-      return
       end subroutine taugb15
 
 !----------------------------------------------------------------------------
@@ -3103,13 +3074,10 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
       use parrrtm, only : ng16, ngs15
       use rrlw_ref, only : chi_mls
       use rrlw_kg16, only : fracrefa, fracrefb, absa, absb, &
                             selfref, forref
-
-      implicit none
 
 ! ------- Declarations -------
 
@@ -3310,10 +3278,9 @@
          enddo
       enddo
 
-      return
       end subroutine taugb16
 
-
-!---------------------------
       end subroutine taumol
-!---------------------------
+
+      end module rrtmg_lw_taumol
+

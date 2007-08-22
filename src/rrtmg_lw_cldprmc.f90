@@ -3,6 +3,8 @@
 !     revision:  $Revision$
 !     created:   $Date$
 !
+      module rrtmg_lw_cldprmc
+
 !  --------------------------------------------------------------------------
 ! |                                                                          |
 ! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
@@ -13,15 +15,10 @@
 ! |                                                                          |
 !  --------------------------------------------------------------------------
 
-      subroutine cldprmc(nlayers, inflag, iceflag, liqflag, cldfmc, &
-                         ciwpmc, clwpmc, reicmc, relqmc, ncbands, taucmc)
-
-! Purpose:  Compute the cloud optical depth(s) for each cloudy layer.
-
 ! --------- Modules ----------
 
       use parkind, only : jpim, jprb 
-      use parrrtm, only : mxlay, nbands, ngpt
+      use parrrtm, only : ngptlw
       use rrlw_cld, only: abscld1, absliq0, absliq1, &
                           absice0, absice1, absice2, absice3
       use rrlw_wvn, only: ngb
@@ -29,23 +26,38 @@
 
       implicit none
 
+      contains
+
+! ------------------------------------------------------------------------------
+      subroutine cldprmc(nlayers, inflag, iceflag, liqflag, cldfmc, &
+                         ciwpmc, clwpmc, reicmc, relqmc, ncbands, taucmc)
+! ------------------------------------------------------------------------------
+
+! Purpose:  Compute the cloud optical depth(s) for each cloudy layer.
+
 ! ------- Input -------
 
-      integer(kind=jpim), intent(in) :: nlayers              ! total number of layers
-      integer(kind=jpim), intent(in) :: inflag               ! see definitions
-      integer(kind=jpim), intent(in) :: iceflag              ! see definitions
-      integer(kind=jpim), intent(in) :: liqflag              ! see definitions
+      integer(kind=jpim), intent(in) :: nlayers         ! total number of layers
+      integer(kind=jpim), intent(in) :: inflag          ! see definitions
+      integer(kind=jpim), intent(in) :: iceflag         ! see definitions
+      integer(kind=jpim), intent(in) :: liqflag         ! see definitions
 
-      real(kind=jprb), intent(in) :: cldfmc(ngpt,mxlay)       ! cloud fraction [mcica]
-      real(kind=jprb), intent(in) :: ciwpmc(ngpt,mxlay)     ! cloud ice water path [mcica]
-      real(kind=jprb), intent(in) :: clwpmc(ngpt,mxlay)     ! cloud liquid water path [mcica]
-      real(kind=jprb), intent(in) :: relqmc(mxlay)            ! liquid particle size (microns)
-      real(kind=jprb), intent(in) :: reicmc(mxlay)            ! ice partcle size (microns)
+      real(kind=jprb), intent(in) :: cldfmc(:,:)        ! cloud fraction [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(in) :: ciwpmc(:,:)        ! cloud ice water path [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(in) :: clwpmc(:,:)        ! cloud liquid water path [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(in) :: relqmc(:)          ! liquid particle size (microns)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: reicmc(:)          ! ice partcle size (microns)
+                                                        !    Dimensions: (nlayers)
 
 ! ------- Output -------
 
-      integer(kind=jpim), intent(out) :: ncbands              ! number of cloud spectral bands
-      real(kind=jprb), intent(inout) :: taucmc(ngpt,mxlay)      ! cloud optical depth [mcica]
+      integer(kind=jpim), intent(out) :: ncbands        ! number of cloud spectral bands
+      real(kind=jprb), intent(inout) :: taucmc(:,:)     ! cloud optical depth [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
 
 ! ------- Local -------
 
@@ -54,8 +66,8 @@
       integer(kind=jpim) :: ig                  ! g-point interval index
       integer(kind=jpim) :: index 
 
-      real(kind=jprb) :: abscoice(ngpt)         ! ice absorption coefficients
-      real(kind=jprb) :: abscoliq(ngpt)         ! liquid absorption coefficients
+      real(kind=jprb) :: abscoice(ngptlw)       ! ice absorption coefficients
+      real(kind=jprb) :: abscoliq(ngptlw)       ! liquid absorption coefficients
       real(kind=jprb) :: cwp                    ! cloud water path
       real(kind=jprb) :: radice                 ! cloud ice effective radius (microns)
       real(kind=jprb) :: dgeice                 ! cloud ice generalized effective size
@@ -125,7 +137,7 @@
 
 ! This initialization is done in rrtmg_lw_subcol.F90.
 !      do lay = 1, nlayers
-!         do ig = 1, ngpt
+!         do ig = 1, ngptlw
 !            taucmc(ig,lay) = 0.0_jprb
 !         enddo
 !      enddo
@@ -133,7 +145,7 @@
 ! Main layer loop
       do lay = 1, nlayers
 
-        do ig = 1, ngpt 
+        do ig = 1, ngptlw
           cwp = ciwpmc(ig,lay) + clwpmc(ig,lay)
           if (cldfmc(ig,lay) .ge. eps .and. &
              (cwp .ge. eps .or. taucmc(ig,lay) .ge. eps)) then
@@ -244,6 +256,6 @@
          enddo
       enddo
 
-      return
-      end
+      end subroutine cldprmc
 
+      end module rrtmg_lw_cldprmc

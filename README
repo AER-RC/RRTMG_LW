@@ -1,10 +1,12 @@
-C     path:      $Source$
-C     author:    $Author$
-C     revision:  $Revision$
-C     created:   $Date$
-******************************************************************************
+!     path:      $Source$
+!     author:    $Author$
+!     revision:  $Revision$
+!     created:   $Date$
+! ---------------------------------------------------------------------
+
  RRTMG_LW: Longwave Radiative Transfer Model for GCMs
- Atmospheric and Environmental Research, Inc., Cambridge, MA
+ Atmospheric and Environmental Research, Inc., 
+ 131 Hartwell Avenue, Lexington, MA 02421
 
  Original version:   E. J. Mlawer, et al. (AER)
  Revision for GCMs:  Michael J. Iacono (AER)
@@ -44,7 +46,7 @@ C     created:   $Date$
 ******************************************************************************
 
 This directory contains the source code and sample makefile necessary to run
-RRTMG_LW version 4.0, a correlated k-distribution longwave radiative transfer 
+RRTMG_LW version 4.1, a correlated k-distribution longwave radiative transfer 
 model developed at AER, Inc for application to GCMs.  This version of RRTMG_LW 
 has been modified from the standard RRTM_LW distributed by AER to enhance its 
 performance for use within general circulation models.  This code has also
@@ -72,7 +74,11 @@ RRTMG_LW : Column Version
 *************************
 
 DOCUMENTATION:
+   The following text files (some in /column_model/doc directory) provide information
+   on using and running RRTMG_LW:
+
    README                    : Basic code package information (this file)
+   README.release_notes      : Code archive update information
    rrtmg_lw_instructions     : Input instructions for files INPUT_RRTM and IN_CLD_RRTM 
 
 
@@ -111,19 +117,20 @@ SOURCE CODE:
    rrlw_con.f90              : constants
    rrlw_kg**.f90             : absorption coefficient arrays for 16 spectral bands
    rrlw_ref.f90              : reference atmosphere data arrays
-   rrlw_tbl.f90              : look up table arrays
+   rrlw_tbl.f90              : exponential look up table arrays
    rrlw_vsn.f90              : version number information
    rrlw_wvn.f90              : spectral band and g-interval array information
 
 
 MAKEFILES:
-   The following files (in directory /column_model/makefiles) can be used to compile 
-   RRTMG_LW in stand-alone mode as a column model on various platforms.  Link one of 
-   these into the /column_model directory to compile. 
+   The following files (in directory /column_model/build/makefiles) can be used to 
+   compile RRTMG_LW in stand-alone mode as a column model on various platforms.  Link 
+   one of these into the /column_model/build directory to compile. 
 
    make_rrtmg_lw_sgi         : Sample makefile for SGI
    make_rrtmg_lw_sun         : Sample makefile for SUN
    make_rrtmg_lw_linux_pgi   : Sample makefile for LINUX (PGI compiler)
+   make_rrtmg_lw_aix_xlf90   : Sample makefile for AIX (XLF90 compiler)
    make_rrtmg_lw_OS_X_g95    : Sample makefile for OS_X (G95 compiler)
 
 
@@ -143,6 +150,7 @@ SAMPLE INPUT/OUTPUT:
                                with cloud flag turned on (with McICA)
    input_rrtm.MLS-xsec       : Sample 51 layer mid-latitude summer standard atmosphere
                                with cross-section input (CFCs, etc.)
+   input_rrtm.MLW            : Sample 51 layer mid-latitude winter standard atmosphere
    input_rrtm.SAW            : Sample 51 layer sub-arctic winter standard atmosphere
    input_rrtm.TROP           : Sample 51 layer tropical standard atmosphere
    in_cld_rrtm-cld5          : Sample cloud input file
@@ -203,11 +211,11 @@ Notes regarding GCM version:
       called only once.  The call to this subroutine should be moved to the 
       initialization section of the host model if RRTMG_LW is called by a GCM or SCM. 
 
-   2) The number of model layers is set by default to the maximum allowable number
-      (203) in parrrtm.f90.  For use in a GCM this should be changed to the actual
-      number of layers used in the GCM to conserve memory.
+   2) The number of model layers and the number of columns to be looped over should
+      be passed into RRTMG_LW through the subroutine call along with the other model
+      profile arrays. 
 
-   3) To utilize McICA, the sub-column generator (mcica_subcol_gen_le.f90) must be
+   3) To utilize McICA, the sub-column generator (mcica_subcol_gen_lw.f90) must be
       implemented in the GCM so that it is called just before RRTMG.
       If McICA is utilized, this will run only a single statistical sample per
       model grid box.  There are two options for the random number generator used

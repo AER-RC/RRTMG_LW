@@ -1,3 +1,8 @@
+!     path:      $Source$
+!     author:    $Author$
+!     revision:  $Revision$
+!     created:   $Date$
+!
 
       module mcica_subcol_gen_lw
 
@@ -24,14 +29,12 @@
 ! --------- Modules ----------
 
       use parkind, only : jpim, jprb 
-      use parrrtm, only : mxlay, nbands, ngpt, nlon
+      use parrrtm, only : nbndlw, ngptlw
       use rrlw_con, only: grav
       use rrlw_wvn, only: ngb
       use rrlw_vsn
 
       implicit none
-
-      private
 
 ! public interfaces/functions/subroutines
       public :: mcica_subcol_lw, generate_stochastic_clouds 
@@ -46,57 +49,72 @@
                        cldfrac, ciwp, clwp, rei, rel, tauc, cldfmc, &
                        ciwpmc, clwpmc, reicmc, relqmc, taucmc)
 
-      implicit none
-
 ! Control
-      integer(kind=jpim), intent(in) :: nlayers             ! number of model layers
-      integer(kind=jpim), intent(in) :: icld                ! clear/cloud, cloud overlap flag
-      integer(kind=jpim), intent(in) :: ims                 ! mcica statistical loop index; also
-                                                            ! value for changing mcica permute seed
-      integer(kind=jpim), intent(in) :: iplon               ! column/longitude dimension
+      integer(kind=jpim), intent(in) :: iplon           ! column/longitude dimension
+      integer(kind=jpim), intent(in) :: nlayers         ! number of model layers
+      integer(kind=jpim), intent(in) :: icld            ! clear/cloud, cloud overlap flag
+      integer(kind=jpim), intent(in) :: ims             ! mcica statistical loop index; also
+                                                        ! value for changing mcica permute seed
 
 ! Atmosphere
-      real(kind=jprb), intent(in) :: play(mxlay)           ! layer pressures (mb) 
-!      real(kind=jprb), intent(in) :: pdp(mxlay)             ! layer pressure thickness (mb) 
+      real(kind=jprb), intent(in) :: play(:)            ! layer pressures (mb) 
+                                                        !    Dimensions: (nlayers)
 
 ! Atmosphere/clouds - cldprop
-      real(kind=jprb), intent(in) :: cldfrac(mxlay)         ! layer cloud fraction
-      real(kind=jprb), intent(in) :: tauc(nbands,mxlay)     ! cloud optical depth
-!      real(kind=jprb), intent(in) :: ssac(nbands,mxlay)     ! cloud single scattering albedo
-!      real(kind=jprb), intent(in) :: asmc(nbands,mxlay)     ! cloud asymmetry parameter
-      real(kind=jprb), intent(in) :: ciwp(mxlay)            ! cloud ice water path
-      real(kind=jprb), intent(in) :: clwp(mxlay)            ! cloud liquid water path
-      real(kind=jprb), intent(in) :: rei(mxlay)             ! cloud ice particle size
-      real(kind=jprb), intent(in) :: rel(mxlay)             ! cloud liquid particle size
+      real(kind=jprb), intent(in) :: cldfrac(:)         ! layer cloud fraction
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: tauc(:,:)          ! cloud optical depth
+                                                        !    Dimensions: (nbndlw,nlayers)
+!      real(kind=jprb), intent(in) :: ssac(:,:)         ! cloud single scattering albedo
+                                                        !    Dimensions: (nbndlw,nlayers)
+!      real(kind=jprb), intent(in) :: asmc(:,:)         ! cloud asymmetry parameter
+                                                        !    Dimensions: (nbndlw,nlayers)
+      real(kind=jprb), intent(in) :: ciwp(:)            ! cloud ice water path
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: clwp(:)            ! cloud liquid water path
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: rei(:)             ! cloud ice particle size
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: rel(:)             ! cloud liquid particle size
+                                                        !    Dimensions: (nlayers)
 
+! ----- Output -----
 ! Atmosphere/clouds - cldprmc [mcica]
-      real(kind=jprb), intent(out) :: cldfmc(ngpt,mxlay)       ! cloud fraction [mcica]
-      real(kind=jprb), intent(out) :: ciwpmc(ngpt,mxlay)       ! cloud ice water path [mcica]
-      real(kind=jprb), intent(out) :: clwpmc(ngpt,mxlay)       ! cloud liquid water path [mcica]
-      real(kind=jprb), intent(out) :: relqmc(mxlay)            ! liquid particle size (microns)
-      real(kind=jprb), intent(out) :: reicmc(mxlay)            ! ice partcle size (microns)
-      real(kind=jprb), intent(out) :: taucmc(ngpt,mxlay)       ! cloud optical depth [mcica]
-!      real(kind=jprb), intent(out) :: ssacmc(ngpt,mxlay)       ! cloud single scattering albedo [mcica]
-!      real(kind=jprb), intent(out) :: asmcmc(ngpt,mxlay)       ! cloud asymmetry parameter [mcica]
+      real(kind=jprb), intent(out) :: cldfmc(:,:)       ! cloud fraction [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(out) :: ciwpmc(:,:)       ! cloud ice water path [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(out) :: clwpmc(:,:)       ! cloud liquid water path [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(out) :: relqmc(:)         ! liquid particle size (microns)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: reicmc(:)         ! ice partcle size (microns)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: taucmc(:,:)       ! cloud optical depth [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
+!      real(kind=jprb), intent(out) :: ssacmc(:,:)      ! cloud single scattering albedo [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
+!      real(kind=jprb), intent(out) :: asmcmc(:,:)      ! cloud asymmetry parameter [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
 
-! Local
+! ----- Local -----
 
 ! Stochastic cloud generator variables [mcica]
-      integer(kind=jpim), parameter :: nsubclw = ngpt  ! number of sub-columns (g-point intervals)
-      integer(kind=jpim) :: permuteseed                ! if the cloud generator is called multiple times, 
-                                                       ! permute the seed between each call.    
-      integer(kind=jpim) :: km, im, nm                 ! loop indices
+      integer(kind=jpim), parameter :: nsubclw = ngptlw ! number of sub-columns (g-point intervals)
+      integer(kind=jpim) :: permuteseed                 ! if the cloud generator is called multiple times, 
+                                                        ! permute the seed between each call.    
+      integer(kind=jpim) :: km, im, nm                  ! loop indices
 
-      real(kind=jprb) :: pmid(mxlay)                          ! layer pressures (Pa) 
-!      real(kind=jprb) :: pdel(mxlay)                          ! layer pressure thickness (Pa) 
-!      real(kind=jprb) :: qi(mxlay)                            ! ice water (specific humidity)
-!      real(kind=jprb) :: ql(mxlay)                            ! liq water (specific humidity)
+      real(kind=jprb) :: pmid(nlayers)                  ! layer pressures (Pa) 
+!      real(kind=jprb) :: pdel(nlayers)                 ! layer pressure thickness (Pa) 
+!      real(kind=jprb) :: qi(nlayers)                   ! ice water (specific humidity)
+!      real(kind=jprb) :: ql(nlayers)                   ! liq water (specific humidity)
 
 
 ! Return if clear sky; or stop if icld out of range
       if (icld.eq.0) return
       if (icld.lt.0.or.icld.gt.3) then 
-         stop 'RRTMG_LW: INVALID ICLD'
+         stop 'MCICA_SUBCOL: INVALID ICLD'
       endif 
 
 ! Set permute seed for random number generator
@@ -107,10 +125,9 @@
 ! Pass particle sizes to new arrays, no subcolumns for these properties yet
 ! Convert pressures from mb to Pa
 
-      reicmc(:mxlay) = rei(:mxlay)
-      relqmc(:mxlay) = rel(:mxlay)
-      pmid(:mxlay) = play(:mxlay)*1.e2_jprb
-!      pdel(:mxlay) = pdp(:mxlay)*1.e2_jprb
+      reicmc(:) = rei(:)
+      relqmc(:) = rel(:)
+      pmid(:) = play(:)*1.e2_jprb
 
 ! Convert input ice and liquid cloud water paths to specific humidity ice and liquid components 
 
@@ -198,75 +215,86 @@
       use MersenneTwister, only: randomNumberSequence, &   
                                  new_RandomNumberSequence, getRandomReal
 
-      implicit none
-
       type(randomNumberSequence) :: randomNumbers
 
 ! -- Arguments
 
-      integer(kind=jpim), intent(in) :: nlayers                  ! number of layers
-      integer(kind=jpim), intent(in) :: icld                     ! clear/cloud, cloud overlap flag
+      integer(kind=jpim), intent(in) :: nlayers         ! number of layers
+      integer(kind=jpim), intent(in) :: icld            ! clear/cloud, cloud overlap flag
       integer(kind=jpim), optional, intent(in) :: changeSeed     ! allows permuting seed
 
 ! Column state (cloud fraction, cloud water, cloud ice) + variables needed to read physics state 
-      real(kind=jprb), intent(in) :: pmid(mxlay)                 ! layer pressure (Pa)
-      real(kind=jprb), intent(in) :: cld(mxlay)                  ! cloud fraction 
-      real(kind=jprb), intent(in) :: clwp(mxlay)                 ! cloud liquid water path
-      real(kind=jprb), intent(in) :: ciwp(mxlay)                 ! cloud ice water path
-      real(kind=jprb), intent(in) :: tauc(nbands,mxlay)          ! cloud optical depth
-!      real(kind=jprb), intent(in) :: ssac(nbands,mxlay)          ! cloud single scattering albedo
-                                                                 !   inactive - for future expansion
-!      real(kind=jprb), intent(in) :: asmc(nbands,mxlay)          ! cloud asymmetry parameter
-                                                                 !   inactive - for future expansion
+      real(kind=jprb), intent(in) :: pmid(:)            ! layer pressure (Pa)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: cld(:)             ! cloud fraction 
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: clwp(:)            ! cloud liquid water path
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: ciwp(:)            ! cloud ice water path
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: tauc(:,:)          ! cloud optical depth
+                                                        !    Dimensions: (nbndlw,nlayers)
+!      real(kind=jprb), intent(in) :: ssac(:,:)         ! cloud single scattering albedo
+                                                        !    Dimensions: (nbndlw,nlayers)
+                                                        !   inactive - for future expansion
+!      real(kind=jprb), intent(in) :: asmc(:,:)         ! cloud asymmetry parameter
+                                                        !    Dimensions: (nbndlw,nlayers)
+                                                        !   inactive - for future expansion
 
-      real(kind=jprb), intent(out) :: cld_stoch(ngpt, mxlay)  ! subcolumn cloud fraction 
-      real(kind=jprb), intent(out) :: clwp_stoch(ngpt, mxlay) ! subcolumn cloud liquid water path
-      real(kind=jprb), intent(out) :: ciwp_stoch(ngpt, mxlay) ! subcolumn cloud ice water path
-      real(kind=jprb), intent(out) :: tauc_stoch(ngpt, mxlay) ! subcolumn cloud optical depth
-!      real(kind=jprb), intent(out) :: ssac_stoch(ngpt, mxlay) ! subcolumn cloud single scattering albedo
-                                                                 !   inactive - for future expansion
-!      real(kind=jprb), intent(out) :: asmc_stoch(ngpt, mxlay) ! subcolumn cloud asymmetry parameter
-                                                                 !   inactive - for future expansion
+      real(kind=jprb), intent(out) :: cld_stoch(:,:)    ! subcolumn cloud fraction 
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(out) :: clwp_stoch(:,:)   ! subcolumn cloud liquid water path
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(out) :: ciwp_stoch(:,:)   ! subcolumn cloud ice water path
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(out) :: tauc_stoch(:,:)   ! subcolumn cloud optical depth
+                                                        !    Dimensions: (ngptlw,nlayers)
+!      real(kind=jprb), intent(out) :: ssac_stoch(:,:)  ! subcolumn cloud single scattering albedo
+                                                        !    Dimensions: (ngptlw,nlayers)
+                                                        !   inactive - for future expansion
+!      real(kind=jprb), intent(out) :: asmc_stoch(:,:)  ! subcolumn cloud asymmetry parameter
+                                                        !    Dimensions: (ngptlw,nlayers)
+                                                        !   inactive - for future expansion
 
 ! -- Local variables
-      integer(kind=jpim), parameter :: nsubcol = ngpt            ! number of sub-columns (g-point intervals)
-      real(kind=jprb) :: cldf(mxlay)                             ! cloud fraction 
+      integer(kind=jpim), parameter :: nsubcol = ngptlw ! number of sub-columns (g-point intervals)
+      real(kind=jprb) :: cldf(nlayers)                  ! cloud fraction 
 
 ! Mean over the subcolumns (cloud fraction, cloud water , cloud ice) - inactive
-!      real(kind=jprb) :: mean_cld_stoch(mxlay)                   ! cloud fraction 
-!      real(kind=jprb) :: mean_clwp_stoch(mxlay)                  ! cloud water
-!      real(kind=jprb) :: mean_ciwp_stoch(mxlay)                  ! cloud ice
-!      real(kind=jprb) :: mean_tauc_stoch(mxlay)                  ! cloud optical depth
-!      real(kind=jprb) :: mean_ssac_stoch(mxlay)                  ! cloud single scattering albedo
-!      real(kind=jprb) :: mean_asmc_stoch(mxlay)                  ! cloud asymmetry parameter
+!      real(kind=jprb) :: mean_cld_stoch(nlayers)       ! cloud fraction 
+!      real(kind=jprb) :: mean_clwp_stoch(nlayers)      ! cloud water
+!      real(kind=jprb) :: mean_ciwp_stoch(nlayers)      ! cloud ice
+!      real(kind=jprb) :: mean_tauc_stoch(nlayers)      ! cloud optical depth
+!      real(kind=jprb) :: mean_ssac_stoch(nlayers)      ! cloud single scattering albedo
+!      real(kind=jprb) :: mean_asmc_stoch(nlayers)      ! cloud asymmetry parameter
 
 ! Set overlap
-      integer(kind=jpim) :: overlap                              ! 1 = random overlap, 2 = maximum/random,
-                                                                 ! 3 = maximum overlap, 
-!      real(kind=jprb), parameter  :: Zo = 2500.                 ! length scale (m) 
-!      real(kind=jprb) :: zm(mxlay)                              ! Height of midpoints (above surface)
-!      real(kind=jprb), dimension(mxlay) :: alpha=0.0            ! overlap parameter  
+      integer(kind=jpim) :: overlap                     ! 1 = random overlap, 2 = maximum/random,
+                                                        ! 3 = maximum overlap, 
+!      real(kind=jprb), parameter  :: Zo = 2500._jprb   ! length scale (m) 
+!      real(kind=jprb) :: zm(nlayers)                   ! Height of midpoints (above surface)
+!      real(kind=jprb), dimension(nlayers) :: alpha=0.0_jprb ! overlap parameter  
 
 ! Constants (min value for cloud fraction and cloud water and ice)
-      real(kind=jprb), parameter :: cldmin = 1.0e-2              ! min cloud fraction
-!      real(kind=jprb), parameter :: qmin   = 1.0e-10             ! min cloud water and cloud ice (not used)
+      real(kind=jprb), parameter :: cldmin = 1.0e-2_jprb     ! min cloud fraction
+!      real(kind=jprb), parameter :: qmin   = 1.0e-10_jprb   ! min cloud water and cloud ice (not used)
 
 ! Variables related to random number and seed 
-      integer(kind=jpim) :: irnd                                 ! flag for random number generator
-                                                                 !  0 = kissvec
-                                                                 !  1 = Mersenne Twister
+      integer(kind=jpim) :: irnd                        ! flag for random number generator
+                                                        !  0 = kissvec
+                                                        !  1 = Mersenne Twister
 
-      real(kind=jprb), dimension(nsubcol, mxlay) :: CDF, CDF2    ! random numbers
-      integer(kind=jpim) :: seed1, seed2, seed3, seed4           ! seed to create random number (kissvec)
-      real(kind=jprb) :: rand_num                                ! random number (kissvec)
-      integer(kind=jpim) :: iseed                                ! seed to create random number (Mersenne Twister)
-      real(kind=jprb) :: rand_num_mt                             ! random number (Mersenne Twister)
+      real(kind=jprb), dimension(nsubcol, nlayers) :: CDF, CDF2 ! random numbers
+      integer(kind=jpim) :: seed1, seed2, seed3, seed4          ! seed to create random number (kissvec)
+      real(kind=jprb) :: rand_num                       ! random number (kissvec)
+      integer(kind=jpim) :: iseed                       ! seed to create random number (Mersenne Twister)
+      real(kind=jprb) :: rand_num_mt                    ! random number (Mersenne Twister)
 
 ! Flag to identify cloud fraction in subcolumns
-      logical,  dimension(nsubcol, mxlay) :: iscloudy            ! flag that says whether a gridbox is cloudy
+      logical,  dimension(nsubcol, nlayers) :: iscloudy ! flag that says whether a gridbox is cloudy
 
 ! Indices
-      integer(kind=jpim) :: ilev, isubcol, i, n                  ! indices
+      integer(kind=jpim) :: ilev, isubcol, i, n         ! indices
 
 !------------------------------------------------------------------------------------------ 
 ! Set randum number generator to use (0 = kissvec; 1 = mersennetwister)
@@ -289,6 +317,9 @@
       if (irnd.eq.0) then   
 ! For kissvec, create a seed that depends on the state of the columns. Maybe not the best way, but it works.  
 ! Must use pmid from bottom four layers. 
+         if (pmid(1).lt.pmid(2)) then 
+            stop 'MCICA_SUBCOL: KISSVEC SEED GENERATOR REQUIRES PMID FROM BOTTOM FOUR LAYERS.'
+         endif 
          seed1 = (pmid(1) - int(pmid(1)))  * 1000000000_jpim
          seed2 = (pmid(2) - int(pmid(2)))  * 1000000000_jpim
          seed3 = (pmid(3) - int(pmid(3)))  * 1000000000_jpim
@@ -390,7 +421,7 @@
 
 !       ! compute alpha
 !       zm    = state%zm     
-!       alpha(:, 1) = 0.
+!       alpha(:, 1) = 0._jprb
 !       do ilev = 2,nlayers
 !          alpha(:, ilev) = exp( -( zm (:, ilev-1) -  zm (:, ilev)) / Zo)
 !       end do
@@ -446,7 +477,7 @@
          end where
       enddo
       do ilev = 1,nlayers
-         do isubcol = 1,ngpt
+         do isubcol = 1,ngptlw
             if ( iscloudy(isubcol,ilev) .and. (cldf(ilev) > 0._jprb) ) then
                n = ngb(isubcol)
                tauc_stoch(isubcol,ilev) = tauc(n,ilev)
@@ -504,8 +535,6 @@
 ! (3) Two 16-bit multiply-with-carry generators, period 597273182964842497>2^59
 !  Overall period>2^123; 
 !
-      implicit none
-
       real(kind=jprb), intent(inout)  :: ran_arr
       integer(kind=jpim), intent(inout) :: seed1,seed2,seed3,seed4
 !      integer(kind=jpim) :: i,sz,kiss

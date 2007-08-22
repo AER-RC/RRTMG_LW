@@ -3,6 +3,8 @@
 !     revision:  $Revision$
 !     created:   $Date$
 !
+      module rrtmg_lw_init
+
 !  --------------------------------------------------------------------------
 ! |                                                                          |
 ! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
@@ -13,11 +15,18 @@
 ! |                                                                          |
 !  --------------------------------------------------------------------------
 
+      use parkind, only : jpim, jprb 
+      use rrlw_wvn
+      use rrtmg_lw_cldprop, only: lwcldpr
+      use rrtmg_lw_setcoef, only: lwatmref, lwavplank
+
+      implicit none
+
+      contains
+
 ! **************************************************************************
-      subroutine rrtmg_lw_init
+      subroutine rrtmg_lw_ini
 ! **************************************************************************
-!  RRTMG Longwave Radiative Transfer Model for GCMs
-!  Atmospheric and Environmental Research, Inc., Cambridge, MA
 !
 !  Original version:       Michael J. Iacono; July, 1998
 !  First revision for NCAR CCM:   September, 1998
@@ -29,32 +38,28 @@
 !  spectral band are reduced from 256 g-point intervals to 140.
 ! **************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt
-      use rrlw_wvn
-      use rrlw_tbl, only: ntbl, tblint, bpade, tautbl, trans, tf
+      use parrrtm, only : mg, nbndlw, ngptlw
+      use rrlw_tbl, only: ntbl, tblint, pade, bpade, tau_tbl, exp_tbl, tfn_tbl
       use rrlw_vsn, only: hvrini, hnamini
-
-      implicit none
 
 ! ------- Local -------
 
       integer(kind=jpim) :: itr, ibnd, igc, ig, ind, ipr 
       integer(kind=jpim) :: igcsm, iprsm
 
-      real(kind=jprb) :: pade                   ! Pade constant
       real(kind=jprb) :: wtsum, wtsm(mg)        !
       real(kind=jprb) :: tfn                    !
 
 ! ------- Definitions -------
 !     Arrays for 10000-point look-up tables:
-!     TAUTBL  Clear-sky optical depth (used in cloudy radiative transfer)
-!     TF      Tau transition function; i.e. the transition of the Planck
+!     TAU_TBL Clear-sky optical depth (used in cloudy radiative transfer)
+!     EXP_TBL Exponential lookup table for ransmittance
+!     TFN_TBL Tau transition function; i.e. the transition of the Planck
 !             function from that for the mean layer temperature to that for
 !             the layer boundary temperature as a function of optical depth.
 !             The "linear in tau" method is used to make the table.
-!     TRANS   Transmittance
-!     BPADE   Inverse of the Pade approximation constant (= 1./0.278)
+!     PADE    Pade approximation constant (= 0.278)
+!     BPADE   Inverse of the Pade approximation constant
 !
 
       hvrini = '$Revision$'
@@ -91,22 +96,21 @@
 ! are computed at intervals of 0.001.  The inverse of the constant used
 ! in the Pade approximation to the tau transition function is set to b.
 
-      tautbl(0) = 0.0_jprb
-      tautbl(ntbl) = 1.e10_jprb
-      trans(0) = 1.0_jprb
-      trans(ntbl) = 0.0_jprb
-      tf(0) = 0.0_jprb
-      tf(ntbl) = 1.0_jprb
-      pade  = 0.278_jprb
-      bpade = 1.0_jprb/pade
-      do itr = 1,ntbl-1
-         tfn = itr/float(ntbl)
-         tautbl(itr) = bpade*tfn/(1._jprb-tfn)
-         trans(itr) = exp(-tautbl(itr))
-         if (tautbl(itr) .lt. 0.06_jprb) then
-            tf(itr) = tautbl(itr)/6._jprb
+      tau_tbl(0) = 0.0_jprb
+      tau_tbl(ntbl) = 1.e10_jprb
+      exp_tbl(0) = 1.0_jprb
+      exp_tbl(ntbl) = 0.0_jprb
+      tfn_tbl(0) = 0.0_jprb
+      tfn_tbl(ntbl) = 1.0_jprb
+      bpade = 1.0_jprb / pade
+      do itr = 1, ntbl-1
+         tfn = float(itr) / float(ntbl)
+         tau_tbl(itr) = bpade * tfn / (1._jprb - tfn)
+         exp_tbl(itr) = exp(-tau_tbl(itr))
+         if (tau_tbl(itr) .lt. 0.06_jprb) then
+            tfn_tbl(itr) = tau_tbl(itr)/6._jprb
          else
-            tf(itr) = 1._jprb-2._jprb*((1._jprb/tautbl(itr))-(trans(itr)/(1.-trans(itr))))
+            tfn_tbl(itr) = 1._jprb-2._jprb*((1._jprb/tau_tbl(itr))-(exp_tbl(itr)/(1.-exp_tbl(itr))))
          endif
       enddo
 
@@ -116,7 +120,7 @@
 ! Compute relative weighting for new g-point combinations.
 
       igcsm = 0
-      do ibnd = 1,nbands
+      do ibnd = 1,nbndlw
          iprsm = 0
          if (ngc(ibnd).lt.mg) then
             do igc = 1,ngc(ibnd) 
@@ -160,17 +164,88 @@
       call cmbgb15
       call cmbgb16
 
-      return
-      end
+      end subroutine rrtmg_lw_ini
+
+!***************************************************************************
+      subroutine lwdatinit
+!***************************************************************************
+
+! --------- Modules ----------
+
+      use parrrtm, only : maxxsec, maxinpx
+      use rrlw_con, only: heatfac, grav, planck, boltz, &
+                          clight, avogad, alosmt, gascon, radcn1, radcn2 
+      use rrlw_vsn
+
+      save 
+ 
+! Longwave spectral band limits (wavenumbers)
+      wavenum1(:) = (/ 10._jprb, 350._jprb, 500._jprb, 630._jprb, 700._jprb, 820._jprb, &
+                      980._jprb,1080._jprb,1180._jprb,1390._jprb,1480._jprb,1800._jprb, &
+                     2080._jprb,2250._jprb,2390._jprb,2600._jprb/)
+      wavenum2(:) = (/350._jprb, 500._jprb, 630._jprb, 700._jprb, 820._jprb, 980._jprb, &
+                     1080._jprb,1180._jprb,1390._jprb,1480._jprb,1800._jprb,2080._jprb, &
+                     2250._jprb,2390._jprb,2600._jprb,3250._jprb/)
+      delwave(:) =  (/340._jprb, 150._jprb, 130._jprb,  70._jprb, 120._jprb, 160._jprb, &
+                      100._jprb, 100._jprb, 210._jprb,  90._jprb, 320._jprb, 280._jprb, &
+                      170._jprb, 130._jprb, 220._jprb, 650._jprb/)
+
+! Spectral band information
+      ng(:) = (/16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16/)
+      nspa(:) = (/1,1,9,9,9,1,9,1,9,1,1,9,9,1,9,9/)
+      nspb(:) = (/1,1,5,5,5,0,1,1,1,1,1,0,0,1,0,0/)
+
+!     Heatfac is the factor by which one must multiply delta-flux/ 
+!     delta-pressure, with flux in w/m-2 and pressure in mbar, to get 
+!     the heating rate in units of degrees/day.  It is equal to 
+!           (g)x(#sec/day)x(1e-5)/(specific heat of air at const. p)
+!        =  (9.8066)(86400)(1e-5)/(1.004)
+      heatfac = 8.4391_jprb
+
+!     Modified values for consistency with CAM3:
+!        =  (9.80616)(86400)(1e-5)/(1.00464)
+!      heatfac = 8.43339130434_jprb
+
+!     nxmol     - number of cross-sections input by user
+!     ixindx(i) - index of cross-section molecule corresponding to Ith
+!                 cross-section specified by user
+!                 = 0 -- not allowed in rrtm
+!                 = 1 -- ccl4
+!                 = 2 -- cfc11
+!                 = 3 -- cfc12
+!                 = 4 -- cfc22
+      nxmol = 4
+      ixindx(1) = 1
+      ixindx(2) = 2
+      ixindx(3) = 3
+      ixindx(4) = 4
+      ixindx(5:maxinpx) = 0
+
+!    Constants from NIST 01/11/2002
+
+      grav = 9.8066_jprb
+      planck = 6.62606876e-27_jprb
+      boltz = 1.3806503e-16_jprb
+      clight = 2.99792458e+10_jprb
+      avogad = 6.02214199e+23_jprb
+      alosmt = 2.6867775e+19_jprb
+      gascon = 8.31447200e+07_jprb
+      radcn1 = 1.191042722e-12_jprb
+      radcn2 = 1.4387752_jprb
+!
+!     units are generally cgs
+!
+!     The first and second radiation constants are taken from NIST.
+!     They were previously obtained from the relations:
+!          radcn1 = 2.*planck*clight*clight*1.e-07
+!          radcn2 = planck*clight/boltz
+
+      end subroutine lwdatinit
 
 !***************************************************************************
       subroutine lwcmbdat
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, ngm, wt
-
-      implicit none
       save
  
 ! ------- Definitions -------
@@ -178,8 +253,8 @@
 !     This mapping from 256 to 140 points has been carefully selected to 
 !     minimize the effect on the resulting fluxes and cooling rates, and
 !     caution should be used if the mapping is modified.  The full 256
-!     g-point set can be restored with ngpt=256, ngc=16*16, ngn=256*1., etc.
-!     ngpt    The total number of new g-points
+!     g-point set can be restored with ngptlw=256, ngc=16*16, ngn=256*1., etc.
+!     ngptlw  The total number of new g-points
 !     ngc     The number of new g-points in each band
 !     ngs     The cumulative sum of new g-points for each band
 !     ngm     The index of each new g-point relative to the original
@@ -247,8 +322,7 @@
                  0.0022199750_jprb, 0.0014140010_jprb, 0.0005330000_jprb, &
                  0.0000750000_jprb/)
 
-      return
-      end
+      end subroutine lwcmbdat
 
 !***************************************************************************
       subroutine cmbgb1
@@ -272,15 +346,11 @@
 !        10-250 cm-1 (low - h2o; high - h2o)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng1
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng1
       use rrlw_kg01, only: fracrefao, fracrefbo, kao, kbo, kao_mn2, kbo_mn2, &
                            selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, kb, ka_mn2, kb_mn2, &
                            selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jt, jp, igc, ipr, iprsm 
@@ -364,8 +434,7 @@
          fracrefb(igc) = sumf2
       enddo
 
-      return
-      end
+      end subroutine cmbgb1
 
 !***************************************************************************
       subroutine cmbgb2
@@ -377,13 +446,9 @@
 !           250 - 500 cm-1 (low - h2o; high - h2o)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng2
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng2
       use rrlw_kg02, only: fracrefao, fracrefbo, kao, kbo, selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, kb, selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jt, jp, igc, ipr, iprsm 
@@ -452,8 +517,7 @@
          fracrefb(igc) = sumf2
       enddo
 
-      return
-      end
+      end subroutine cmbgb2
 
 !***************************************************************************
       subroutine cmbgb3
@@ -465,15 +529,11 @@
 ! old band 3:  500-630 cm-1 (low - h2o,co2; high - h2o,co2)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng3
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng3
       use rrlw_kg03, only: fracrefao, fracrefbo, kao, kbo, kao_mn2o, kbo_mn2o, &
                            selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, kb, ka_mn2o, kb_mn2o, &
                            selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jn, jt, jp, igc, ipr, iprsm 
@@ -587,8 +647,7 @@
          enddo
       enddo
 
-      return
-      end
+      end subroutine cmbgb3
 
 !***************************************************************************
       subroutine cmbgb4
@@ -599,13 +658,9 @@
 ! old band 4:  630-700 cm-1 (low - h2o,co2; high - o3,co2)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng4
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng4
       use rrlw_kg04, only: fracrefao, fracrefbo, kao, kbo, selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, kb, selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jn, jt, jp, igc, ipr, iprsm 
@@ -691,8 +746,7 @@
          enddo
       enddo
 
-      return
-      end
+      end subroutine cmbgb4
 
 !***************************************************************************
       subroutine cmbgb5
@@ -704,15 +758,11 @@
 ! old band 5:  700-820 cm-1 (low - h2o,co2; high - o3,co2)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng5
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng5
       use rrlw_kg05, only: fracrefao, fracrefbo, kao, kbo, kao_mo3, ccl4o, &
                            selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, kb, ka_mo3, ccl4, &
                            selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jn, jt, jp, igc, ipr, iprsm 
@@ -822,8 +872,7 @@
          ccl4(igc) = sumk
       enddo
 
-      return
-      end
+      end subroutine cmbgb5
 
 !***************************************************************************
       subroutine cmbgb6
@@ -835,15 +884,11 @@
 ! old band 6:  820-980 cm-1 (low - h2o; high - nothing)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng6
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng6
       use rrlw_kg06, only: fracrefao, kao, kao_mco2, cfc11adjo, cfc12o, &
                            selfrefo, forrefo, &
                            fracrefa, ka, ka_mco2, cfc11adj, cfc12, &
                            selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jt, jp, igc, ipr, iprsm 
@@ -916,8 +961,7 @@
          cfc12(igc) = sumk2
       enddo
 
-      return
-      end
+      end subroutine cmbgb6
 
 !***************************************************************************
       subroutine cmbgb7
@@ -929,15 +973,11 @@
 ! old band 7:  980-1080 cm-1 (low - h2o,o3; high - o3)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng7
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng7
       use rrlw_kg07, only: fracrefao, fracrefbo, kao, kbo, kao_mco2, kbo_mco2, &
                            selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, kb, ka_mco2, kb_mco2, &
                            selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jn, jt, jp, igc, ipr, iprsm 
@@ -1045,8 +1085,7 @@
          fracrefb(igc) = sumf
       enddo
 
-      return
-      end
+      end subroutine cmbgb7
 
 !***************************************************************************
       subroutine cmbgb8
@@ -1058,17 +1097,13 @@
 ! old band 8:  1080-1180 cm-1 (low (i.e.>~300mb) - h2o; high - o3)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng8
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng8
       use rrlw_kg08, only: fracrefao, fracrefbo, kao, kao_mco2, kao_mn2o, &
                            kao_mo3, kbo, kbo_mco2, kbo_mn2o, selfrefo, forrefo, &
                            cfc12o, cfc22adjo, &
                            fracrefa, fracrefb, ka, ka_mco2, ka_mn2o, &
                            ka_mo3, kb, kb_mco2, kb_mn2o, selfref, forref, &
                            cfc12, cfc22adj
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jt, jp, igc, ipr, iprsm 
@@ -1169,8 +1204,7 @@
          cfc22adj(igc) = sumk2
       enddo
 
-      return
-      end
+      end subroutine cmbgb8
 
 !***************************************************************************
       subroutine cmbgb9
@@ -1182,15 +1216,11 @@
 ! old band 9:  1180-1390 cm-1 (low - h2o,ch4; high - ch4)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng9
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng9
       use rrlw_kg09, only: fracrefao, fracrefbo, kao, kao_mn2o, &
                            kbo, kbo_mn2o, selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, ka_mn2o, &
                            kb, kb_mn2o, selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jn, jt, jp, igc, ipr, iprsm 
@@ -1299,8 +1329,7 @@
          fracrefb(igc) = sumf
       enddo
 
-      return
-      end
+      end subroutine cmbgb9
 
 !***************************************************************************
       subroutine cmbgb10
@@ -1311,15 +1340,11 @@
 ! old band 10:  1390-1480 cm-1 (low - h2o; high - h2o)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng10
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng10
       use rrlw_kg10, only: fracrefao, fracrefbo, kao, kbo, &
                            selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, kb, &
                            selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jt, jp, igc, ipr, iprsm 
@@ -1391,8 +1416,7 @@
          fracrefb(igc) = sumf2
       enddo
 
-      return
-      end
+      end subroutine cmbgb10
 
 !***************************************************************************
       subroutine cmbgb11
@@ -1405,15 +1429,11 @@
 !                              (high key - h2o; high minor - o2)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng11
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng11
       use rrlw_kg11, only: fracrefao, fracrefbo, kao, kao_mo2, &
                            kbo, kbo_mo2, selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, ka_mo2, &
                            kb, kb_mo2, selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jt, jp, igc, ipr, iprsm 
@@ -1499,8 +1519,7 @@
          fracrefb(igc) = sumf2
       enddo
 
-      return
-      end
+      end subroutine cmbgb11
 
 !***************************************************************************
       subroutine cmbgb12
@@ -1511,13 +1530,9 @@
 ! old band 12:  1800-2080 cm-1 (low - h2o,co2; high - nothing)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng12
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng12
       use rrlw_kg12, only: fracrefao, kao, selfrefo, forrefo, &
                            fracrefa, ka, selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jn, jt, jp, igc, ipr, iprsm 
@@ -1576,8 +1591,7 @@
          enddo
       enddo
 
-      return
-      end
+      end subroutine cmbgb12
 
 !***************************************************************************
       subroutine cmbgb13
@@ -1588,15 +1602,11 @@
 ! old band 13:  2080-2250 cm-1 (low - h2o,n2o; high - nothing)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng13
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng13
       use rrlw_kg13, only: fracrefao, fracrefbo, kao, kao_mco2, kao_mco, &
                            kbo_mo3, selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, ka_mco2, ka_mco, &
                            kb_mo3, selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jn, jt, jp, igc, ipr, iprsm 
@@ -1694,8 +1704,7 @@
          enddo
       enddo
 
-      return
-      end
+      end subroutine cmbgb13
 
 !***************************************************************************
       subroutine cmbgb14
@@ -1706,15 +1715,11 @@
 ! old band 14:  2250-2380 cm-1 (low - co2; high - co2)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng14
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng14
       use rrlw_kg14, only: fracrefao, fracrefbo, kao, kbo, &
                            selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, kb, &
                            selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jt, jp, igc, ipr, iprsm 
@@ -1786,8 +1791,7 @@
          fracrefb(igc) = sumf2
       enddo
 
-      return
-      end
+      end subroutine cmbgb14
 
 !***************************************************************************
       subroutine cmbgb15
@@ -1799,35 +1803,14 @@
 ! old band 15:  2380-2600 cm-1 (low - n2o,co2; high - nothing)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng15
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng15
       use rrlw_kg15, only: fracrefao, kao, kao_mn2, selfrefo, forrefo, &
                            fracrefa, ka, ka_mn2, selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jn, jt, jp, igc, ipr, iprsm 
       real(kind=jprb) :: sumk, sumf
 
-! ------- Parameters -------
-!      parameter (mg=16, nbands=16)
-!      parameter (ngpt=140, ng15=2)
-!      common /rwt/ rwgt(mg*nbands)
-!      common /featurec/ ngc(nbands), ngs(nbands), ngn(ngpt), ngb(ngpt)
-
-! --------- Input ---------
-!      real ka, ka_mn2
-!      common /k15/  ka(9,5,13,mg), forref(4,mg), selfref(10,mg), ka_mn2(9,19,mg)
-
-! ------- Output -------
-!      real kac, kac_mn2
-!      common /k15c/ kac(9,5,13,ng15), forrefc(4,ng15), selfrefc(10,ng15), kac_mn2(9,19,ng15)
-!      common /pf15c/ fracrefac(ng15,9)
-
-! ------- Data -------
-!      dimension fracrefao(mg,9)
 
       do jn = 1,9
          do jt = 1,5
@@ -1895,8 +1878,7 @@
          enddo
       enddo
 
-      return
-      end
+      end subroutine cmbgb15
 
 !***************************************************************************
       subroutine cmbgb16
@@ -1907,13 +1889,9 @@
 ! old band 16:  2600-3000 cm-1 (low - h2o,ch4; high - nothing)
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mg, nbands, ngpt, ng16
-      use rrlw_wvn, only: ngc, ngs, ngn, ngb, rwgt
+      use parrrtm, only : mg, nbndlw, ngptlw, ng16
       use rrlw_kg16, only: fracrefao, fracrefbo, kao, kbo, selfrefo, forrefo, &
                            fracrefa, fracrefb, ka, kb, selfref, forref
-
-      implicit none
 
 ! ------- Local -------
       integer(kind=jpim) :: jn, jt, jp, igc, ipr, iprsm 
@@ -1996,9 +1974,7 @@
          enddo
       enddo
 
-      return
-      end
+      end subroutine cmbgb16
 
-
-
+      end module rrtmg_lw_init
 

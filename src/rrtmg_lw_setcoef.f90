@@ -3,6 +3,8 @@
 !     revision:  $Revision$
 !     created:   $Date$
 !
+      module rrtmg_lw_setcoef
+
 !  --------------------------------------------------------------------------
 ! |                                                                          |
 ! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
@@ -12,6 +14,18 @@
 ! |                       (http://www.rtweb.aer.com/)                        |
 ! |                                                                          |
 !  --------------------------------------------------------------------------
+
+! ------- Modules -------
+
+      use parkind, only : jpim, jprb 
+      use parrrtm, only : nbndlw, mg, maxxsec, mxmol
+      use rrlw_wvn, only: totplnk, totplk16
+      use rrlw_ref
+      use rrlw_vsn, only: hvrset, hnamset
+
+      implicit none
+
+      contains
 
 !----------------------------------------------------------------------------
       subroutine setcoef(nlayers, istart, pavel, tavel, tz, tbound, semiss, &
@@ -31,73 +45,96 @@
 !  Also calculate the values of the integrated Planck functions 
 !  for each band at the level and layer temperatures.
 
-! ------- Modules -------
-
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mxlay, nbands, mg, maxxsec, mxmol
-      use rrlw_wvn, only: totplnk, totplk16
-      use rrlw_ref
-      use rrlw_vsn, only: hvrset, hnamset
-
-      implicit none
-
 ! ------- Declarations -------
 
-! Input
-      integer(kind=jpim), intent(in) :: nlayers             ! total number of layers
-      integer(kind=jpim), intent(in) :: istart              ! beginning band of calculation
+! ----- Input -----
+      integer(kind=jpim), intent(in) :: nlayers         ! total number of layers
+      integer(kind=jpim), intent(in) :: istart          ! beginning band of calculation
 
-      real(kind=jprb), intent(in) :: pavel(mxlay)           ! layer pressures (mb) 
-      real(kind=jprb), intent(in) :: tavel(mxlay)           ! layer temperatures (K)
-      real(kind=jprb), intent(in) :: tz(0:mxlay)            ! level (interface) temperatures (K)
-      real(kind=jprb), intent(in) :: tbound                 ! surface temperature (K)
-      real(kind=jprb), intent(in) :: coldry(mxlay)          ! 
-      real(kind=jprb), intent(in) :: wbroad(mxlay)          !
-      real(kind=jprb), intent(in) :: wkl(mxmol,mxlay)       ! molecular amounts (mol/cm-2)
-      real(kind=jprb), intent(in) :: semiss(nbands)         ! lw surface emissivity
+      real(kind=jprb), intent(in) :: pavel(:)           ! layer pressures (mb) 
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: tavel(:)           ! layer temperatures (K)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: tz(0:)             ! level (interface) temperatures (K)
+                                                        !    Dimensions: (0:nlayers)
+      real(kind=jprb), intent(in) :: tbound             ! surface temperature (K)
+      real(kind=jprb), intent(in) :: coldry(:)          ! dry air column density (mol/cm2)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: wbroad(:)          ! broadening gas column density (mol/cm2)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: wkl(:,:)           ! molecular amounts (mol/cm-2)
+                                                        !    Dimensions: (mxmol,nlayers)
+      real(kind=jprb), intent(in) :: semiss(:)          ! lw surface emissivity
+                                                        !    Dimensions: (nbndlw)
 
-! Output
-      integer(kind=jpim), intent(out) :: laytrop            ! tropopause layer index
-      integer(kind=jpim), intent(out) :: jp(mxlay)          ! 
-      integer(kind=jpim), intent(out) :: jt(mxlay)          !
-      integer(kind=jpim), intent(out) :: jt1(mxlay)         !
-      real(kind=jprb), intent(out) :: planklay(mxlay,nbands)  ! 
-      real(kind=jprb), intent(out) :: planklev(0:mxlay,nbands)! 
-      real(kind=jprb), intent(out) :: plankbnd(nbands)      ! 
+! ----- Output -----
+      integer(kind=jpim), intent(out) :: laytrop        ! tropopause layer index
+      integer(kind=jpim), intent(out) :: jp(:)          ! 
+                                                        !    Dimensions: (nlayers)
+      integer(kind=jpim), intent(out) :: jt(:)          !
+                                                        !    Dimensions: (nlayers)
+      integer(kind=jpim), intent(out) :: jt1(:)         !
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: planklay(:,:)     ! 
+                                                        !    Dimensions: (nlayers,nbndlw)
+      real(kind=jprb), intent(out) :: planklev(0:,:)    ! 
+                                                        !    Dimensions: (0:nlayers,nbndlw)
+      real(kind=jprb), intent(out) :: plankbnd(:)       ! 
+                                                        !    Dimensions: (nbndlw)
 
-      real(kind=jprb), intent(out) :: colh2o(mxlay)         ! column amount (h2o)
-      real(kind=jprb), intent(out) :: colco2(mxlay)         ! column amount (co2)
-      real(kind=jprb), intent(out) :: colo3(mxlay)          ! column amount (o3)
-      real(kind=jprb), intent(out) :: coln2o(mxlay)         ! column amount (n2o)
-      real(kind=jprb), intent(out) :: colco(mxlay)          ! column amount (co)
-      real(kind=jprb), intent(out) :: colch4(mxlay)         ! column amount (ch4)
-      real(kind=jprb), intent(out) :: colo2(mxlay)          ! column amount (o2)
-      real(kind=jprb), intent(out) :: colbrd(mxlay)         ! column amount (broadening gases)
+      real(kind=jprb), intent(out) :: colh2o(:)         ! column amount (h2o)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: colco2(:)         ! column amount (co2)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: colo3(:)          ! column amount (o3)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: coln2o(:)         ! column amount (n2o)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: colco(:)          ! column amount (co)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: colch4(:)         ! column amount (ch4)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: colo2(:)          ! column amount (o2)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: colbrd(:)         ! column amount (broadening gases)
+                                                        !    Dimensions: (nlayers)
 
-      integer(kind=jpim), intent(out) :: indself(mxlay)
-      integer(kind=jpim), intent(out) :: indfor(mxlay)
-      real(kind=jprb), intent(out) :: selffac(mxlay)
-      real(kind=jprb), intent(out) :: selffrac(mxlay)
-      real(kind=jprb), intent(out) :: forfac(mxlay)
-      real(kind=jprb), intent(out) :: forfrac(mxlay)
+      integer(kind=jpim), intent(out) :: indself(:)
+                                                        !    Dimensions: (nlayers)
+      integer(kind=jpim), intent(out) :: indfor(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: selffac(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: selffrac(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: forfac(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: forfrac(:)
+                                                        !    Dimensions: (nlayers)
 
-      integer(kind=jpim), intent(out) :: indminor(mxlay)
-      real(kind=jprb), intent(out) :: minorfrac(mxlay)
-      real(kind=jprb), intent(out) :: scaleminor(mxlay)
-      real(kind=jprb), intent(out) :: scaleminorn2(mxlay)
+      integer(kind=jpim), intent(out) :: indminor(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: minorfrac(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: scaleminor(:)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(out) :: scaleminorn2(:)
+                                                        !    Dimensions: (nlayers)
 
-      real(kind=jprb), intent(out) :: &                     !
-                         fac00(mxlay), fac01(mxlay), &
-                         fac10(mxlay), fac11(mxlay) 
-      real(kind=jprb), intent(out) :: &                     !
-                         rat_h2oco2(mxlay),rat_h2oco2_1(mxlay), &
-                         rat_h2oo3(mxlay),rat_h2oo3_1(mxlay), &
-                         rat_h2on2o(mxlay),rat_h2on2o_1(mxlay), &
-                         rat_h2och4(mxlay),rat_h2och4_1(mxlay), &
-                         rat_n2oco2(mxlay),rat_n2oco2_1(mxlay), &
-                         rat_o3co2(mxlay),rat_o3co2_1(mxlay)
+      real(kind=jprb), intent(out) :: &                 !
+                         fac00(:), fac01(:), &          !    Dimensions: (nlayers)
+                         fac10(:), fac11(:) 
+                                                        
+      real(kind=jprb), intent(out) :: &                 !
+                         rat_h2oco2(:),rat_h2oco2_1(:), &
+                         rat_h2oo3(:),rat_h2oo3_1(:), & !    Dimensions: (nlayers)
+                         rat_h2on2o(:),rat_h2on2o_1(:), &
+                         rat_h2och4(:),rat_h2och4_1(:), &
+                         rat_n2oco2(:),rat_n2oco2_1(:), &
+                         rat_o3co2(:),rat_o3co2_1(:)
+                                                        
 
-! Local
+! ----- Local -----
       integer(kind=jpim) :: indbound, indlev0
       integer(kind=jpim) :: lay, indlay, indlev, iband
       integer(kind=jpim) :: jp1
@@ -197,7 +234,8 @@
 !  layer pressure.  Store them in JP and JP1.  Store in FP the
 !  fraction of the difference (in ln(pressure)) between these
 !  two values that the layer pressure lies.
-         plog = alog(pavel(lay))
+!         plog = alog(pavel(lay))
+         plog = dlog(pavel(lay))
          jp(lay) = int(36._jprb - 5*(plog+0.04_jprb))
          if (jp(lay) .lt. 1) then
             jp(lay) = 1
@@ -298,6 +336,10 @@
          indfor(lay) = 3
          forfrac(lay) = factor - 1.0_jprb
 
+!  Set up factors needed to separately include the water vapor
+!  self-continuum in the calculation of absorption coefficient.
+         selffac(lay) = water * forfac(lay)
+
 !  Set up factors needed to separately include the minor gases
 !  in the calculation of absorption coefficient
          scaleminor(lay) = pavel(lay)/tavel(lay)         
@@ -351,17 +393,12 @@
 ! End layer loop
       enddo
 
-      return
-      end
+      end subroutine setcoef
 
 !***************************************************************************
       subroutine lwatmref
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use rrlw_ref, only: pref, preflog, tref, chi_mls
-
-      implicit none
       save
  
 ! These pressures are chosen such that the ln of the first pressure
@@ -519,17 +556,12 @@
         0.2090_jprb,  0.2090_jprb,  0.2090_jprb,  0.2090_jprb,  0.2090_jprb, &
         0.2090_jprb,  0.2090_jprb/)
 
-      return
-      end
+      end subroutine lwatmref
 
 !***************************************************************************
       subroutine lwavplank
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use rrlw_wvn, only: totplnk, totplk16
-
-      implicit none
       save
  
       totplnk(1:50,  1) = (/ &
@@ -1230,5 +1262,7 @@
       0.12421e-06_jprb,0.12876e-06_jprb,0.13346e-06_jprb,0.13830e-06_jprb,0.14328e-06_jprb, &
       0.14841e-06_jprb/)
 
-      return
-      end
+      end subroutine lwavplank
+
+      end module rrtmg_lw_setcoef
+

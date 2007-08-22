@@ -3,6 +3,8 @@
 !     revision:  $Revision$
 !     created:   $Date$
 !
+      module rrtmg_lw_rtrnmc
+
 !  --------------------------------------------------------------------------
 ! |                                                                          |
 ! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
@@ -13,19 +15,30 @@
 ! |                                                                          |
 !  --------------------------------------------------------------------------
 
+! --------- Modules ----------
+
+      use parkind, only : jpim, jprb 
+      use parrrtm, only : mg, nbndlw, ngptlw
+      use rrlw_con, only: fluxfac, heatfac
+      use rrlw_wvn, only: delwave, ngb, ngs
+      use rrlw_tbl, only: tblint, bpade, tau_tbl, exp_tbl, tfn_tbl
+      use rrlw_vsn, only: hvrrtc, hnamrtc
+
+      implicit none
+
+      contains
+
 !-----------------------------------------------------------------------------
       subroutine rtrnmc(nlayers, istart, iend, iout, pz, semiss, ncbands, &
-                      cldfmc, taucmc, planklay, planklev, plankbnd, &
-                      pwvcm, fracs, taug, &
-                      totuflux, totdflux, fnet, htr, &
-                      totuclfl, totdclfl, fnetc, htrc ) 
+                        cldfmc, taucmc, planklay, planklev, plankbnd, &
+                        pwvcm, fracs, taug, &
+                        totuflux, totdflux, fnet, htr, &
+                        totuclfl, totdclfl, fnetc, htrc ) 
 !-----------------------------------------------------------------------------
-!
-!  RRTM Longwave Radiative Transfer Model
-!  Atmospheric and Environmental Research, Inc., Cambridge, MA
 !
 !  Original version:   E. J. Mlawer, et al. RRTM_V3.0
 !  Revision for GCMs:  Michael J. Iacono; October, 2002
+!  Revision for F90:  Michael J. Iacono; June, 2006
 !
 !  This program calculates the upward fluxes, downward fluxes, and
 !  heating rates for an arbitrary clear or cloudy atmosphere.  The input
@@ -41,78 +54,84 @@
 !  cloud overlap. 
 !***************************************************************************
 
-! --------- Modules ----------
-
-      use parkind, only : jpim, jprb 
-      use parrrtm, only : mxlay, mg, nbands, ngpt
-      use rrlw_con, only: fluxfac, heatfac
-      use rrlw_wvn, only: delwave, ngb, ngs
-      use rrlw_tbl, only: tblint, bpade, tautbl, trans, tf
-      use rrlw_vsn, only: hvrrtc, hnamrtc
-
-      implicit none
-
 ! ------- Declarations -------
 
-! Control
-      integer(kind=jpim), intent(in) :: istart              ! beginning band of calculation
-      integer(kind=jpim), intent(in) :: iend                ! ending band of calculation
-      integer(kind=jpim), intent(in) :: iout                ! output option flag
+! ----- Input -----
+      integer(kind=jpim), intent(in) :: nlayers         ! total number of layers
+      integer(kind=jpim), intent(in) :: istart          ! beginning band of calculation
+      integer(kind=jpim), intent(in) :: iend            ! ending band of calculation
+      integer(kind=jpim), intent(in) :: iout            ! output option flag
 
 ! Atmosphere
-      integer(kind=jpim), intent(in) :: nlayers             ! total number of layers
-      real(kind=jprb), intent(in) :: pz(0:mxlay)            ! level (interface) pressures (hPa, mb)
-      real(kind=jprb), intent(in) :: pwvcm                  ! precipitable water vapor (cm)
-      real(kind=jprb), intent(in) :: semiss(nbands)         ! lw surface emissivity
-      real(kind=jprb), intent(in) :: planklay(mxlay,nbands) ! 
-      real(kind=jprb), intent(in) :: planklev(0:mxlay,nbands) ! 
-      real(kind=jprb), intent(in) :: plankbnd(nbands)       ! 
-      real(kind=jprb), intent(in) :: fracs(mxlay,ngpt)      ! 
-      real(kind=jprb), intent(in) :: taug(mxlay,ngpt)       ! 
+      real(kind=jprb), intent(in) :: pz(0:)             ! level (interface) pressures (hPa, mb)
+                                                        !    Dimensions: (0:nlayers)
+      real(kind=jprb), intent(in) :: pwvcm              ! precipitable water vapor (cm)
+      real(kind=jprb), intent(in) :: semiss(:)          ! lw surface emissivity
+                                                        !    Dimensions: (nbndlw)
+      real(kind=jprb), intent(in) :: planklay(:,:)      ! 
+                                                        !    Dimensions: (nlayers,nbndlw)
+      real(kind=jprb), intent(in) :: planklev(0:,:)     ! 
+                                                        !    Dimensions: (0:nlayers,nbndlw)
+      real(kind=jprb), intent(in) :: plankbnd(:)        ! 
+                                                        !    Dimensions: (nbndlw)
+      real(kind=jprb), intent(in) :: fracs(:,:)         ! 
+                                                        !    Dimensions: (nlayers,ngptw)
+      real(kind=jprb), intent(in) :: taug(:,:)          ! 
+                                                        !    Dimensions: (nlayers,ngptlw)
 
 ! Clouds
-      integer(kind=jpim), intent(in) :: ncbands             ! number of cloud spectral bands
-      real(kind=jprb), intent(in) :: cldfmc(ngpt,mxlay)     ! layer cloud fraction [mcica]
-      real(kind=jprb), intent(in) :: taucmc(ngpt,mxlay)     ! layer cloud optical depth [mcica]
+      integer(kind=jpim), intent(in) :: ncbands         ! number of cloud spectral bands
+      real(kind=jprb), intent(in) :: cldfmc(:,:)        ! layer cloud fraction [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
+      real(kind=jprb), intent(in) :: taucmc(:,:)        ! layer cloud optical depth [mcica]
+                                                        !    Dimensions: (ngptlw,nlayers)
 
-! Output
-      real(kind=jprb), intent(out) :: totuflux(0:mxlay)      ! upward longwave flux (w/m2)
-      real(kind=jprb), intent(out) :: totdflux(0:mxlay)      ! downward longwave flux (w/m2)
-      real(kind=jprb), intent(out) :: fnet(0:mxlay)          ! net longwave flux (w/m2)
-      real(kind=jprb), intent(out) :: htr(0:mxlay)           ! longwave heating rate (k/day)
-      real(kind=jprb), intent(out) :: totuclfl(0:mxlay)      ! clear sky upward longwave flux (w/m2)
-      real(kind=jprb), intent(out) :: totdclfl(0:mxlay)      ! clear sky downward longwave flux (w/m2)
-      real(kind=jprb), intent(out) :: fnetc(0:mxlay)         ! clear sky net longwave flux (w/m2)
-      real(kind=jprb), intent(out) :: htrc(0:mxlay)          ! clear sky longwave heating rate (k/day)
+! ----- Output -----
+      real(kind=jprb), intent(out) :: totuflux(0:)      ! upward longwave flux (w/m2)
+                                                        !    Dimensions: (0:nlayers)
+      real(kind=jprb), intent(out) :: totdflux(0:)      ! downward longwave flux (w/m2)
+                                                        !    Dimensions: (0:nlayers)
+      real(kind=jprb), intent(out) :: fnet(0:)          ! net longwave flux (w/m2)
+                                                        !    Dimensions: (0:nlayers)
+      real(kind=jprb), intent(out) :: htr(0:)           ! longwave heating rate (k/day)
+                                                        !    Dimensions: (0:nlayers)
+      real(kind=jprb), intent(out) :: totuclfl(0:)      ! clear sky upward longwave flux (w/m2)
+                                                        !    Dimensions: (0:nlayers)
+      real(kind=jprb), intent(out) :: totdclfl(0:)      ! clear sky downward longwave flux (w/m2)
+                                                        !    Dimensions: (0:nlayers)
+      real(kind=jprb), intent(out) :: fnetc(0:)         ! clear sky net longwave flux (w/m2)
+                                                        !    Dimensions: (0:nlayers)
+      real(kind=jprb), intent(out) :: htrc(0:)          ! clear sky longwave heating rate (k/day)
+                                                        !    Dimensions: (0:nlayers)
 
-! Local
+! ----- Local -----
 ! Declarations for radiative transfer
-      real(kind=jprb) :: abscld(mxlay,ngpt)
-      real(kind=jprb) :: atot(mxlay)
-      real(kind=jprb) :: atrans(mxlay)
-      real(kind=jprb) :: bbugas(mxlay)
-      real(kind=jprb) :: bbutot(mxlay)
-      real(kind=jprb) :: clrurad(0:mxlay)
-      real(kind=jprb) :: clrdrad(0:mxlay)
-      real(kind=jprb) :: efclfrac(mxlay,ngpt)
-      real(kind=jprb) :: uflux(0:mxlay)
-      real(kind=jprb) :: dflux(0:mxlay)
-      real(kind=jprb) :: urad(0:mxlay)
-      real(kind=jprb) :: drad(0:mxlay)
-      real(kind=jprb) :: uclfl(0:mxlay)
-      real(kind=jprb) :: dclfl(0:mxlay)
-      real(kind=jprb) :: odcld(mxlay,ngpt)
+      real(kind=jprb) :: abscld(nlayers,ngptlw)
+      real(kind=jprb) :: atot(nlayers)
+      real(kind=jprb) :: atrans(nlayers)
+      real(kind=jprb) :: bbugas(nlayers)
+      real(kind=jprb) :: bbutot(nlayers)
+      real(kind=jprb) :: clrurad(0:nlayers)
+      real(kind=jprb) :: clrdrad(0:nlayers)
+      real(kind=jprb) :: efclfrac(nlayers,ngptlw)
+      real(kind=jprb) :: uflux(0:nlayers)
+      real(kind=jprb) :: dflux(0:nlayers)
+      real(kind=jprb) :: urad(0:nlayers)
+      real(kind=jprb) :: drad(0:nlayers)
+      real(kind=jprb) :: uclfl(0:nlayers)
+      real(kind=jprb) :: dclfl(0:nlayers)
+      real(kind=jprb) :: odcld(nlayers,ngptlw)
 
 
-      real(kind=jprb) :: secdiff(nbands)                 ! secant of diffusivity angle
-      real(kind=jprb) :: a0(nbands),a1(nbands),a2(nbands)! diffusivity angle adjustment coefficients
+      real(kind=jprb) :: secdiff(nbndlw)                 ! secant of diffusivity angle
+      real(kind=jprb) :: a0(nbndlw),a1(nbndlw),a2(nbndlw)! diffusivity angle adjustment coefficients
       real(kind=jprb) :: wtdiff, rec_6
       real(kind=jprb) :: transcld, radld, radclrd, plfrac, blay, dplankup, dplankdn
       real(kind=jprb) :: odepth, odtot, odepth_rec, odtot_rec, gassrc
       real(kind=jprb) :: tblind, tfactot, bbd, bbdtot, tfacgas, transc, tausfac
       real(kind=jprb) :: rad0, reflect, radlu, radclru
 
-      integer(kind=jpim) :: icldlyr(mxlay)                    ! flag for cloud in layer
+      integer(kind=jpim) :: icldlyr(nlayers)                    ! flag for cloud in layer
       integer(kind=jpim) :: ibnd, ib, iband, lay, lev, l, ig  ! loop indices
       integer(kind=jpim) :: igc                               ! g-point interval counter
       integer(kind=jpim) :: iclddn                            ! flag for cloud in down path
@@ -120,13 +139,12 @@
 
 ! ------- Definitions -------
 ! input
-!    mxlay                        ! maximum number of model layers
-!    ngpt                         ! total number of g-point subintervals
-!    nbands                       ! number of longwave spectral bands
+!    nlayers                      ! number of model layers
+!    ngptlw                       ! total number of g-point subintervals
+!    nbndlw                       ! number of longwave spectral bands
 !    ncbands                      ! number of spectral bands for clouds
 !    secdiff                      ! diffusivity angle
 !    wtdiff                       ! weight for radiance to flux conversion
-!    nlayers                      ! number of model layers (plev+1)
 !    pavel                        ! layer pressures (mb)
 !    pz                           ! level (interface) pressures (mb)
 !    tavel                        ! layer temperatures (k)
@@ -140,9 +158,9 @@
 !    semiss                       ! surface emissivities for each band
 !    reflect                      ! surface reflectance
 !    bpade                        ! 1/(pade constant)
-!    tautbl                       ! clear sky optical depth look-up table
-!    tf                           ! tau transition function look-up table
-!    trans                        ! clear sky transmittance look-up table
+!    tau_tbl                      ! clear sky optical depth look-up table
+!    exp_tbl                      ! exponential look-up table for transmittance
+!    tfn_tbl                      ! tau transition function look-up table
 
 ! local
 !    atrans                       ! gaseous absorptivity
@@ -169,14 +187,14 @@
 !    clrdrad                      ! clear sky downward radiance by layer
 
 ! output
-!    totuflux(0:mxlay)            ! upward longwave flux (w/m2)
-!    totdflux(0:mxlay)            ! downward longwave flux (w/m2)
-!    fnet(0:mxlay)                ! net longwave flux (w/m2)
-!    htr(0:mxlay)                 ! longwave heating rate (k/day)
-!    totuclfl(0:mxlay)            ! clear sky upward longwave flux (w/m2)
-!    totdclfl(0:mxlay)            ! clear sky downward longwave flux (w/m2)
-!    fnetc(0:mxlay)               ! clear sky net longwave flux (w/m2)
-!    htrc(0:mxlay)                ! clear sky longwave heating rate (k/day)
+!    totuflux                     ! upward longwave flux (w/m2)
+!    totdflux                     ! downward longwave flux (w/m2)
+!    fnet                         ! net longwave flux (w/m2)
+!    htr                          ! longwave heating rate (k/day)
+!    totuclfl                     ! clear sky upward longwave flux (w/m2)
+!    totdclfl                     ! clear sky downward longwave flux (w/m2)
+!    fnetc                        ! clear sky net longwave flux (w/m2)
+!    htrc                         ! clear sky longwave heating rate (k/day)
 
 
 ! This secant and weight corresponds to the standard diffusivity 
@@ -203,7 +221,7 @@
 
       hvrrtc = '$Revision$'
 
-      do ibnd = 1,nbands
+      do ibnd = 1,nbndlw
          if (ibnd.eq.1 .or. ibnd.eq.4 .or. ibnd.ge.10) then
            secdiff(ibnd) = 1.66_jprb
          else
@@ -234,7 +252,7 @@
          icldlyr(lay) = 0
 
 ! Change to band loop?
-         do ig = 1, ngpt
+         do ig = 1, ngptlw
             if (cldfmc(ig,lay) .eq. 1._jprb) then
                ib = ngb(ig)
                odcld(lay,ig) = secdiff(ib) * taucmc(ig,lay)
@@ -305,10 +323,10 @@
                      odtot = odepth + odcld(lev,igc)
                      tblind = odtot/(bpade+odtot)
                      ittot = tblint*tblind + 0.5_jprb
-                     tfactot = tf(ittot)
+                     tfactot = tfn_tbl(ittot)
                      bbdtot = plfrac * (blay + tfactot*dplankdn)
                      bbd = plfrac*(blay+dplankdn*odepth_rec)
-                     atot(lev) = 1. - trans(ittot)
+                     atot(lev) = 1. - exp_tbl(ittot)
 
                      radld = radld - radld * (atrans(lev) + &
                          efclfrac(lev,igc) * (1._jprb - atrans(lev))) + &
@@ -323,18 +341,18 @@
 
                      tblind = odepth/(bpade+odepth)
                      itgas = tblint*tblind+0.5_jprb
-                     odepth = tautbl(itgas)
-                     atrans(lev) = 1._jprb - trans(itgas)
-                     tfacgas = tf(itgas)
+                     odepth = tau_tbl(itgas)
+                     atrans(lev) = 1._jprb - exp_tbl(itgas)
+                     tfacgas = tfn_tbl(itgas)
                      gassrc = atrans(lev) * plfrac * (blay + tfacgas*dplankdn)
 
                      odtot = odepth + odcld(lev,igc)
                      tblind = odtot/(bpade+odtot)
                      ittot = tblint*tblind + 0.5_jprb
-                     tfactot = tf(ittot)
+                     tfactot = tfn_tbl(ittot)
                      bbdtot = plfrac * (blay + tfactot*dplankdn)
                      bbd = plfrac*(blay+tfacgas*dplankdn)
-                     atot(lev) = 1._jprb - trans(ittot)
+                     atot(lev) = 1._jprb - exp_tbl(ittot)
 
                   radld = radld - radld * (atrans(lev) + &
                     efclfrac(lev,igc) * (1._jprb - atrans(lev))) + &
@@ -354,9 +372,9 @@
                   else
                      tblind = odepth/(bpade+odepth)
                      itr = tblint*tblind+0.5_jprb
-                     transc = trans(itr)
+                     transc = exp_tbl(itr)
                      atrans(lev) = 1._jprb-transc
-                     tausfac = tf(itr)
+                     tausfac = tfn_tbl(itr)
                      bbd = plfrac*(blay+tausfac*dplankdn)
                      bbugas(lev) = plfrac * (blay + tausfac * dplankup)
                   endif   
@@ -471,8 +489,7 @@
       htr(nlayers) = 0.0_jprb
       htrc(nlayers) = 0.0_jprb
 
-      return
-      end   
+      end subroutine rtrnmc
 
-
+      end module rrtmg_lw_rtrnmc
 

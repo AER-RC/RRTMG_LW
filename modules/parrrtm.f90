@@ -9,39 +9,35 @@
 !------------------------------------------------------------------
 ! rrtmg_lw main parameters
 !
-! Initial version:  JJMorcrette, ECMWF, jul1998
-! Revised: MJIacono, AER, jun2006
+! Initial version:  JJMorcrette, ECMWF, Jul 1998
+! Revised: MJIacono, AER, Jun 2006
+! Revised: MJIacono, AER, Aug 2007
 !------------------------------------------------------------------
 
 !  name     type     purpose
 ! -----  :  ----   : ----------------------------------------------
-! nlon   :  integer: number of columns or longitudes
 ! mxlay  :  integer: maximum number of layers
 ! mg     :  integer: number of original g-intervals per spectral band
-! nbands :  integer: number of spectral bands
+! nbndlw :  integer: number of spectral bands
 ! maxxsec:  integer: maximum number of cross-section molecules
 !                    (e.g. cfcs)
 ! maxinpx:  integer: 
-! ngpt   :  integer: total number of reduced g-intervals for rrtmg_lw
+! ngptlw :  integer: total number of reduced g-intervals for rrtmg_lw
 ! ngNN   :  integer: number of reduced g-intervals per spectral band
 ! ngsNN  :  integer: cumulative number of g-intervals per band
 !------------------------------------------------------------------
 
-! Settings for single column mode.
-! For GCM use, set nlon to number of longitudes, and
-! mxlay to number of model layers
-      integer(kind=jpim), parameter :: nlon  = 1
       integer(kind=jpim), parameter :: mxlay  = 203
       integer(kind=jpim), parameter :: mg     = 16
-      integer(kind=jpim), parameter :: nbands = 16
+      integer(kind=jpim), parameter :: nbndlw = 16
       integer(kind=jpim), parameter :: maxxsec= 4
       integer(kind=jpim), parameter :: mxmol  = 38
       integer(kind=jpim), parameter :: maxinpx= 38
       integer(kind=jpim), parameter :: nmol   = 7
 ! Use for 140 g-point model 
-      integer(kind=jpim), parameter :: ngpt   = 140
+      integer(kind=jpim), parameter :: ngptlw = 140
 ! Use for 256 g-point model 
-!      integer(kind=jpim), parameter :: ngpt   = 256
+!      integer(kind=jpim), parameter :: ngptlw = 256
 
 ! Use for 140 g-point model
       integer(kind=jpim), parameter :: ng1  = 10

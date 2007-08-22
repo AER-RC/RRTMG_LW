@@ -3,6 +3,8 @@
 !     revision:  $Revision$
 !     created:   $Date$
 !
+      module rrtmg_lw_cldprop
+
 !  --------------------------------------------------------------------------
 ! |                                                                          |
 ! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
@@ -13,62 +15,70 @@
 ! |                                                                          |
 !  --------------------------------------------------------------------------
 
-      subroutine cldprop(nlayers, inflag, iceflag, liqflag, cldfrac, tauc, &
-                         ciwp, clwp, rei, rel, ncbands, taucloud)
-
-! Purpose:  Compute the cloud optical depth(s) for each cloudy layer.
-
 ! --------- Modules ----------
 
       use parkind, only : jpim, jprb 
-      use parrrtm, only : mxlay, nbands
+      use parrrtm, only : nbndlw
       use rrlw_cld, only: abscld1, absliq0, absliq1, &
                           absice0, absice1, absice2, absice3
       use rrlw_vsn, only: hvrcld, hnamcld
 
       implicit none
 
+      contains
+
+! ------------------------------------------------------------------------------
+      subroutine cldprop(nlayers, inflag, iceflag, liqflag, cldfrac, tauc, &
+                         ciwp, clwp, rei, rel, ncbands, taucloud)
+! ------------------------------------------------------------------------------
+
+! Purpose:  Compute the cloud optical depth(s) for each cloudy layer.
+
 ! ------- Input -------
 
-      integer(kind=jpim), intent(in) :: nlayers              ! total number of layers
-      integer(kind=jpim), intent(in) :: inflag               ! see definitions
-      integer(kind=jpim), intent(in) :: iceflag              ! see definitions
-      integer(kind=jpim), intent(in) :: liqflag              ! see definitions
+      integer(kind=jpim), intent(in) :: nlayers         ! total number of layers
+      integer(kind=jpim), intent(in) :: inflag          ! see definitions
+      integer(kind=jpim), intent(in) :: iceflag         ! see definitions
+      integer(kind=jpim), intent(in) :: liqflag         ! see definitions
 
-      real(kind=jprb), intent(in) :: cldfrac(mxlay)          ! cloud fraction
-      real(kind=jprb), intent(in) :: tauc(nbands,mxlay)      ! cloud optical depth
-      real(kind=jprb), intent(in) :: ciwp(mxlay)             ! cloud ice water path
-      real(kind=jprb), intent(in) :: clwp(mxlay)             ! cloud liquid water path
-      real(kind=jprb), intent(in) :: rei(mxlay)              ! cloud ice particle size
-      real(kind=jprb), intent(in) :: rel(mxlay)              ! cloud liquid particle size
+      real(kind=jprb), intent(in) :: cldfrac(:)         ! cloud fraction
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: ciwp(:)            ! cloud ice water path
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: clwp(:)            ! cloud liquid water path
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: rei(:)             ! cloud ice particle size
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: rel(:)             ! cloud liquid particle size
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: tauc(:,:)          ! cloud optical depth
+                                                        !    Dimensions: (nbndlw,nlayers)
 
 ! ------- Output -------
 
-      integer(kind=jpim), intent(out) :: ncbands               ! number of cloud spectral bands
-      real(kind=jprb), intent(out) :: taucloud(mxlay,nbands)   ! cloud optical depth
+      integer(kind=jpim), intent(out) :: ncbands        ! number of cloud spectral bands
+      real(kind=jprb), intent(out) :: taucloud(:,:)     ! cloud optical depth
+                                                        !    Dimensions: (nlayers,nbndlw)
 
 ! ------- Local -------
 
       integer(kind=jpim) :: lay                 ! Layer index
-      integer(kind=jpim) :: ipat(16,0:2)        !
       integer(kind=jpim) :: ib                  ! spectral band index
       integer(kind=jpim) :: index 
       integer(kind=jpim) :: icepat
       integer(kind=jpim) :: liqpat
+      integer(kind=jpim) :: ipat(16,0:2)
 
-      real(kind=jprb) :: abscoice(nbands)       ! ice absorption coefficients
-      real(kind=jprb) :: abscoliq(nbands)       ! liquid absorption coefficients
+      real(kind=jprb) :: abscoice(nbndlw)       ! ice absorption coefficients
+      real(kind=jprb) :: abscoliq(nbndlw)       ! liquid absorption coefficients
       real(kind=jprb) :: cwp                    ! cloud water path
       real(kind=jprb) :: radliq                 ! cloud liquid droplet radius (microns)
       real(kind=jprb) :: radice                 ! cloud ice effective radius (microns)
       real(kind=jprb) :: dgeice                 ! cloud ice generalized effective size
       real(kind=jprb) :: factor                 ! 
       real(kind=jprb) :: fint                   ! 
-      real(kind=jprb) :: tauctot(mxlay)         ! band integrated cloud optical depth
+      real(kind=jprb) :: tauctot(nlayers)       ! band integrated cloud optical depth
       real(kind=jprb), parameter :: eps = 1.e-6 ! epsilon
-
-!      dimension abscoice(nbands), abscoliq(nbands)
-!      dimension ipat(16,0:2)
 
 ! ------- Definitions -------
 
@@ -135,7 +145,7 @@
       tauctot(:) = 0._jprb
 
       do lay = 1, nlayers
-         do ib = 1, nbands
+         do ib = 1, nbndlw
             taucloud(lay,ib) = 0.0_jprb
             tauctot(lay) = tauctot(lay) + tauc(ib,lay)
          enddo
@@ -277,18 +287,12 @@
          endif
       enddo
 
-      return
-      end
+      end subroutine cldprop
 
 !***************************************************************************
       subroutine lwcldpr
 !***************************************************************************
 
-      use parkind, only : jpim, jprb 
-      use rrlw_cld, only: abscld1, absliq0, absliq1, &
-                          absice0, absice1, absice2, absice3
-
-      implicit none
       save
 
 ! ABSCLDn is the liquid water absorption coefficient (m2/g). 
@@ -919,5 +923,6 @@
        1.17216e-02_jprb, 1.15168e-02_jprb, 1.13177e-02_jprb, 1.11241e-02_jprb, 1.09358e-02_jprb, &
        1.07525e-02_jprb, 1.05741e-02_jprb, 1.04003e-02_jprb/)
 
-      return
-      end 
+      end subroutine lwcldpr
+
+      end module rrtmg_lw_cldprop
