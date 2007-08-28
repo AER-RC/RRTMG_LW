@@ -8,7 +8,7 @@ SHELL  = /bin/sh
 ################################
 
 PLATFORM = aix
-VERSION = v4.1
+VERSION = v4.3
 
 ##################################
 # Options for the FORTRAN compiler

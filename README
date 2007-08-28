@@ -45,8 +45,8 @@
              doi:10.1029/2002JD003322, 2003.
 ******************************************************************************
 
-This directory contains the source code and sample makefile necessary to run
-RRTMG_LW version 4.1, a correlated k-distribution longwave radiative transfer 
+This package contains the source code and sample makefiles necessary to run the
+latest version of RRTMG_LW, a correlated k-distribution longwave radiative transfer 
 model developed at AER, Inc for application to GCMs.  This version of RRTMG_LW 
 has been modified from the standard RRTM_LW distributed by AER to enhance its 
 performance for use within general circulation models.  This code has also
