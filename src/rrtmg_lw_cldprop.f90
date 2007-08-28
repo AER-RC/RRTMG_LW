@@ -78,7 +78,7 @@
       real(kind=jprb) :: factor                 ! 
       real(kind=jprb) :: fint                   ! 
       real(kind=jprb) :: tauctot(nlayers)       ! band integrated cloud optical depth
-      real(kind=jprb), parameter :: eps = 1.e-6 ! epsilon
+      real(kind=jprb), parameter :: eps = 1.e-6_jprb ! epsilon
 
 ! ------- Definitions -------
 

@@ -76,7 +76,7 @@
 !------------------------------------------------------------------
 
       subroutine rrtmg_lw &
-            (ncol    ,nlay    ,iovlp   , &
+            (ncol    ,nlay    ,icld    , &
              play    ,plev    ,tlay    ,tlev    ,tsfc    ,h2ovmr  , &
              o3vmr   ,co2vmr  ,ch4vmr  ,n2ovmr  ,cfc11vmr,cfc12vmr, &
              cfc22vmr,ccl4vmr ,emis    ,inflglw ,iceflglw,liqflglw, &
@@ -159,7 +159,7 @@
 ! ----- Input -----
       integer(kind=jpim), intent(in) :: ncol            ! Number of horizontal columns
       integer(kind=jpim), intent(in) :: nlay            ! Number of model layers
-      integer(kind=jpim), intent(in) :: iovlp           ! Cloud overlap method
+      integer(kind=jpim), intent(in) :: icld            ! Cloud overlap method
                                                         !    0: Clear only
                                                         !    1: Random
                                                         !    2: Maximum/random
@@ -254,7 +254,6 @@
       integer(kind=jpim) :: nlayers             ! total number of layers
       integer(kind=jpim) :: istart              ! beginning band of calculation
       integer(kind=jpim) :: iend                ! ending band of calculation
-      integer(kind=jpim) :: icld                ! clear/cloud flag
       integer(kind=jpim) :: iout                ! output option flag (inactive)
       integer(kind=jpim) :: iplon               ! column loop index
       integer(kind=jpim) :: imca                ! flag for mcica [0=off, 1=on]
@@ -379,8 +378,7 @@
 ! icld = 1, with clouds using random cloud overlap
 ! icld = 2, with clouds using maximum/random cloud overlap
 ! icld = 3, with clouds using maximum cloud overlap (McICA only)
-      icld = iovlp 
-
+      if (icld.lt.0.or.icld.gt.3) icld = 2
 
 ! Call model and data initialization, compute lookup tables, perform
 ! reduction of g-points from 256 to 140 for input absorption coefficient 

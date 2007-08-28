@@ -102,7 +102,6 @@
                                                         !    Dimensions: (ngptlw,ncol,nlay)
 
 ! ----- Local -----
-      integer(kind=jpim) :: nlayers                     ! number of model layers
 
 ! Stochastic cloud generator variables [mcica]
       integer(kind=jpim), parameter :: nsubclw = ngptlw ! number of sub-columns (g-point intervals)
@@ -113,7 +112,6 @@
 !      real(kind=jprb) :: qi(ncol, nlay)                ! ice water (specific humidity)
 !      real(kind=jprb) :: ql(ncol, nlay)                ! liq water (specific humidity)
 
-      nlayers = nlay
 
 ! Return if clear sky; or stop if icld out of range
       if (icld.eq.0) return
@@ -141,20 +139,20 @@
 !         = (g m-2 * m s-2) / (kg m-1 s-2 * 1000.)
 !         =  kg/kg
 
-!      do km = 1, nlayers
+!      do km = 1, nlay
 !         qi(km) = (ciwp(km) * grav) / (pdel(km) * 1000._jprb)
 !         ql(km) = (clwp(km) * grav) / (pdel(km) * 1000._jprb)
 !      enddo
 
 !  Generate the stochastic subcolumns of cloud optical properties for the longwave;
-      call generate_stochastic_clouds (ncol, nlayers, nsubclw, icld, pmid, cldfrac, clwp, ciwp, tauc, &
+      call generate_stochastic_clouds (ncol, nlay, nsubclw, icld, pmid, cldfrac, clwp, ciwp, tauc, &
                                cldfmcl, clwpmcl, ciwpmcl, taucmcl, permuteseed)
 
       end subroutine mcica_subcol_lw
 
 
 !-------------------------------------------------------------------------------------------------
-      subroutine generate_stochastic_clouds(ncol, nlayers, nsubcol, icld, pmid, cld, clwp, ciwp, tauc, &
+      subroutine generate_stochastic_clouds(ncol, nlay, nsubcol, icld, pmid, cld, clwp, ciwp, tauc, &
                                    cld_stoch, clwp_stoch, ciwp_stoch, tauc_stoch, changeSeed) 
 !-------------------------------------------------------------------------------------------------
 
@@ -222,7 +220,7 @@
 ! -- Arguments
 
       integer(kind=jpim), intent(in) :: ncol            ! number of columns
-      integer(kind=jpim), intent(in) :: nlayers         ! number of layers
+      integer(kind=jpim), intent(in) :: nlay            ! number of layers
       integer(kind=jpim), intent(in) :: icld            ! clear/cloud, cloud overlap flag
       integer(kind=jpim), intent(in) :: nsubcol         ! number of sub-columns (g-point intervals)
       integer(kind=jpim), optional, intent(in) :: changeSeed     ! allows permuting seed
@@ -351,7 +349,7 @@
   
          if (irnd.eq.0) then 
             do isubcol = 1,nsubcol
-               do ilev = 1,nlayers
+               do ilev = 1,nlay
                   call kissvec(seed1, seed2, seed3, seed4, rand_num)  ! we get different random number for each level
                   CDF(isubcol,:,ilev) = rand_num
                enddo
@@ -359,7 +357,7 @@
          elseif (irnd.eq.1) then
             do isubcol = 1, nsubcol
                do i = 1, ncol
-                  do ilev = 1, nlayers
+                  do ilev = 1, nlay
                      rand_num_mt = getRandomReal(randomNumbers)
                      CDF(isubcol,i,ilev) = rand_num_mt
                   enddo
@@ -376,7 +374,7 @@
 
          if (irnd.eq.0) then 
             do isubcol = 1,nsubcol
-               do ilev = 1,nlayers
+               do ilev = 1,nlay
                   call kissvec(seed1, seed2, seed3, seed4, rand_num) 
                   CDF(isubcol,:,ilev) = rand_num
                enddo
@@ -384,7 +382,7 @@
          elseif (irnd.eq.1) then
             do isubcol = 1, nsubcol
                do i = 1, ncol
-                  do ilev = 1, nlayers
+                  do ilev = 1, nlay
                      rand_num_mt = getRandomReal(randomNumbers)
                      CDF(isubcol,i,ilev) = rand_num_mt
                   enddo
@@ -392,7 +390,7 @@
              enddo
          endif
 
-         do ilev = 2,nlayers
+         do ilev = 2,nlay
             where (CDF(:, :, ilev-1) > spread(1._jprb - cldf(:,ilev-1), dim=1, nCopies=nsubcol) )
                CDF(:,:,ilev) = CDF(:,:,ilev-1) 
             elsewhere
@@ -407,7 +405,7 @@
          if (irnd.eq.0) then 
             do isubcol = 1,nsubcol
                call kissvec(seed1, seed2, seed3, seed4, rand_num)
-               do ilev = 1,nlayers
+               do ilev = 1,nlay
                   CDF(isubcol,:,ilev) = rand_num
                enddo
             enddo
@@ -415,7 +413,7 @@
             do isubcol = 1, nsubcol
                do i = 1, ncol
                   rand_num_mt = getRandomReal(randomNumbers)
-                  do ilev = 1, nlayers
+                  do ilev = 1, nlay
                      CDF(isubcol,i,ilev) = rand_num_mt
                   enddo
                enddo
@@ -435,13 +433,13 @@
 !       ! compute alpha
 !       zm    = state%zm     
 !       alpha(:, 1) = 0.
-!       do ilev = 2,nlayers
+!       do ilev = 2,nlay
 !          alpha(:, ilev) = exp( -( zm (:, ilev-1) -  zm (:, ilev)) / Zo)
 !       end do
        
 !       ! generate 2 streams of random numbers
 !       do isubcol = 1,nsubcol
-!          do ilev = 1,nlayers
+!          do ilev = 1,nlay
 !             call kissvec(seed1, seed2, seed3, seed4, rand_num)
 !             CDF(isubcol, :, ilev) = rand_num
 !             call kissvec(seed1, seed2, seed3, seed4, rand_num)
@@ -450,7 +448,7 @@
 !       end do
 
 !       ! generate random numbers
-!       do ilev = 2,nlayers
+!       do ilev = 2,nlay
 !          where (CDF2(:, :, ilev) < spread(alpha (:,ilev), dim=1, nCopies=nsubcol) )
 !             CDF(:,:,ilev) = CDF(:,:,ilev-1) 
 !          end where
@@ -460,14 +458,14 @@
 
  
 ! -- generate subcolumns for homogeneous clouds -----
-      do ilev = 1,nlayers
+      do ilev = 1,nlay
          iscloudy(:,:,ilev) = (CDF(:,:,ilev) >= 1._jprb - spread(cldf(:,ilev), dim=1, nCopies=nsubcol) )
       enddo
 
 ! where the subcolumn is cloudy, the subcolumn cloud fraction is 1;
 ! where the subcolumn is not cloudy, the subcolumn cloud fraction is 0
 
-      do ilev = 1,nlayers
+      do ilev = 1,nlay
          where (iscloudy(:,:,ilev) )
             cld_stoch(:,:,ilev) = 1._jprb
          elsewhere (.not. iscloudy(:,:,ilev) )
@@ -478,7 +476,7 @@
 ! where there is a cloud, set the subcolumn cloud properties;
 ! In GCM mode, divide by cldf here to convert grid-averaged to cloud-averaged quantities
 
-      do ilev = 1,nlayers
+      do ilev = 1,nlay
          where ( iscloudy(:,:,ilev) .and. (spread(cldf(:,ilev), dim=1, nCopies=nsubcol) > 0._jprb) )
             clwp_stoch(:,:,ilev) = spread(clwp(:,ilev), dim=1, nCopies=nsubcol)/spread(cldf(:,ilev), dim=1, nCopies=nsubcol)
             ciwp_stoch(:,:,ilev) = spread(ciwp(:,ilev), dim=1, nCopies=nsubcol)/spread(cldf(:,ilev), dim=1, nCopies=nsubcol)
@@ -487,7 +485,7 @@
             ciwp_stoch(:,:,ilev) = 0._jprb
          end where
       enddo
-      do ilev = 1,nlayers
+      do ilev = 1,nlay
          do i = 1,ncol
             rcldf = 1._jprb / cldf(i,ilev)
             do isubcol = 1,ngptlw

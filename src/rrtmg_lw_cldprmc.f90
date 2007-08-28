@@ -74,7 +74,7 @@
       real(kind=jprb) :: factor                 ! 
       real(kind=jprb) :: fint                   ! 
       real(kind=jprb) :: radliq                 ! cloud liquid droplet radius (microns)
-      real(kind=jprb), parameter :: eps = 1.e-6 ! 
+      real(kind=jprb), parameter :: eps = 1.e-6_jprb ! epsilon
 
 ! ------- Definitions -------
 
