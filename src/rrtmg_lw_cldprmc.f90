@@ -30,7 +30,7 @@
 
 ! ------------------------------------------------------------------------------
       subroutine cldprmc(nlayers, inflag, iceflag, liqflag, cldfmc, &
-                         ciwpmc, clwpmc, reicmc, relqmc, ncbands, taucmc)
+                         ciwpmc, clwpmc, reicmc, dgesmc, relqmc, ncbands, taucmc)
 ! ------------------------------------------------------------------------------
 
 ! Purpose:  Compute the cloud optical depth(s) for each cloudy layer.
@@ -48,9 +48,11 @@
                                                         !    Dimensions: (ngptlw,nlayers)
       real(kind=jprb), intent(in) :: clwpmc(:,:)        ! cloud liquid water path [mcica]
                                                         !    Dimensions: (ngptlw,nlayers)
-      real(kind=jprb), intent(in) :: relqmc(:)          ! liquid particle size (microns)
+      real(kind=jprb), intent(in) :: relqmc(:)          ! liquid particle effective radius (microns)
                                                         !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: reicmc(:)          ! ice partcle size (microns)
+      real(kind=jprb), intent(in) :: reicmc(:)          ! ice particle effective radius (microns)
+                                                        !    Dimensions: (nlayers)
+      real(kind=jprb), intent(in) :: dgesmc(:)          ! ice particle generalized effective size (microns)
                                                         !    Dimensions: (nlayers)
 
 ! ------- Output -------
@@ -202,14 +204,14 @@
                   endif
                
 ! For iceflag=3 option, combine with iceflag=0 option to handle large particle sizes.
-! Use iceflag=3 option for ice particle effective radii from 5.0 and 91.0 microns
-! (generalized effective size, dge, from 8 to 140 microns), and use iceflag=0 option
+! Use iceflag=3 option for ice particle effective radii from 3.2 and 91.0 microns
+! (generalized effective size, dge, from 5 to 140 microns), and use iceflag=0 option
 ! for ice particle effective radii greater than 91.0 microns (dge = 140 microns).
 ! *** NOTE: Fu parameterization requires particle size in generalized effective size.
 ! *** NOTE: Transition between two methods has not been smoothed. 
 
                elseif (iceflag .eq. 3) then
-                  dgeice = radice
+                  dgeice = dgesmc(lay)
                   if (dgeice .lt. 5.0_jprb) stop 'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
                   if (dgeice .ge. 5.0_jprb .and. dgeice .le. 140._jprb) then
                      ncbands = 16

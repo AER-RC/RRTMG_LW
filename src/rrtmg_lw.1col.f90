@@ -237,8 +237,9 @@
                                                 !   (lw scattering not yet available)
       real(kind=jprb) :: ciwp(mxlay)            ! cloud ice water path
       real(kind=jprb) :: clwp(mxlay)            ! cloud liquid water path
-      real(kind=jprb) :: rei(mxlay)             ! cloud ice particle size
-      real(kind=jprb) :: rel(mxlay)             ! cloud liquid particle size
+      real(kind=jprb) :: rei(mxlay)             ! cloud ice particle effective radius (microns)
+      real(kind=jprb) :: dge(mxlay)             ! cloud ice particle generalized effective size (microns)
+      real(kind=jprb) :: rel(mxlay)             ! cloud liquid particle effective radius (microns)
 
       real(kind=jprb) :: taucloud(mxlay,nbndlw) ! cloud optical depth; delta scaled
 !      real(kind=jprb) :: ssacloud(mxlay,nbndlw)! cloud single scattering albedo; delta scaled
@@ -252,8 +253,9 @@
       real(kind=jprb) :: cldfmc(ngptlw,mxlay)   ! cloud fraction [mcica]
       real(kind=jprb) :: ciwpmc(ngptlw,mxlay)   ! cloud ice water path [mcica]
       real(kind=jprb) :: clwpmc(ngptlw,mxlay)   ! cloud liquid water path [mcica]
-      real(kind=jprb) :: relqmc(mxlay)          ! liquid particle size (microns)
-      real(kind=jprb) :: reicmc(mxlay)          ! ice partcle size (microns)
+      real(kind=jprb) :: relqmc(mxlay)          ! liquid particle effective radius (microns)
+      real(kind=jprb) :: reicmc(mxlay)          ! ice particle effective radius (microns)
+      real(kind=jprb) :: dgesmc(mxlay)          ! ice particle generalized effective size (microns)
       real(kind=jprb) :: taucmc(ngptlw,mxlay)   ! cloud optical depth [mcica]
 !      real(kind=jprb) :: ssacmc(ngptlw,mxlay)  ! cloud single scattering albedo [mcica]
                                                 ! for future expansion 
@@ -388,6 +390,12 @@
                           ciwpmc, clwpmc, reicmc, relqmc, taucmc)
             endif
 
+! For iceflag=3 option, set 
+            if (iceflag.eq.3) then 
+               dge(:) = rei(:)
+               dgesmc(:) = reicmc(:)
+            endif
+
 !  For cloudy atmosphere, use cldprop to set cloud optical properties based on
 !  input cloud physical properties.  Select method based on choices described
 !  in cldprop.  Cloud fraction, water path, liquid droplet and ice particle
@@ -399,10 +407,10 @@
 
             if (imca.eq.0) then
                call cldprop(nlayers, inflag, iceflag, liqflag, cldfrac, tauc, &
-                            ciwp, clwp, rei, rel, ncbands, taucloud)
+                            ciwp, clwp, rei, dge, rel, ncbands, taucloud)
             else
                call cldprmc(nlayers, inflag, iceflag, liqflag, cldfmc, &
-                            ciwpmc, clwpmc, reicmc, relqmc, ncbands, taucmc)
+                            ciwpmc, clwpmc, reicmc, dgesmc, relqmc, ncbands, taucmc)
             endif
 
 ! Calculate information needed by the radiative transfer routine
@@ -693,8 +701,8 @@
                                                             !   for future expansion
       real(kind=jprb), intent(out) :: ciwp(mxlay)           ! cloud ice water path
       real(kind=jprb), intent(out) :: clwp(mxlay)           ! cloud liquid water path
-      real(kind=jprb), intent(out) :: rei(mxlay)            ! cloud ice particle size
-      real(kind=jprb), intent(out) :: rel(mxlay)            ! cloud liquid particle size
+      real(kind=jprb), intent(out) :: rel(mxlay)            ! cloud liquid particle effective radius (microns)
+      real(kind=jprb), intent(out) :: rei(mxlay)            ! cloud ice particle effective radius (microns)
 !      real(kind=jprb), intent(out) :: tauaer_out(mxlay,nbndlw)  ! aerosol optical depth
                                                                  !   for future expansion
 !      real(kind=jprb), intent(out) :: ssaaer_out(mxlay,nbndlw)  ! aerosol single scattering albedo
