@@ -84,6 +84,7 @@
              o3vmr   ,co2vmr  ,ch4vmr  ,n2ovmr  ,cfc11vmr,cfc12vmr, &
              cfc22vmr,ccl4vmr ,emis    ,inflglw ,iceflglw,liqflglw, &
              cldfr   ,taucld  ,cicewp  ,cliqwp  ,reice   ,reliq   , &
+             tauaer  , &
              uflx    ,dflx    ,hr      ,uflxc   ,dflxc,  hrc)
 
 ! -------- Description --------
@@ -127,6 +128,15 @@
 !       cloud optical properties are calculated by cldprop or cldprmc based
 !       on input settings of iceflglw and liqflglw
 !
+! One method of aerosol property input is possible:
+!     Aerosol properties can be input in only one way (controlled by input 
+!     flag iaer; see text file rrtmg_lw_instructions for further details):
+!
+!    1) Input aerosol optical depth directly by layer and spectral band (iaer=10);
+!       band average optical depth at the mid-point of each spectral band.
+!       RRTMG_LW currently treats only aerosol absorption;
+!       scattering capability is not presently available.
+!
 !
 ! ------- Modifications -------
 !
@@ -136,18 +146,20 @@
 !-- Original version (derived from RRTM_LW), reduction of g-points, other
 !   revisions for use with GCMs.  
 !     1999: M. J. Iacono, AER, Inc.
-!-- Adapted for use with NCAR/CAM3.
+!-- Adapted for use with NCAR/CAM.
 !     May 2004: M. J. Iacono, AER, Inc.
 !-- Conversion to F90 formatting for consistency with rrtmg_sw.
 !     Feb 2007: M. J. Iacono, AER, Inc.
 !-- Modifications to formatting to use assumed-shape arrays.
 !     Aug 2007: M. J. Iacono, AER, Inc.
+!-- Modified to add longwave aerosol absorption.
+!     Apr 2008: M. J. Iacono, AER, Inc.
 
 ! --------- Modules ----------
 
       use parrrtm, only : nbndlw, ngptlw, maxxsec, mxmol
       use rrlw_con, only: fluxfac, heatfac, oneminus, pi
-      use rrlw_wvn, only: ng, nspa, nspb, wavenum1, wavenum2, delwave
+      use rrlw_wvn, only: ng, ngb, nspa, nspb, wavenum1, wavenum2, delwave
 
 ! ------- Declarations -------
 
@@ -215,10 +227,8 @@
                                                         !    Dimensions: (nbndlw,ncol,nlay)
                                                         !   for future expansion 
                                                         !   (lw scattering not yet available)
-!      real(kind=jprb), intent(in) :: tauaer(:,:,:)     ! aerosol optical depth
+      real(kind=jprb), intent(in) :: tauaer(:,:,:)      ! aerosol optical depth
                                                         !    Dimensions: (ncol,nlay,nbndlw)
-                                                        !   for future expansion 
-                                                        !   (lw aerosols/scattering not yet available)
 !      real(kind=jprb), intent(in) :: ssaaer(:,:,:)     ! aerosol single scattering albedo
                                                         !    Dimensions: (ncol,nlay,nbndlw)
                                                         !   for future expansion 
@@ -251,9 +261,11 @@
       integer(kind=jpim) :: istart              ! beginning band of calculation
       integer(kind=jpim) :: iend                ! ending band of calculation
       integer(kind=jpim) :: iout                ! output option flag (inactive)
+      integer(kind=jpim) :: iaer                ! aerosol option flag
       integer(kind=jpim) :: iplon               ! column loop index
       integer(kind=jpim) :: imca                ! flag for mcica [0=off, 1=on]
       integer(kind=jpim) :: k                   ! layer loop index
+      integer(kind=jpim) :: ig                  ! g-point loop index
 
 ! Atmosphere
       real(kind=jprb) :: pavel(nlay+1)          ! layer pressures (mb) 
@@ -269,10 +281,9 @@
       real(kind=jprb) :: semiss(nbndlw)         ! lw surface emissivity
       real(kind=jprb) :: fracs(nlay+1,ngptlw)   ! 
       real(kind=jprb) :: taug(nlay+1,ngptlw)    ! gaseous optical depths
+      real(kind=jprb) :: taut(nlay+1,ngptlw)    ! gaseous + aerosol optical depths
 
-!      real(kind=jprb) :: taua(nlay+1,nbndlw)   ! aerosol optical depth
-                                                !   for future expansion 
-                                                !   (lw aerosols/scattering not yet available)
+      real(kind=jprb) :: taua(nlay+1,nbndlw)    ! aerosol optical depth
 !      real(kind=jprb) :: ssaa(nlay+1,nbndlw)   ! aerosol single scattering albedo
                                                 !   for future expansion 
                                                 !   (lw aerosols/scattering not yet available)
@@ -375,6 +386,11 @@
 ! icld = 3, with clouds using maximum cloud overlap (McICA only)
       if (icld.lt.0.or.icld.gt.3) icld = 2
 
+! Set iaer to select aerosol option
+! iaer = 0, no aerosols
+! icld = 10, input total aerosol optical depth (tauaer) directly
+      iaer = 10
+
 ! Call model and data initialization, compute lookup tables, perform
 ! reduction of g-points from 256 to 140 for input absorption coefficient 
 ! data and other arrays.
@@ -389,14 +405,14 @@
 !  Prepare atmospheric profile from GCM for use in RRTMG, and define
 !  other input parameters.  
 
-         call inatm (iplon, nlay, icld, &
+         call inatm (iplon, nlay, icld, iaer, &
               play, plev, tlay, tlev, tsfc, h2ovmr, &
               o3vmr, co2vmr, ch4vmr, n2ovmr, cfc11vmr, cfc12vmr, &
               cfc22vmr, ccl4vmr, emis, inflglw, iceflglw, liqflglw, &
-              cldfr, taucld, cicewp, cliqwp, reice, reliq, &
+              cldfr, taucld, cicewp, cliqwp, reice, reliq, tauaer, &
               nlayers, pavel, pz, tavel, tz, tbound, semiss, coldry, &
               wkl, wbrodl, wx, pwvcm, inflag, iceflag, liqflag, &
-              cldfrac, tauc, ciwp, clwp, rei, dge, rel)
+              cldfrac, tauc, ciwp, clwp, rei, dge, rel, taua)
 
 !  For cloudy atmosphere, use cldprop to set cloud optical properties based on
 !  input cloud physical properties.  Select method based on choices described
@@ -437,6 +453,21 @@
                      minorfrac, scaleminor, scaleminorn2, indminor, &
                      fracs, taug)
 
+! Combine gaseous and aerosol optical depths, if aerosol active
+         if (iaer .eq. 0) then
+            do k = 1, nlayers
+               do ig = 1, ngptlw
+                  taut(k,ig) = taug(k,ig)
+               enddo
+            enddo
+         elseif (iaer .eq. 10) then
+            do k = 1, nlayers
+               do ig = 1, ngptlw
+                  taut(k,ig) = taug(k,ig) + taua(k,ngb(ig))
+               enddo
+            enddo
+         endif
+
 ! Call the radiative transfer routine.
 ! Either routine can be called to do clear sky calculation.  If clouds
 ! are present, then select routine based on cloud overlap assumption
@@ -445,13 +476,13 @@
         if (icld .eq. 1) then
            call rtrn(nlayers, istart, iend, iout, pz, semiss, ncbands, &
                   cldfrac, taucloud, planklay, planklev, plankbnd, &
-                  pwvcm, fracs, taug, &
+                  pwvcm, fracs, taut, &
                   totuflux, totdflux, fnet, htr, &
                   totuclfl, totdclfl, fnetc, htrc ) 
         else
            call rtrnmr(nlayers, istart, iend, iout, pz, semiss, ncbands, &
                   cldfrac, taucloud, planklay, planklev, plankbnd, &
-                  pwvcm, fracs, taug, &
+                  pwvcm, fracs, taut, &
                   totuflux, totdflux, fnet, htr, &
                   totuclfl, totdclfl, fnetc, htrc ) 
         endif
@@ -475,14 +506,14 @@
       end subroutine rrtmg_lw
 
 !***************************************************************************
-      subroutine inatm (iplon, nlay, icld, &
+      subroutine inatm (iplon, nlay, icld, iaer, &
               play, plev, tlay, tlev, tsfc, h2ovmr, &
               o3vmr, co2vmr, ch4vmr, n2ovmr, cfc11vmr, cfc12vmr, &
               cfc22vmr, ccl4vmr, emis, inflglw, iceflglw, liqflglw, &
-              cldfr, taucld, cicewp, cliqwp, reice, reliq, &
+              cldfr, taucld, cicewp, cliqwp, reice, reliq, tauaer, &
               nlayers, pavel, pz, tavel, tz, tbound, semiss, coldry, &
               wkl, wbrodl, wx, pwvcm, inflag, iceflag, liqflag, &
-              cldfrac, tauc, ciwp, clwp, rei, dge, rel)
+              cldfrac, tauc, ciwp, clwp, rei, dge, rel, taua)
 !***************************************************************************
 !
 !  Input atmospheric profile from GCM, and prepare it for use in RRTMG_LW.
@@ -502,6 +533,7 @@
       integer(kind=jpim), intent(in) :: iplon           ! column loop index
       integer(kind=jpim), intent(in) :: nlay            ! Number of model layers
       integer(kind=jpim), intent(in) :: icld            ! clear/cloud and cloud overlap flag
+      integer(kind=jpim), intent(in) :: iaer            ! aerosol option flag
 
       real(kind=jprb), intent(in) :: play(:,:)          ! Layer pressures (hPa, mb)
                                                         !    Dimensions: (ncol,nlay)
@@ -550,6 +582,8 @@
                                                         !    Dimensions: (ncol,nlay)
       real(kind=jprb), intent(in) :: taucld(:,:,:)      ! Cloud optical depth
                                                         !    Dimensions: (nbndlw,ncol,nlay)
+      real(kind=jprb), intent(in) :: tauaer(:,:,:)      ! Aerosol optical depth
+                                                        !    Dimensions: (ncol,nlay,nbndlw)
 
 ! ----- Output -----
 ! Atmosphere
@@ -595,6 +629,8 @@
                                                         !    Dimensions: (nlay)
       real(kind=jprb), intent(out) :: tauc(:,:)         ! cloud optical depth
                                                         !    Dimensions: (nbndlw,nlay)
+      real(kind=jprb), intent(out) :: taua(:,:)         ! aerosol optical depth
+                                                        !    Dimensions: (nlay,nbndlw)
 
 
 ! ----- Local -----
@@ -624,7 +660,7 @@
       real(kind=jprb), parameter :: sbc = 5.67e-08_jprb   ! Stefan-Boltzmann constant (W/m2K4)
       real(kind=jprb), parameter :: o2mmr = 0.23143_jprb  ! o2 mass mixing ratio
 
-      integer(kind=jpim) :: isp, l, ix, n, imol           ! Loop indices
+      integer(kind=jpim) :: isp, l, ix, n, imol, ib       ! Loop indices
       real(kind=jprb) :: amm, amttl, wvttl, wvsh, summol  
 
 ! Add one to nlayers here to include extra model layer at top of atmosphere
@@ -642,6 +678,7 @@
       rei(:) = 0.0_jprb
       dge(:) = 0.0_jprb
       rel(:) = 0.0_jprb
+      taua(:,:) = 0.0_jprb
       amttl = 0.0_jprb
       wvttl = 0.0_jprb
  
@@ -752,6 +789,17 @@
 !          semiss(n) = 1.0_jprb
       enddo
 
+! Transfer aerosol optical properties to RRTM variable;
+! modify to reverse layer indexing here if necessary.
+
+     if (iaer .ge. 1) then
+        do l = 1, nlayers
+           do ib = 1, nbndlw
+              taua(l,ib) = tauaer(iplon,l,ib)
+           enddo
+        enddo
+      endif
+
 ! Transfer cloud fraction and cloud optical properties to RRTM variables,
 ! modify to reverse layer indexing here if necessary.
 
@@ -789,6 +837,7 @@
 !         rei(nlayers) = 0.0_jprb
 !         dge(nlayers) = 0.0_jprb
 !         rel(nlayers) = 0.0_jprb
+!         taua(nlayers,:) = 0.0_jprb
 
       endif
       

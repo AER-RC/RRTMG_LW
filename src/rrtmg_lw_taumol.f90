@@ -597,7 +597,7 @@
                     fac111 * absa(ind1+10,ig) + &
                     fac211 * absa(ind1+11,ig))  &
                     + tauself + taufor &
-                    + adjcoln2o*absn2o            
+                    + adjcoln2o*absn2o
                fracs(lay,ngs2+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
@@ -651,7 +651,7 @@
                     fac111 * absa(ind1+9,ig) + &
                     fac011 * absa(ind1+10,ig)) &
                     + tauself + taufor &
-                    + adjcoln2o*absn2o 
+                    + adjcoln2o*absn2o
                fracs(lay,ngs2+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
                enddo
@@ -687,7 +687,7 @@
                     fac011 * absa(ind1+9,ig) + &
                     fac111 * absa(ind1+10,ig))  &
                     + tauself + taufor &
-                    + adjcoln2o*absn2o   
+                    + adjcoln2o*absn2o
                fracs(lay,ngs2+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
            enddo
@@ -770,7 +770,7 @@
                 fac011 * absb(ind1+5,ig) + &
                 fac111 * absb(ind1+6,ig))  &
                 + taufor &
-                + adjcoln2o*absn2o            
+                + adjcoln2o*absn2o
             fracs(lay,ngs2+ig) = fracrefb(ig,jpl) + fpl * &
                 (fracrefb(ig,jpl+1)-fracrefb(ig,jpl))
          enddo
@@ -1021,7 +1021,7 @@
                 (fac001 * absb(ind1,ig) +  &
                 fac101 * absb(ind1+1,ig) + &
                 fac011 * absb(ind1+5,ig) + &
-                fac111 * absb(ind1+6,ig)) 
+                fac111 * absb(ind1+6,ig))
             fracs(lay,ngs3+ig) = fracrefb(ig,jpl) + fpl * &
                 (fracrefb(ig,jpl+1)-fracrefb(ig,jpl))
          enddo
@@ -1985,7 +1985,7 @@
                     fac111 * absa(ind1+10,ig) + &
                     fac211 * absa(ind1+11,ig)) &
                     + tauself + taufor &
-                    + adjcoln2o*absn2o            
+                    + adjcoln2o*absn2o
                fracs(lay,ngs8+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
@@ -2039,7 +2039,7 @@
                     fac111 * absa(ind1+9,ig) + &
                     fac011 * absa(ind1+10,ig)) &
                     + tauself + taufor &
-                    + adjcoln2o*absn2o            
+                    + adjcoln2o*absn2o
                fracs(lay,ngs8+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
@@ -2075,7 +2075,7 @@
                     fac011 * absa(ind1+9,ig) + &
                     fac111 * absa(ind1+10,ig)) &
                     + tauself + taufor &
-                    + adjcoln2o*absn2o            
+                    + adjcoln2o*absn2o
                fracs(lay,ngs8+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo

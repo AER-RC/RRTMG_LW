@@ -98,6 +98,15 @@
 !       cloud optical properties are calculated by cldprop or cldprmc based
 !       on input settings of iceflglw and liqflglw
 !
+! One method of aerosol property input is possible:
+!     Aerosol properties can be input in only one way (controlled by input
+!     flag iaer; see text file rrtmg_lw_instructions further details):
+!
+!    1) Input aerosol optical depth directly by layer and spectral band (iaer=10);
+!       band average optical depth at the mid-point of each spectral band.
+!       RRTMG_LW currently treats only aerosol absorption;
+!       scattering capability is not presently available.
+!
 !
 ! ------- Modifications -------
 !
@@ -107,20 +116,21 @@
 !-- Original version (derived from RRTM_LW), reduction of g-points, other
 !   revisions for use with GCMs.  
 !     1999: M. J. Iacono, AER, Inc.
-!-- Adapted for use with NCAR/CAM3.
+!-- Adapted for use with NCAR/CAM.
 !     May 2004: M. J. Iacono, AER, Inc.
 !-- Revised to add McICA capability. 
 !     Nov 2005: M. J. Iacono, AER, Inc.
 !-- Conversion to F90 formatting for consistency with rrtmg_sw.
 !     Feb 2007: M. J. Iacono, AER, Inc.
-
+!-- Added aerosol absorption capability.
+!     Mar 2008: M. J. Iacono, AER, Inc.
 
 ! --------- Modules ----------
 
       use parkind, only : jpim, jprb 
       use parrrtm, only : mxlay, nbndlw, ngptlw, maxxsec, mxmol
       use rrlw_con, only: fluxfac, heatfac, oneminus, pi
-      use rrlw_wvn, only: ng, nspa, nspb, wavenum1, wavenum2, delwave
+      use rrlw_wvn, only: ng, ngb, nspa, nspb, wavenum1, wavenum2, delwave
       use rrlw_vsn
       use mcica_subcol_gen_lw, only: mcica_subcol_lw
       use rrtmg_lw_cldprop, only: cldprop
@@ -145,9 +155,11 @@
       integer(kind=jpim) :: icld                ! clear/cloud flag
       integer(kind=jpim) :: iflag               ! control flag
       integer(kind=jpim) :: iout                ! output option flag
+      integer(kind=jpim) :: iaer                ! aerosol option flag
       integer(kind=jpim) :: ird                 ! input unit
       integer(kind=jpim) :: iwr                 ! output unit
       integer(kind=jpim) :: i                   ! output index
+      integer(kind=jpim) :: ig                  ! g-point index
       integer(kind=jpim) :: iplon               ! column loop index
       integer(kind=jpim) :: ims                 ! mcica statistical loop index
       integer(kind=jpim) :: imca                ! flag for mcica [0=off, 1=on]
@@ -168,17 +180,16 @@
       real(kind=jprb) :: pwvcm                  ! precipitable water vapor (cm)
       real(kind=jprb) :: semiss(nbndlw)         ! lw surface emissivity
       real(kind=jprb) :: fracs(mxlay,ngptlw)  ! 
-      real(kind=jprb) :: taug(mxlay,ngptlw)   ! 
+      real(kind=jprb) :: taug(mxlay,ngptlw)   ! gaseous optical depths
+      real(kind=jprb) :: taut(mxlay,ngptlw)   ! gaseous + aerosol optical depths
 
-!      real(kind=jprb) :: tauaer(mxlay,nbndlw)! aerosol optical depth
-                                                ! for future expansion 
-                                                !   (lw aerosols/scattering not yet available)
+      real(kind=jprb) :: tauaer(mxlay,nbndlw) ! aerosol optical depth
 !      real(kind=jprb) :: ssaaer(mxlay,nbndlw)! aerosol single scattering albedo
                                                 ! for future expansion 
-                                                !   (lw aerosols/scattering not yet available)
+                                                !   (lw aerosol scattering not yet available)
 !      real(kind=jprb) :: asmaer(mxlay,nbndlw)! aerosol asymmetry parameter
                                                 ! for future expansion 
-                                                !   (lw aerosols/scattering not yet available)
+                                                !   (lw aerosol scattering not yet available)
 
 ! Atmosphere - setcoef
       integer(kind=jpim) :: laytrop             ! tropopause layer index
@@ -355,11 +366,11 @@
       do iplon = 1, ncol
 
 ! Input atmospheric profile from INPUT_RRTM.
-         call readprof(ird, nlayers, iout, imca, icld, &
+         call readprof(ird, nlayers, iout, imca, icld, iaer, &
                        pavel, tavel, pz, tz, tbound, semiss, &
                        coldry, wkl, wbrodl, wx, pwvcm, &
                        inflag, iceflag, liqflag, cldfrac, &
-                       tauc, ciwp, clwp, rei, rel)
+                       tauc, ciwp, clwp, rei, rel, tauaer)
 
          istart = 1
          iend = 16
@@ -443,6 +454,21 @@
                         minorfrac, scaleminor, scaleminorn2, indminor, &
                         fracs, taug)
 
+! Combine gaseous and aerosol optical depths, if aerosol active
+            if (iaer .eq. 0) then
+               do i = 1, nlayers
+                  do ig = 1, ngptlw
+                     taut(i,ig) = taug(i,ig)
+                  enddo
+               enddo
+            elseif (iaer .eq. 10) then
+               do i = 1, nlayers
+                  do ig = 1, ngptlw
+                     taut(i,ig) = taug(i,ig) + tauaer(i,ngb(ig))
+                  enddo
+               enddo
+            endif
+
 ! Call the radiative transfer routine.
 ! Either routine can be called to do clear sky calculation.  If clouds
 ! are present, then select routine based on cloud overlap assumption
@@ -453,20 +479,20 @@
                if (icld .eq. 1) then
                   call rtrn(nlayers, istart, iend, iout, pz, semiss, ncbands, &
                             cldfrac, taucloud, planklay, planklev, plankbnd, &
-                            pwvcm, fracs, taug, &
+                            pwvcm, fracs, taut, &
                             totuflux, totdflux, fnet, htr, &
                             totuclfl, totdclfl, fnetc, htrc ) 
                else
                   call rtrnmr(nlayers, istart, iend, iout, pz, semiss, ncbands, &
                               cldfrac, taucloud, planklay, planklev, plankbnd, &
-                              pwvcm, fracs, taug, &
+                              pwvcm, fracs, taut, &
                               totuflux, totdflux, fnet, htr, &
                               totuclfl, totdclfl, fnetc, htrc ) 
                endif
             elseif (imca .eq. 1) then
                call rtrnmc(nlayers, istart, iend, iout, pz, semiss, ncbands, &
                            cldfmc, taucmc, planklay, planklev, plankbnd, &
-                           pwvcm, fracs, taug, &
+                           pwvcm, fracs, taut, &
                            totuflux, totdflux, fnet, htr, &
                            totuclfl, totdclfl, fnetc, htrc )
             endif
@@ -615,10 +641,10 @@
 
 !************************************************************************
       subroutine readprof(ird_in, nlayers_out, iout_out, imca, icld_out, &
-          pavel_out, tavel_out, pz_out, tz_out, tbound_out, semiss_out, &
-          coldry_out, wkl_out, wbrodl_out, wx_out, pwvcm_out, &
+          iaer_out, pavel_out, tavel_out, pz_out, tz_out, tbound_out, &
+          semiss_out, coldry_out, wkl_out, wbrodl_out, wx_out, pwvcm_out, &
           inflag_out, iceflag_out, liqflag_out, cldfrac_out, &
-          tauc, ciwp, clwp, rei, rel)
+          tauc, ciwp, clwp, rei, rel, tauaer_out)
 !************************************************************************
 
 ! --------- Modules ----------
@@ -653,7 +679,7 @@
 
       common /consts/   pic,planckc,boltzc,clightc,avogadc,alosmtc,gasconc, &
                         radcn1c,radcn2c
-      common /control/  numangs, iout, istart, iend, icld
+      common /control/  numangs, iout, istart, iend, icld, iaer
       common /profile/  nlayers,pavel(mxlay),tavel(mxlay),pz(0:mxlay),tz(0:mxlay)
       common /surface/  tbound,ireflect,semiss(nbndlw)
       common /species/  coldry(mxlay),wkl(mxmol,mxlay),wbrodl(mxlay),colmol(mxlay),nmol
@@ -666,6 +692,7 @@
       common /cloudin/   inflag,clddat1(mxlay),clddat2(mxlay), &
                          iceflag,liqflag,clddat3(mxlay),clddat4(mxlay)
       common /clouddat/  ncbands,cldfrac(mxlay),taucloud(mxlay,nbndlw)
+      common /aerdat/    tauaer(mxlay,nbndlw)
 
       character*80 form1(0:1),form2(0:1),form3(0:1)
       character*1 ctest, cdollar, cprcnt,cdum
@@ -676,6 +703,7 @@
       integer(kind=jpim), intent(out) :: icld_out           ! clear/cloud flag
       integer(kind=jpim), intent(out) :: imca               ! McICA on/off flag (1 = use McICA)
       integer(kind=jpim), intent(out) :: iout_out           ! output option flag
+      integer(kind=jpim), intent(out) :: iaer_out           ! aerosol option flag
 
       real(kind=jprb), intent(out) :: pavel_out(mxlay)      ! layer pressures (mb) 
       real(kind=jprb), intent(out) :: tavel_out(mxlay)      ! layer temperatures (K)
@@ -703,8 +731,7 @@
       real(kind=jprb), intent(out) :: clwp(mxlay)           ! cloud liquid water path
       real(kind=jprb), intent(out) :: rel(mxlay)            ! cloud liquid particle effective radius (microns)
       real(kind=jprb), intent(out) :: rei(mxlay)            ! cloud ice particle effective radius (microns)
-!      real(kind=jprb), intent(out) :: tauaer_out(mxlay,nbndlw)  ! aerosol optical depth
-                                                                 !   for future expansion
+      real(kind=jprb), intent(out) :: tauaer_out(mxlay,nbndlw)  ! aerosol optical depth
 !      real(kind=jprb), intent(out) :: ssaaer_out(mxlay,nbndlw)  ! aerosol single scattering albedo
                                                                  !   for future expansion
 !      real(kind=jprb), intent(out) :: asmaer_out(mxlay,nbndlw)  ! aerosol asymmetry parameter
@@ -754,7 +781,7 @@
       if (ctest .eq. cprcnt) goto 8900 
       if (ctest .ne. cdollar) goto 1000
 
-      read (ird,9011) iatm, ixsect, numangs, iout, imca, icld
+      read (ird,9011) iaer, iatm, ixsect, numangs, iout, imca, icld
 
 !  If numangs set to -1, reset to default rt code for
 !  backwards compatibility with original rrtm
@@ -762,6 +789,9 @@
 
 !  If clouds are present, read in appropriate input file, IN_CLD_RRTM.
       if (icld .ge. 1) call readcld
+
+!  If aerosols are present, read in appropriate input file, IN_AER_RRTM.
+      if (iaer .eq. 10) call readaer
 
 !  Read in surface information.
       read (ird,9012) tbound,iemiss,ireflect,(semis(i),i=1,16)
@@ -867,6 +897,7 @@
       nlayers_out = nlayers
       iout_out = iout
       icld_out = icld
+      iaer_out = iaer
       tbound_out = tbound
       pwvcm_out = pwvcm
       inflag_out = inflag
@@ -921,13 +952,13 @@
          endif 
       enddo
 
-!      do l = 1, nlayers
-!         do n = 1, nbndlw
-!            tauaer_out(l,n) = 0._jprb
+      do l = 1, nlayers
+         do n = 1, nbndlw
+            tauaer_out(l,n) = tauaer(l,n)
 !            ssaaer_out(l,n) = 1._jprb
-!            asmaer_out(l,n) = 1._jprb
-!         enddo
-!      enddo
+!            asmaer_out(l,n) = 0._jprb
+         enddo
+      enddo
 
       goto 9000
 
@@ -936,7 +967,7 @@
  9000 continue
 
  9010 format (a1)
- 9011 format (49x,i1,19x,i1,13x,i2,2x,i3,3x,i1,i1)
+ 9011 format (18x,i2,29x,i1,19x,i1,13x,i2,2x,i3,3x,i1,i1)
  9012 format (e10.3,1x,i1,2x,i1,16e5.3)
  9013 format (1x,i1,i3,i5)                                     
  9300 format (i5)
@@ -1002,6 +1033,91 @@
  9100 format (a1,1x,i3,5e10.5)
 
       end subroutine readcld
+
+!***************************************************************************
+      subroutine readaer
+!***************************************************************************
+
+      use parkind, only : jpim, jprb
+
+! Purpose:  To read in IN_AER_RRTM, the file that contains input
+!           aerosol properties.
+
+! -------- Modules --------
+
+      use rrlw_wvn, only : wavenum1, wavenum2
+
+      implicit integer(i-n), real(a-h,o-z)
+
+! ------- Parameters -------
+      parameter (mxlay = 203)
+      parameter (nbndlw  = 16)
+!      parameter (mg = 16)
+!      parameter (mxstr = 16)
+!      parameter (mcmu = 32)
+
+      real aod(mxlay),aod1(nbndlw)
+      integer lay(mxlay),ivec(mxlay)
+
+      common /control/  numangs, iout, istart, iend, icld, iaer
+      common /profile/  nlayers,pavel(mxlay),tavel(mxlay),pz(0:mxlay),tz(0:mxlay)
+
+      common /aerdat/  tauaer(mxlay,nbndlw)
+
+      character*1 ctest, cpercent
+
+      data cpercent /'%'/
+
+      eps = 1.e-10_jprb
+      irdaer = 12
+      open(irdaer,file='IN_AER_RRTM',form='formatted')
+
+      aod(:) = 0.0_jprb
+      tauaer(:,:) = 0.0_jprb
+
+! Read in number of different aerosol models option.
+      read (irdaer, 9010) naer
+!       if (naer .gt. 4) then
+!          print *, 'NAER (= ', naer, ') IS GREATER THAN 4'
+!          stop
+!       endif
+        
+! For each aerosol read in optical properties and layer aerosol 
+! optical depths.
+      do ia = 1, naer
+	 read (irdaer, 9011) nlay, iaod
+
+! Input restricted to direct input of aerosol optical depths
+         iaod = 1
+
+! For this aerosol, read in layers and optical depth information.
+! Store a nonzero optical depth in aod to check for double specification.
+         do il = 1, nlay
+            read(irdaer, 9012) lay(il), (aod1(ib), ib = 1,nbndlw)
+            if (aod(lay(il)) .lt. eps) then
+               if (iaod .eq. 1) then
+                  do ib = 1, nbndlw
+                     aod(lay(il)) = max(aod(lay(il)),aod1(ib))
+                     tauaer(lay(il),ib) = aod1(ib)
+                  enddo
+               endif
+            else
+               print *,'LAYER ',lay(il),' HAS MORE THAN ONE AEROSOL TYPE'
+               stop
+            endif
+         enddo
+
+! End of naer loop
+      enddo
+
+ 9000 continue
+      close(irdaer)
+
+ 9010 format (3x, i2)
+ 9011 format (2x, i3, 4x, i1)
+ 9012 format (2x, i3, 16f7.4)
+
+      end subroutine readaer
 
 !**********************************************************************
       subroutine xsident(ird)

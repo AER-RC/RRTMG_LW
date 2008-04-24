@@ -9,6 +9,19 @@ RRTMG_LW Release Notes
 NOTE: ** CVS rtags can't accept "." in strings, substitute "_"
 
 
+April 24, 2008:
+
+        Release_4_5
+
+        Added capability to treat longwave aerosol absorption and added use of 
+        input file IN_AER_RRTM to read in aerosol optical depths following the
+        application of this file in RRTMG_SW.  Aerosol scattering is not presently 
+        available in the longwave, so the required input is limited to the aerosol 
+        optical depth by layer at the mid-point of each of the 16 spectral bands. 
+
+        Publicly released on AER RT web site in April 2008.
+
+
 September 7, 2007:
 
         Release_4_4

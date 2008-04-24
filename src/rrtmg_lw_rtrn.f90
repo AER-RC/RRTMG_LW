@@ -31,7 +31,7 @@
 !-----------------------------------------------------------------------------
       subroutine rtrn(nlayers, istart, iend, iout, pz, semiss, ncbands, &
                       cldfrac, taucloud, planklay, planklev, plankbnd, &
-                      pwvcm, fracs, taug, & 
+                      pwvcm, fracs, taut, & 
                       totuflux, totdflux, fnet, htr, &
                       totuclfl, totdclfl, fnetc, htrc ) 
 !-----------------------------------------------------------------------------
@@ -75,7 +75,7 @@
                                                         !    Dimensions: (nbndlw)
       real(kind=jprb), intent(in) :: fracs(:,:)         ! 
                                                         !    Dimensions: (nlayers,ngptw)
-      real(kind=jprb), intent(in) :: taug(:,:)          ! 
+      real(kind=jprb), intent(in) :: taut(:,:)          ! gaseous + aerosol optical depths
                                                         !    Dimensions: (nlayers,ngptlw)
 
 ! Clouds
@@ -302,7 +302,7 @@
                blay = planklay(lev,iband)
                dplankup = planklev(lev,iband) - blay
                dplankdn = planklev(lev-1,iband) - blay
-               odepth = secdiff(iband) * taug(lev,igc)
+               odepth = secdiff(iband) * taut(lev,igc)
                if (odepth .lt. 0.0_jprb) odepth = 0.0_jprb
 ! Cloudy layer
                if (icldlyr(lev).eq.1) then
