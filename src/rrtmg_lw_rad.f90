@@ -216,21 +216,21 @@
 
       real(kind=jprb), intent(in) :: cldfmcl(:,:,:)     ! Cloud fraction
                                                         !    Dimensions: (ngptlw,ncol,nlay)
-      real(kind=jprb), intent(in) :: ciwpmcl(:,:,:)     ! Cloud ice water path (g/m2)
+      real(kind=jprb), intent(in) :: ciwpmcl(:,:,:)     ! In-cloud ice water path (g/m2)
                                                         !    Dimensions: (ngptlw,ncol,nlay)
-      real(kind=jprb), intent(in) :: clwpmcl(:,:,:)     ! Cloud liquid water path (g/m2)
+      real(kind=jprb), intent(in) :: clwpmcl(:,:,:)     ! In-cloud liquid water path (g/m2)
                                                         !    Dimensions: (ngptlw,ncol,nlay)
       real(kind=jprb), intent(in) :: reicmcl(:,:)       ! Cloud ice effective radius (microns)
                                                         !    Dimensions: (ncol,nlay)
       real(kind=jprb), intent(in) :: relqmcl(:,:)       ! Cloud water drop effective radius (microns)
                                                         !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: taucmcl(:,:,:)     ! Cloud optical depth
+      real(kind=jprb), intent(in) :: taucmcl(:,:,:)     ! In-cloud optical depth
                                                         !    Dimensions: (ngptlw,ncol,nlay)
-!      real(kind=jprb), intent(in) :: ssacmcl(:,:,:)    ! Cloud single scattering albedo
+!      real(kind=jprb), intent(in) :: ssacmcl(:,:,:)    ! In-cloud single scattering albedo
                                                         !    Dimensions: (ngptlw,ncol,nlay)
                                                         !   for future expansion
                                                         !   lw scattering not yet available
-!      real(kind=jprb), intent(in) :: asmcmcl(:,:,:)    ! Cloud asymmetry parameter
+!      real(kind=jprb), intent(in) :: asmcmcl(:,:,:)    ! In-cloud asymmetry parameter
                                                         !    Dimensions: (ngptlw,ncol,nlay)
                                                         !   for future expansion
                                                         !   lw scattering not yet available
@@ -348,16 +348,16 @@
 
 ! Atmosphere/clouds - cldprmc [mcica]
       real(kind=jprb) :: cldfmc(ngptlw,nlay+1)  ! cloud fraction [mcica]
-      real(kind=jprb) :: ciwpmc(ngptlw,nlay+1)  ! cloud ice water path [mcica]
-      real(kind=jprb) :: clwpmc(ngptlw,nlay+1)  ! cloud liquid water path [mcica]
+      real(kind=jprb) :: ciwpmc(ngptlw,nlay+1)  ! in-cloud ice water path [mcica]
+      real(kind=jprb) :: clwpmc(ngptlw,nlay+1)  ! in-cloud liquid water path [mcica]
       real(kind=jprb) :: relqmc(nlay+1)         ! liquid particle effective radius (microns)
       real(kind=jprb) :: reicmc(nlay+1)         ! ice particle effective radius (microns)
       real(kind=jprb) :: dgesmc(nlay+1)         ! ice particle generalized effective size (microns)
-      real(kind=jprb) :: taucmc(ngptlw,nlay+1)  ! cloud optical depth [mcica]
-!      real(kind=jprb) :: ssacmc(ngptlw,nlay+1) ! cloud single scattering albedo [mcica]
+      real(kind=jprb) :: taucmc(ngptlw,nlay+1)  ! in-cloud optical depth [mcica]
+!      real(kind=jprb) :: ssacmc(ngptlw,nlay+1) ! in-cloud single scattering albedo [mcica]
                                                 !   for future expansion 
                                                 !   (lw scattering not yet available)
-!      real(kind=jprb) :: asmcmc(ngptlw,nlay+1) ! cloud asymmetry parameter [mcica]
+!      real(kind=jprb) :: asmcmc(ngptlw,nlay+1) ! in-cloud asymmetry parameter [mcica]
                                                 !   for future expansion 
                                                 !   (lw scattering not yet available)
 
@@ -575,15 +575,15 @@
 
       real(kind=jprb), intent(in) :: cldfmcl(:,:,:)     ! Cloud fraction
                                                         !    Dimensions: (ngptlw,ncol,nlay)
-      real(kind=jprb), intent(in) :: ciwpmcl(:,:,:)     ! Cloud ice water path (g/m2)
+      real(kind=jprb), intent(in) :: ciwpmcl(:,:,:)     ! In-cloud ice water path (g/m2)
                                                         !    Dimensions: (ngptlw,ncol,nlay)
-      real(kind=jprb), intent(in) :: clwpmcl(:,:,:)     ! Cloud liquid water path (g/m2)
+      real(kind=jprb), intent(in) :: clwpmcl(:,:,:)     ! In-cloud liquid water path (g/m2)
                                                         !    Dimensions: (ngptlw,ncol,nlay)
       real(kind=jprb), intent(in) :: relqmcl(:,:)       ! Cloud water drop effective radius (microns)
                                                         !    Dimensions: (ncol,nlay)
       real(kind=jprb), intent(in) :: reicmcl(:,:)       ! Cloud ice effective radius (microns)
                                                         !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: taucmcl(:,:,:)     ! Cloud optical depth
+      real(kind=jprb), intent(in) :: taucmcl(:,:,:)     ! In-cloud optical depth
                                                         !    Dimensions: (ngptlw,ncol,nlay)
       real(kind=jprb), intent(in) :: tauaer(:,:,:)      ! Aerosol optical depth
                                                         !    Dimensions: (ncol,nlay,nbndlw)
@@ -620,9 +620,9 @@
 
       real(kind=jprb), intent(out) :: cldfmc(:,:)       ! cloud fraction [mcica]
                                                         !    Dimensions: (ngptlw,nlay)
-      real(kind=jprb), intent(out) :: ciwpmc(:,:)       ! cloud ice water path [mcica]
+      real(kind=jprb), intent(out) :: ciwpmc(:,:)       ! in-cloud ice water path [mcica]
                                                         !    Dimensions: (ngptlw,nlay)
-      real(kind=jprb), intent(out) :: clwpmc(:,:)       ! cloud liquid water path [mcica]
+      real(kind=jprb), intent(out) :: clwpmc(:,:)       ! in-cloud liquid water path [mcica]
                                                         !    Dimensions: (ngptlw,nlay)
       real(kind=jprb), intent(out) :: relqmc(:)         ! liquid particle effective radius (microns)
                                                         !    Dimensions: (nlay)
@@ -630,7 +630,7 @@
                                                         !    Dimensions: (nlay)
       real(kind=jprb), intent(out) :: dgesmc(:)         ! ice partcle generalized effective size (microns)
                                                         !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: taucmc(:,:)       ! cloud optical depth [mcica]
+      real(kind=jprb), intent(out) :: taucmc(:,:)       ! in-cloud optical depth [mcica]
                                                         !    Dimensions: (ngptlw,nlay)
       real(kind=jprb), intent(out) :: taua(:,:)         ! aerosol optical depth
                                                         !    Dimensions: (nlay,nbndlw)
