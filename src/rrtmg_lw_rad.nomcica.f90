@@ -8,7 +8,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2008, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -53,11 +53,11 @@
 ! ****************************************************************************
 
 ! -------- Modules --------
-      use parkind, only : jpim, jprb 
+      use parkind, only : im => kind_im, rb => kind_rb
       use rrlw_vsn
       use rrtmg_lw_cldprop, only: cldprop
-! Move call to rrtmg_lw_ini and following use association to 
-! GCM initialization area
+! *** Move the required call to rrtmg_lw_ini below and the following 
+! use association to the GCM initialization area ***
 !      use rrtmg_lw_init, only: rrtmg_lw_ini
       use rrtmg_lw_rtrn, only: rtrn
       use rrtmg_lw_rtrnmr, only: rtrnmr
@@ -79,10 +79,11 @@
 
       subroutine rrtmg_lw &
             (ncol    ,nlay    ,icld    , &
-             play    ,plev    ,tlay    ,tlev    ,tsfc    ,h2ovmr  , &
-             o3vmr   ,co2vmr  ,ch4vmr  ,n2ovmr  ,cfc11vmr,cfc12vmr, &
-             cfc22vmr,ccl4vmr ,emis    ,inflglw ,iceflglw,liqflglw, &
-             cldfr   ,taucld  ,cicewp  ,cliqwp  ,reice   ,reliq   , &
+             play    ,plev    ,tlay    ,tlev    ,tsfc    , &
+             h2ovmr  ,o3vmr   ,co2vmr  ,ch4vmr  ,n2ovmr  ,o2vmr, &
+             cfc11vmr,cfc12vmr,cfc22vmr,ccl4vmr ,emis    , &
+             inflglw ,iceflglw,liqflglw,cldfr   , &
+             taucld  ,cicewp  ,cliqwp  ,reice   ,reliq   , &
              tauaer  , &
              uflx    ,dflx    ,hr      ,uflxc   ,dflxc,  hrc)
 
@@ -163,167 +164,169 @@
 ! ------- Declarations -------
 
 ! ----- Input -----
-      integer(kind=jpim), intent(in) :: ncol            ! Number of horizontal columns
-      integer(kind=jpim), intent(in) :: nlay            ! Number of model layers
-      integer(kind=jpim), intent(inout) :: icld         ! Cloud overlap method
-                                                        !    0: Clear only
-                                                        !    1: Random
-                                                        !    2: Maximum/random
-                                                        !    3: Maximum
+      integer(kind=im), intent(in) :: ncol            ! Number of horizontal columns
+      integer(kind=im), intent(in) :: nlay            ! Number of model layers
+      integer(kind=im), intent(inout) :: icld         ! Cloud overlap method
+                                                      !    0: Clear only
+                                                      !    1: Random
+                                                      !    2: Maximum/random
+                                                      !    3: Maximum
 
-      real(kind=jprb), intent(in) :: play(:,:)          ! Layer pressures (hPa, mb)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: plev(:,:)          ! Interface pressures (hPa, mb)
-                                                        !    Dimensions: (ncol,nlay+1)
-      real(kind=jprb), intent(in) :: tlay(:,:)          ! Layer temperatures (K)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: tlev(:,:)          ! Interface temperatures (K)
-                                                        !    Dimensions: (ncol,nlay+1)
-      real(kind=jprb), intent(in) :: tsfc(:)            ! Surface temperature (K)
-                                                        !    Dimensions: (ncol)
-      real(kind=jprb), intent(in) :: h2ovmr(:,:)        ! H2O volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: o3vmr(:,:)         ! O3 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: co2vmr(:,:)        ! CO2 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: ch4vmr(:,:)        ! Methane volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: n2ovmr(:,:)        ! Nitrous oxide volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cfc11vmr(:,:)      ! CFC11 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cfc12vmr(:,:)      ! CFC12 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cfc22vmr(:,:)      ! CFC22 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: ccl4vmr(:,:)       ! CCL4 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: emis(:,:)          ! Surface emissivity
-                                                        !    Dimensions: (ncol,nbndlw)
+      real(kind=rb), intent(in) :: play(:,:)          ! Layer pressures (hPa, mb)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: plev(:,:)          ! Interface pressures (hPa, mb)
+                                                      !    Dimensions: (ncol,nlay+1)
+      real(kind=rb), intent(in) :: tlay(:,:)          ! Layer temperatures (K)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: tlev(:,:)          ! Interface temperatures (K)
+                                                      !    Dimensions: (ncol,nlay+1)
+      real(kind=rb), intent(in) :: tsfc(:)            ! Surface temperature (K)
+                                                      !    Dimensions: (ncol)
+      real(kind=rb), intent(in) :: h2ovmr(:,:)        ! H2O volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: o3vmr(:,:)         ! O3 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: co2vmr(:,:)        ! CO2 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: ch4vmr(:,:)        ! Methane volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: n2ovmr(:,:)        ! Nitrous oxide volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: o2vmr(:,:)         ! Oxygen volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cfc11vmr(:,:)      ! CFC11 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cfc12vmr(:,:)      ! CFC12 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cfc22vmr(:,:)      ! CFC22 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: ccl4vmr(:,:)       ! CCL4 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: emis(:,:)          ! Surface emissivity
+                                                      !    Dimensions: (ncol,nbndlw)
 
-      integer(kind=jpim), intent(in) :: inflglw         ! Flag for cloud optical properties
-      integer(kind=jpim), intent(in) :: iceflglw        ! Flag for ice particle specification
-      integer(kind=jpim), intent(in) :: liqflglw        ! Flag for liquid droplet specification
+      integer(kind=im), intent(in) :: inflglw         ! Flag for cloud optical properties
+      integer(kind=im), intent(in) :: iceflglw        ! Flag for ice particle specification
+      integer(kind=im), intent(in) :: liqflglw        ! Flag for liquid droplet specification
 
-      real(kind=jprb), intent(in) :: cldfr(:,:)         ! Cloud fraction
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cicewp(:,:)        ! Cloud ice water path (g/m2)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cliqwp(:,:)        ! Cloud liquid water path (g/m2)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: reice(:,:)         ! Cloud ice effective radius (microns)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: reliq(:,:)         ! Cloud water drop effective radius (microns)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: taucld(:,:,:)      ! In-cloud optical depth
-                                                        !    Dimensions: (nbndlw,ncol,nlay)
-!      real(kind=jprb), intent(in) :: ssacld(:,:,:)     ! In-cloud single scattering albedo
-                                                        !    Dimensions: (nbndlw,ncol,nlay)
-                                                        !   for future expansion 
-                                                        !   (lw scattering not yet available)
-!      real(kind=jprb), intent(in) :: asmcld(:,:,:)     ! In-cloud asymmetry parameter
-                                                        !    Dimensions: (nbndlw,ncol,nlay)
-                                                        !   for future expansion 
-                                                        !   (lw scattering not yet available)
-      real(kind=jprb), intent(in) :: tauaer(:,:,:)      ! aerosol optical depth
-                                                        !    Dimensions: (ncol,nlay,nbndlw)
-!      real(kind=jprb), intent(in) :: ssaaer(:,:,:)     ! aerosol single scattering albedo
-                                                        !    Dimensions: (ncol,nlay,nbndlw)
-                                                        !   for future expansion 
-                                                        !   (lw aerosols/scattering not yet available)
-!      real(kind=jprb), intent(in) :: asmaer(:,:,:)     ! aerosol asymmetry parameter
-                                                        !    Dimensions: (ncol,nlay,nbndlw)
-                                                        !   for future expansion 
-                                                        !   (lw aerosols/scattering not yet available)
+      real(kind=rb), intent(in) :: cldfr(:,:)         ! Cloud fraction
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cicewp(:,:)        ! Cloud ice water path (g/m2)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cliqwp(:,:)        ! Cloud liquid water path (g/m2)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: reice(:,:)         ! Cloud ice effective radius (microns)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: reliq(:,:)         ! Cloud water drop effective radius (microns)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: taucld(:,:,:)      ! In-cloud optical depth
+                                                      !    Dimensions: (nbndlw,ncol,nlay)
+!      real(kind=rb), intent(in) :: ssacld(:,:,:)     ! In-cloud single scattering albedo
+                                                      !    Dimensions: (nbndlw,ncol,nlay)
+                                                      !   for future expansion 
+                                                      !   (lw scattering not yet available)
+!      real(kind=rb), intent(in) :: asmcld(:,:,:)     ! In-cloud asymmetry parameter
+                                                      !    Dimensions: (nbndlw,ncol,nlay)
+                                                      !   for future expansion 
+                                                      !   (lw scattering not yet available)
+      real(kind=rb), intent(in) :: tauaer(:,:,:)      ! aerosol optical depth
+                                                      !    Dimensions: (ncol,nlay,nbndlw)
+!      real(kind=rb), intent(in) :: ssaaer(:,:,:)     ! aerosol single scattering albedo
+                                                      !    Dimensions: (ncol,nlay,nbndlw)
+                                                      !   for future expansion 
+                                                      !   (lw aerosols/scattering not yet available)
+!      real(kind=rb), intent(in) :: asmaer(:,:,:)     ! aerosol asymmetry parameter
+                                                      !    Dimensions: (ncol,nlay,nbndlw)
+                                                      !   for future expansion 
+                                                      !   (lw aerosols/scattering not yet available)
 
 
 ! ----- Output -----
 
-      real(kind=jprb), intent(out) :: uflx(:,:)         ! Total sky longwave upward flux (W/m2)
-                                                        !    Dimensions: (ncol,nlay+1)
-      real(kind=jprb), intent(out) :: dflx(:,:)         ! Total sky longwave downward flux (W/m2)
-                                                        !    Dimensions: (ncol,nlay+1)
-      real(kind=jprb), intent(out) :: hr(:,:)           ! Total sky longwave radiative heating rate (K/d)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(out) :: uflxc(:,:)        ! Clear sky longwave upward flux (W/m2)
-                                                        !    Dimensions: (ncol,nlay+1)
-      real(kind=jprb), intent(out) :: dflxc(:,:)        ! Clear sky longwave downward flux (W/m2)
-                                                        !    Dimensions: (ncol,nlay+1)
-      real(kind=jprb), intent(out) :: hrc(:,:)          ! Clear sky longwave radiative heating rate (K/d)
-                                                        !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(out) :: uflx(:,:)         ! Total sky longwave upward flux (W/m2)
+                                                      !    Dimensions: (ncol,nlay+1)
+      real(kind=rb), intent(out) :: dflx(:,:)         ! Total sky longwave downward flux (W/m2)
+                                                      !    Dimensions: (ncol,nlay+1)
+      real(kind=rb), intent(out) :: hr(:,:)           ! Total sky longwave radiative heating rate (K/d)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(out) :: uflxc(:,:)        ! Clear sky longwave upward flux (W/m2)
+                                                      !    Dimensions: (ncol,nlay+1)
+      real(kind=rb), intent(out) :: dflxc(:,:)        ! Clear sky longwave downward flux (W/m2)
+                                                      !    Dimensions: (ncol,nlay+1)
+      real(kind=rb), intent(out) :: hrc(:,:)          ! Clear sky longwave radiative heating rate (K/d)
+                                                      !    Dimensions: (ncol,nlay)
 
 ! ----- Local -----
 
 ! Control
-      integer(kind=jpim) :: nlayers             ! total number of layers
-      integer(kind=jpim) :: istart              ! beginning band of calculation
-      integer(kind=jpim) :: iend                ! ending band of calculation
-      integer(kind=jpim) :: iout                ! output option flag (inactive)
-      integer(kind=jpim) :: iaer                ! aerosol option flag
-      integer(kind=jpim) :: iplon               ! column loop index
-      integer(kind=jpim) :: imca                ! flag for mcica [0=off, 1=on]
-      integer(kind=jpim) :: k                   ! layer loop index
-      integer(kind=jpim) :: ig                  ! g-point loop index
+      integer(kind=im) :: nlayers             ! total number of layers
+      integer(kind=im) :: istart              ! beginning band of calculation
+      integer(kind=im) :: iend                ! ending band of calculation
+      integer(kind=im) :: iout                ! output option flag (inactive)
+      integer(kind=im) :: iaer                ! aerosol option flag
+      integer(kind=im) :: iplon               ! column loop index
+      integer(kind=im) :: imca                ! flag for mcica [0=off, 1=on]
+      integer(kind=im) :: k                   ! layer loop index
+      integer(kind=im) :: ig                  ! g-point loop index
 
 ! Atmosphere
-      real(kind=jprb) :: pavel(nlay+1)          ! layer pressures (mb) 
-      real(kind=jprb) :: tavel(nlay+1)          ! layer temperatures (K)
-      real(kind=jprb) :: pz(0:nlay+1)           ! level (interface) pressures (hPa, mb)
-      real(kind=jprb) :: tz(0:nlay+1)           ! level (interface) temperatures (K)
-      real(kind=jprb) :: tbound                 ! surface temperature (K)
-      real(kind=jprb) :: coldry(nlay+1)         ! dry air column density (mol/cm2)
-      real(kind=jprb) :: wbrodl(nlay+1)         ! broadening gas column density (mol/cm2)
-      real(kind=jprb) :: wkl(mxmol,nlay+1)      ! molecular amounts (mol/cm-2)
-      real(kind=jprb) :: wx(maxxsec,nlay+1)     ! cross-section amounts (mol/cm-2)
-      real(kind=jprb) :: pwvcm                  ! precipitable water vapor (cm)
-      real(kind=jprb) :: semiss(nbndlw)         ! lw surface emissivity
-      real(kind=jprb) :: fracs(nlay+1,ngptlw)   ! 
-      real(kind=jprb) :: taug(nlay+1,ngptlw)    ! gaseous optical depths
-      real(kind=jprb) :: taut(nlay+1,ngptlw)    ! gaseous + aerosol optical depths
+      real(kind=rb) :: pavel(nlay+1)          ! layer pressures (mb) 
+      real(kind=rb) :: tavel(nlay+1)          ! layer temperatures (K)
+      real(kind=rb) :: pz(0:nlay+1)           ! level (interface) pressures (hPa, mb)
+      real(kind=rb) :: tz(0:nlay+1)           ! level (interface) temperatures (K)
+      real(kind=rb) :: tbound                 ! surface temperature (K)
+      real(kind=rb) :: coldry(nlay+1)         ! dry air column density (mol/cm2)
+      real(kind=rb) :: wbrodl(nlay+1)         ! broadening gas column density (mol/cm2)
+      real(kind=rb) :: wkl(mxmol,nlay+1)      ! molecular amounts (mol/cm-2)
+      real(kind=rb) :: wx(maxxsec,nlay+1)     ! cross-section amounts (mol/cm-2)
+      real(kind=rb) :: pwvcm                  ! precipitable water vapor (cm)
+      real(kind=rb) :: semiss(nbndlw)         ! lw surface emissivity
+      real(kind=rb) :: fracs(nlay+1,ngptlw)   ! 
+      real(kind=rb) :: taug(nlay+1,ngptlw)    ! gaseous optical depths
+      real(kind=rb) :: taut(nlay+1,ngptlw)    ! gaseous + aerosol optical depths
 
-      real(kind=jprb) :: taua(nlay+1,nbndlw)    ! aerosol optical depth
-!      real(kind=jprb) :: ssaa(nlay+1,nbndlw)   ! aerosol single scattering albedo
-                                                !   for future expansion 
-                                                !   (lw aerosols/scattering not yet available)
-!      real(kind=jprb) :: asma(nlay+1,nbndlw)   ! aerosol asymmetry parameter
-                                                !   for future expansion 
-                                                !   (lw aerosols/scattering not yet available)
+      real(kind=rb) :: taua(nlay+1,nbndlw)    ! aerosol optical depth
+!      real(kind=rb) :: ssaa(nlay+1,nbndlw)   ! aerosol single scattering albedo
+                                              !   for future expansion 
+                                              !   (lw aerosols/scattering not yet available)
+!      real(kind=rb) :: asma(nlay+1,nbndlw)   ! aerosol asymmetry parameter
+                                              !   for future expansion 
+                                              !   (lw aerosols/scattering not yet available)
 
 ! Atmosphere - setcoef
-      integer(kind=jpim) :: laytrop             ! tropopause layer index
-      integer(kind=jpim) :: jp(nlay+1)          ! lookup table index 
-      integer(kind=jpim) :: jt(nlay+1)          ! lookup table index 
-      integer(kind=jpim) :: jt1(nlay+1)         ! lookup table index 
-      real(kind=jprb) :: planklay(nlay+1,nbndlw)! 
-      real(kind=jprb) :: planklev(0:nlay+1,nbndlw)! 
-      real(kind=jprb) :: plankbnd(nbndlw)       ! 
+      integer(kind=im) :: laytrop             ! tropopause layer index
+      integer(kind=im) :: jp(nlay+1)          ! lookup table index 
+      integer(kind=im) :: jt(nlay+1)          ! lookup table index 
+      integer(kind=im) :: jt1(nlay+1)         ! lookup table index 
+      real(kind=rb) :: planklay(nlay+1,nbndlw)! 
+      real(kind=rb) :: planklev(0:nlay+1,nbndlw)! 
+      real(kind=rb) :: plankbnd(nbndlw)       ! 
 
-      real(kind=jprb) :: colh2o(nlay+1)         ! column amount (h2o)
-      real(kind=jprb) :: colco2(nlay+1)         ! column amount (co2)
-      real(kind=jprb) :: colo3(nlay+1)          ! column amount (o3)
-      real(kind=jprb) :: coln2o(nlay+1)         ! column amount (n2o)
-      real(kind=jprb) :: colco(nlay+1)          ! column amount (co)
-      real(kind=jprb) :: colch4(nlay+1)         ! column amount (ch4)
-      real(kind=jprb) :: colo2(nlay+1)          ! column amount (o2)
-      real(kind=jprb) :: colbrd(nlay+1)         ! column amount (broadening gases)
+      real(kind=rb) :: colh2o(nlay+1)         ! column amount (h2o)
+      real(kind=rb) :: colco2(nlay+1)         ! column amount (co2)
+      real(kind=rb) :: colo3(nlay+1)          ! column amount (o3)
+      real(kind=rb) :: coln2o(nlay+1)         ! column amount (n2o)
+      real(kind=rb) :: colco(nlay+1)          ! column amount (co)
+      real(kind=rb) :: colch4(nlay+1)         ! column amount (ch4)
+      real(kind=rb) :: colo2(nlay+1)          ! column amount (o2)
+      real(kind=rb) :: colbrd(nlay+1)         ! column amount (broadening gases)
 
-      integer(kind=jpim) :: indself(nlay+1)
-      integer(kind=jpim) :: indfor(nlay+1)
-      real(kind=jprb) :: selffac(nlay+1)
-      real(kind=jprb) :: selffrac(nlay+1)
-      real(kind=jprb) :: forfac(nlay+1)
-      real(kind=jprb) :: forfrac(nlay+1)
+      integer(kind=im) :: indself(nlay+1)
+      integer(kind=im) :: indfor(nlay+1)
+      real(kind=rb) :: selffac(nlay+1)
+      real(kind=rb) :: selffrac(nlay+1)
+      real(kind=rb) :: forfac(nlay+1)
+      real(kind=rb) :: forfrac(nlay+1)
 
-      integer(kind=jpim) :: indminor(nlay+1)
-      real(kind=jprb) :: minorfrac(nlay+1)
-      real(kind=jprb) :: scaleminor(nlay+1)
-      real(kind=jprb) :: scaleminorn2(nlay+1)
+      integer(kind=im) :: indminor(nlay+1)
+      real(kind=rb) :: minorfrac(nlay+1)
+      real(kind=rb) :: scaleminor(nlay+1)
+      real(kind=rb) :: scaleminorn2(nlay+1)
 
-      real(kind=jprb) :: &                      !
+      real(kind=rb) :: &                      !
                          fac00(nlay+1), fac01(nlay+1), &
                          fac10(nlay+1), fac11(nlay+1) 
-      real(kind=jprb) :: &                      !
+      real(kind=rb) :: &                      !
                          rat_h2oco2(nlay+1),rat_h2oco2_1(nlay+1), &
                          rat_h2oo3(nlay+1),rat_h2oo3_1(nlay+1), &
                          rat_h2on2o(nlay+1),rat_h2on2o_1(nlay+1), &
@@ -332,42 +335,42 @@
                          rat_o3co2(nlay+1),rat_o3co2_1(nlay+1)
 
 ! Atmosphere/clouds - cldprop
-      integer(kind=jpim) :: ncbands             ! number of cloud spectral bands
-      integer(kind=jpim) :: inflag              ! flag for cloud property method
-      integer(kind=jpim) :: iceflag             ! flag for ice cloud properties
-      integer(kind=jpim) :: liqflag             ! flag for liquid cloud properties
+      integer(kind=im) :: ncbands             ! number of cloud spectral bands
+      integer(kind=im) :: inflag              ! flag for cloud property method
+      integer(kind=im) :: iceflag             ! flag for ice cloud properties
+      integer(kind=im) :: liqflag             ! flag for liquid cloud properties
 
-      real(kind=jprb) :: cldfrac(nlay+1)        ! layer cloud fraction
-      real(kind=jprb) :: tauc(nbndlw,nlay+1)    ! in-cloud optical depth
-!      real(kind=jprb) :: ssac(nbndlw,nlay+1)   ! in-cloud single scattering albedo
-                                                !   for future expansion 
-                                                !   (lw scattering not yet available)
-!      real(kind=jprb) :: asmc(nbndlw,nlay+1)   ! in-cloud asymmetry parameter
-                                                !   for future expansion 
-                                                !   (lw scattering not yet available)
-      real(kind=jprb) :: ciwp(nlay+1)           ! cloud ice water path
-      real(kind=jprb) :: clwp(nlay+1)           ! cloud liquid water path
-      real(kind=jprb) :: rel(nlay+1)            ! cloud liquid particle effective radius (microns)
-      real(kind=jprb) :: rei(nlay+1)            ! cloud ice particle effective radius (microns)
-      real(kind=jprb) :: dge(nlay+1)            ! cloud ice particle generalized effective size (microns)
-      real(kind=jprb) :: taucloud(nlay+1,nbndlw)! layer in-cloud optical depth
+      real(kind=rb) :: cldfrac(nlay+1)        ! layer cloud fraction
+      real(kind=rb) :: tauc(nbndlw,nlay+1)    ! in-cloud optical depth
+!      real(kind=rb) :: ssac(nbndlw,nlay+1)   ! in-cloud single scattering albedo
+                                              !   for future expansion 
+                                              !   (lw scattering not yet available)
+!      real(kind=rb) :: asmc(nbndlw,nlay+1)   ! in-cloud asymmetry parameter
+                                              !   for future expansion 
+                                              !   (lw scattering not yet available)
+      real(kind=rb) :: ciwp(nlay+1)           ! cloud ice water path
+      real(kind=rb) :: clwp(nlay+1)           ! cloud liquid water path
+      real(kind=rb) :: rel(nlay+1)            ! cloud liquid particle effective radius (microns)
+      real(kind=rb) :: rei(nlay+1)            ! cloud ice particle effective radius (microns)
+      real(kind=rb) :: dge(nlay+1)            ! cloud ice particle generalized effective size (microns)
+      real(kind=rb) :: taucloud(nlay+1,nbndlw)! layer in-cloud optical depth
 
 ! Output
-      real(kind=jprb) :: totuflux(0:nlay+1)     ! upward longwave flux (w/m2)
-      real(kind=jprb) :: totdflux(0:nlay+1)     ! downward longwave flux (w/m2)
-      real(kind=jprb) :: fnet(0:nlay+1)         ! net longwave flux (w/m2)
-      real(kind=jprb) :: htr(0:nlay+1)          ! longwave heating rate (k/day)
-      real(kind=jprb) :: totuclfl(0:nlay+1)     ! clear sky upward longwave flux (w/m2)
-      real(kind=jprb) :: totdclfl(0:nlay+1)     ! clear sky downward longwave flux (w/m2)
-      real(kind=jprb) :: fnetc(0:nlay+1)        ! clear sky net longwave flux (w/m2)
-      real(kind=jprb) :: htrc(0:nlay+1)         ! clear sky longwave heating rate (k/day)
+      real(kind=rb) :: totuflux(0:nlay+1)     ! upward longwave flux (w/m2)
+      real(kind=rb) :: totdflux(0:nlay+1)     ! downward longwave flux (w/m2)
+      real(kind=rb) :: fnet(0:nlay+1)         ! net longwave flux (w/m2)
+      real(kind=rb) :: htr(0:nlay+1)          ! longwave heating rate (k/day)
+      real(kind=rb) :: totuclfl(0:nlay+1)     ! clear sky upward longwave flux (w/m2)
+      real(kind=rb) :: totdclfl(0:nlay+1)     ! clear sky downward longwave flux (w/m2)
+      real(kind=rb) :: fnetc(0:nlay+1)        ! clear sky net longwave flux (w/m2)
+      real(kind=rb) :: htrc(0:nlay+1)         ! clear sky longwave heating rate (k/day)
 
 !
 ! Initializations
 
-      oneminus = 1._jprb - 1.e-6_jprb
-      pi = 2._jprb*asin(1._jprb)
-      fluxfac = pi * 2.e4_jprb                  ! orig:   fluxfac = pi * 2.d4  
+      oneminus = 1._rb - 1.e-6_rb
+      pi = 2._rb*asin(1._rb)
+      fluxfac = pi * 2.e4_rb                  ! orig:   fluxfac = pi * 2.d4  
       istart = 1
       iend = 16
       iout = 0
@@ -396,7 +399,7 @@
 !
 ! In a GCM this call should be placed in the model initialization
 ! area, since this has to be called only once.  
-!      call rrtmg_lw_ini
+!      call rrtmg_lw_ini(cpdair)
 
 !  This is the main longitude/column loop within RRTMG.
       do iplon = 1, ncol
@@ -406,7 +409,7 @@
 
          call inatm (iplon, nlay, icld, iaer, &
               play, plev, tlay, tlev, tsfc, h2ovmr, &
-              o3vmr, co2vmr, ch4vmr, n2ovmr, cfc11vmr, cfc12vmr, &
+              o3vmr, co2vmr, ch4vmr, n2ovmr, o2vmr, cfc11vmr, cfc12vmr, &
               cfc22vmr, ccl4vmr, emis, inflglw, iceflglw, liqflglw, &
               cldfr, taucld, cicewp, cliqwp, reice, reliq, tauaer, &
               nlayers, pavel, pz, tavel, tz, tbound, semiss, coldry, &
@@ -507,7 +510,7 @@
 !***************************************************************************
       subroutine inatm (iplon, nlay, icld, iaer, &
               play, plev, tlay, tlev, tsfc, h2ovmr, &
-              o3vmr, co2vmr, ch4vmr, n2ovmr, cfc11vmr, cfc12vmr, &
+              o3vmr, co2vmr, ch4vmr, n2ovmr, o2vmr, cfc11vmr, cfc12vmr, &
               cfc22vmr, ccl4vmr, emis, inflglw, iceflglw, liqflglw, &
               cldfr, taucld, cicewp, cliqwp, reice, reliq, tauaer, &
               nlayers, pavel, pz, tavel, tz, tbound, semiss, coldry, &
@@ -529,138 +532,137 @@
 ! ------- Declarations -------
 
 ! ----- Input -----
-      integer(kind=jpim), intent(in) :: iplon           ! column loop index
-      integer(kind=jpim), intent(in) :: nlay            ! Number of model layers
-      integer(kind=jpim), intent(in) :: icld            ! clear/cloud and cloud overlap flag
-      integer(kind=jpim), intent(in) :: iaer            ! aerosol option flag
+      integer(kind=im), intent(in) :: iplon           ! column loop index
+      integer(kind=im), intent(in) :: nlay            ! Number of model layers
+      integer(kind=im), intent(in) :: icld            ! clear/cloud and cloud overlap flag
+      integer(kind=im), intent(in) :: iaer            ! aerosol option flag
 
-      real(kind=jprb), intent(in) :: play(:,:)          ! Layer pressures (hPa, mb)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: plev(:,:)          ! Interface pressures (hPa, mb)
-                                                        !    Dimensions: (ncol,nlay+1)
-      real(kind=jprb), intent(in) :: tlay(:,:)          ! Layer temperatures (K)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: tlev(:,:)          ! Interface temperatures (K)
-                                                        !    Dimensions: (ncol,nlay+1)
-      real(kind=jprb), intent(in) :: tsfc(:)            ! Surface temperature (K)
-                                                        !    Dimensions: (ncol)
-      real(kind=jprb), intent(in) :: h2ovmr(:,:)        ! H2O volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: o3vmr(:,:)         ! O3 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: co2vmr(:,:)        ! CO2 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: ch4vmr(:,:)        ! Methane volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: n2ovmr(:,:)        ! Nitrous oxide volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cfc11vmr(:,:)      ! CFC11 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cfc12vmr(:,:)       ! CFC12 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cfc22vmr(:,:)      ! CFC22 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: ccl4vmr(:,:)       ! CCL4 volume mixing ratio
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: emis(:,:)          ! Surface emissivity
-                                                        !    Dimensions: (ncol,nbndlw)
+      real(kind=rb), intent(in) :: play(:,:)          ! Layer pressures (hPa, mb)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: plev(:,:)          ! Interface pressures (hPa, mb)
+                                                      !    Dimensions: (ncol,nlay+1)
+      real(kind=rb), intent(in) :: tlay(:,:)          ! Layer temperatures (K)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: tlev(:,:)          ! Interface temperatures (K)
+                                                      !    Dimensions: (ncol,nlay+1)
+      real(kind=rb), intent(in) :: tsfc(:)            ! Surface temperature (K)
+                                                      !    Dimensions: (ncol)
+      real(kind=rb), intent(in) :: h2ovmr(:,:)        ! H2O volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: o3vmr(:,:)         ! O3 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: co2vmr(:,:)        ! CO2 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: ch4vmr(:,:)        ! Methane volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: n2ovmr(:,:)        ! Nitrous oxide volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: o2vmr(:,:)         ! Oxygen volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cfc11vmr(:,:)      ! CFC11 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cfc12vmr(:,:)      ! CFC12 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cfc22vmr(:,:)      ! CFC22 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: ccl4vmr(:,:)       ! CCL4 volume mixing ratio
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: emis(:,:)          ! Surface emissivity
+                                                      !    Dimensions: (ncol,nbndlw)
 
-      integer(kind=jpim), intent(in) :: inflglw         ! Flag for cloud optical properties
-      integer(kind=jpim), intent(in) :: iceflglw        ! Flag for ice particle specification
-      integer(kind=jpim), intent(in) :: liqflglw        ! Flag for liquid droplet specification
+      integer(kind=im), intent(in) :: inflglw         ! Flag for cloud optical properties
+      integer(kind=im), intent(in) :: iceflglw        ! Flag for ice particle specification
+      integer(kind=im), intent(in) :: liqflglw        ! Flag for liquid droplet specification
 
-      real(kind=jprb), intent(in) :: cldfr(:,:)         ! Cloud fraction
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cicewp(:,:)        ! Cloud ice water path (g/m2)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: cliqwp(:,:)        ! Cloud liquid water path (g/m2)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: reice(:,:)         ! Cloud ice effective radius (microns)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: reliq(:,:)         ! Cloud water drop effective radius (microns)
-                                                        !    Dimensions: (ncol,nlay)
-      real(kind=jprb), intent(in) :: taucld(:,:,:)      ! In-cloud optical depth
-                                                        !    Dimensions: (nbndlw,ncol,nlay)
-      real(kind=jprb), intent(in) :: tauaer(:,:,:)      ! Aerosol optical depth
-                                                        !    Dimensions: (ncol,nlay,nbndlw)
+      real(kind=rb), intent(in) :: cldfr(:,:)         ! Cloud fraction
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cicewp(:,:)        ! Cloud ice water path (g/m2)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: cliqwp(:,:)        ! Cloud liquid water path (g/m2)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: reice(:,:)         ! Cloud ice effective radius (microns)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: reliq(:,:)         ! Cloud water drop effective radius (microns)
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(in) :: taucld(:,:,:)      ! In-cloud optical depth
+                                                      !    Dimensions: (nbndlw,ncol,nlay)
+      real(kind=rb), intent(in) :: tauaer(:,:,:)      ! Aerosol optical depth
+                                                      !    Dimensions: (ncol,nlay,nbndlw)
 
 ! ----- Output -----
 ! Atmosphere
-      integer(kind=jpim), intent(out) :: nlayers        ! number of layers
+      integer(kind=im), intent(out) :: nlayers        ! number of layers
 
-      real(kind=jprb), intent(out) :: pavel(:)          ! layer pressures (mb) 
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: tavel(:)          ! layer temperatures (K)
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: pz(0:)            ! level (interface) pressures (hPa, mb)
-                                                        !    Dimensions: (0:nlay)
-      real(kind=jprb), intent(out) :: tz(0:)            ! level (interface) temperatures (K)
-                                                        !    Dimensions: (0:nlay)
-      real(kind=jprb), intent(out) :: tbound            ! surface temperature (K)
-      real(kind=jprb), intent(out) :: coldry(:)         ! dry air column density (mol/cm2)
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: wbrodl(:)         ! broadening gas column density (mol/cm2)
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: wkl(:,:)          ! molecular amounts (mol/cm-2)
-                                                        !    Dimensions: (mxmol,nlay)
-      real(kind=jprb), intent(out) :: wx(:,:)           ! cross-section amounts (mol/cm-2)
-                                                        !    Dimensions: (maxxsec,nlay)
-      real(kind=jprb), intent(out) :: pwvcm             ! precipitable water vapor (cm)
-      real(kind=jprb), intent(out) :: semiss(:)         ! lw surface emissivity
-                                                        !    Dimensions: (nbndlw)
+      real(kind=rb), intent(out) :: pavel(:)          ! layer pressures (mb) 
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: tavel(:)          ! layer temperatures (K)
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: pz(0:)            ! level (interface) pressures (hPa, mb)
+                                                      !    Dimensions: (0:nlay)
+      real(kind=rb), intent(out) :: tz(0:)            ! level (interface) temperatures (K)
+                                                      !    Dimensions: (0:nlay)
+      real(kind=rb), intent(out) :: tbound            ! surface temperature (K)
+      real(kind=rb), intent(out) :: coldry(:)         ! dry air column density (mol/cm2)
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: wbrodl(:)         ! broadening gas column density (mol/cm2)
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: wkl(:,:)          ! molecular amounts (mol/cm-2)
+                                                      !    Dimensions: (mxmol,nlay)
+      real(kind=rb), intent(out) :: wx(:,:)           ! cross-section amounts (mol/cm-2)
+                                                      !    Dimensions: (maxxsec,nlay)
+      real(kind=rb), intent(out) :: pwvcm             ! precipitable water vapor (cm)
+      real(kind=rb), intent(out) :: semiss(:)         ! lw surface emissivity
+                                                      !    Dimensions: (nbndlw)
 
 ! Atmosphere/clouds - cldprop
-      integer(kind=jpim), intent(out) :: inflag         ! flag for cloud property method
-      integer(kind=jpim), intent(out) :: iceflag        ! flag for ice cloud properties
-      integer(kind=jpim), intent(out) :: liqflag        ! flag for liquid cloud properties
+      integer(kind=im), intent(out) :: inflag         ! flag for cloud property method
+      integer(kind=im), intent(out) :: iceflag        ! flag for ice cloud properties
+      integer(kind=im), intent(out) :: liqflag        ! flag for liquid cloud properties
 
-      real(kind=jprb), intent(out) :: cldfrac(:)        ! layer cloud fraction
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: ciwp(:)           ! cloud ice water path
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: clwp(:)           ! cloud liquid water path
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: rel(:)            ! cloud liquid particle effective radius (microns)
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: rei(:)            ! cloud ice particle effective radius (microns)
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: dge(:)            ! cloud ice particle generalized effective size (microns)
-                                                        !    Dimensions: (nlay)
-      real(kind=jprb), intent(out) :: tauc(:,:)         ! in-cloud optical depth
-                                                        !    Dimensions: (nbndlw,nlay)
-      real(kind=jprb), intent(out) :: taua(:,:)         ! aerosol optical depth
-                                                        !    Dimensions: (nlay,nbndlw)
+      real(kind=rb), intent(out) :: cldfrac(:)        ! layer cloud fraction
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: ciwp(:)           ! cloud ice water path
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: clwp(:)           ! cloud liquid water path
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: rel(:)            ! cloud liquid particle effective radius (microns)
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: rei(:)            ! cloud ice particle effective radius (microns)
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: dge(:)            ! cloud ice particle generalized effective size (microns)
+                                                      !    Dimensions: (nlay)
+      real(kind=rb), intent(out) :: tauc(:,:)         ! in-cloud optical depth
+                                                      !    Dimensions: (nbndlw,nlay)
+      real(kind=rb), intent(out) :: taua(:,:)         ! aerosol optical depth
+                                                      !    Dimensions: (nlay,nbndlw)
 
 
 ! ----- Local -----
-      real(kind=jprb), parameter :: amd = 28.9660_jprb    ! Effective molecular weight of dry air (g/mol)
-      real(kind=jprb), parameter :: amw = 18.0160_jprb    ! Molecular weight of water vapor (g/mol)
-!      real(kind=jprb), parameter :: amc = 44.0098_jprb    ! Molecular weight of carbon dioxide (g/mol)
-!      real(kind=jprb), parameter :: amo = 47.9998_jprb    ! Molecular weight of ozone (g/mol)
-!      real(kind=jprb), parameter :: amo2 = 31.9999_jprb   ! Molecular weight of oxygen (g/mol)
-!      real(kind=jprb), parameter :: amch4 = 16.0430_jprb  ! Molecular weight of methane (g/mol)
-!      real(kind=jprb), parameter :: amn2o = 44.0128_jprb  ! Molecular weight of nitrous oxide (g/mol)
-!      real(kind=jprb), parameter :: amc11 = 137.3684_jprb ! Molecular weight of CFC11 (g/mol) - CCL3F
-!      real(kind=jprb), parameter :: amc12 = 120.9138_jprb ! Molecular weight of CFC12 (g/mol) - CCL2F2
-!      real(kind=jprb), parameter :: amc22 = 86.4688_jprb  ! Molecular weight of CFC22 (g/mol) - CHCLF2
-!      real(kind=jprb), parameter :: amcl4 = 153.823_jprb  ! Molecular weight of CCL4 (g/mol) - CCL4
+      real(kind=rb), parameter :: amd = 28.9660_rb    ! Effective molecular weight of dry air (g/mol)
+      real(kind=rb), parameter :: amw = 18.0160_rb    ! Molecular weight of water vapor (g/mol)
+!      real(kind=rb), parameter :: amc = 44.0098_rb    ! Molecular weight of carbon dioxide (g/mol)
+!      real(kind=rb), parameter :: amo = 47.9998_rb    ! Molecular weight of ozone (g/mol)
+!      real(kind=rb), parameter :: amo2 = 31.9999_rb   ! Molecular weight of oxygen (g/mol)
+!      real(kind=rb), parameter :: amch4 = 16.0430_rb  ! Molecular weight of methane (g/mol)
+!      real(kind=rb), parameter :: amn2o = 44.0128_rb  ! Molecular weight of nitrous oxide (g/mol)
+!      real(kind=rb), parameter :: amc11 = 137.3684_rb ! Molecular weight of CFC11 (g/mol) - CCL3F
+!      real(kind=rb), parameter :: amc12 = 120.9138_rb ! Molecular weight of CFC12 (g/mol) - CCL2F2
+!      real(kind=rb), parameter :: amc22 = 86.4688_rb  ! Molecular weight of CFC22 (g/mol) - CHCLF2
+!      real(kind=rb), parameter :: amcl4 = 153.823_rb  ! Molecular weight of CCL4 (g/mol) - CCL4
 
 ! Set molecular weight ratios (for converting mmr to vmr)
 !  e.g. h2ovmr = h2ommr * amdw)
-      real(kind=jprb), parameter :: amdw = 1.607793_jprb  ! Molecular weight of dry air / water vapor
-      real(kind=jprb), parameter :: amdc = 0.658114_jprb  ! Molecular weight of dry air / carbon dioxide
-      real(kind=jprb), parameter :: amdo = 0.603428_jprb  ! Molecular weight of dry air / ozone
-      real(kind=jprb), parameter :: amdm = 1.805423_jprb  ! Molecular weight of dry air / methane
-      real(kind=jprb), parameter :: amdn = 0.658090_jprb  ! Molecular weight of dry air / nitrous oxide
-      real(kind=jprb), parameter :: amdo2 = 0.905140_jprb ! Molecular weight of dry air / oxygen
-      real(kind=jprb), parameter :: amdc1 = 0.210852_jprb ! Molecular weight of dry air / CFC11
-      real(kind=jprb), parameter :: amdc2 = 0.239546_jprb ! Molecular weight of dry air / CFC12
+      real(kind=rb), parameter :: amdw = 1.607793_rb  ! Molecular weight of dry air / water vapor
+      real(kind=rb), parameter :: amdc = 0.658114_rb  ! Molecular weight of dry air / carbon dioxide
+      real(kind=rb), parameter :: amdo = 0.603428_rb  ! Molecular weight of dry air / ozone
+      real(kind=rb), parameter :: amdm = 1.805423_rb  ! Molecular weight of dry air / methane
+      real(kind=rb), parameter :: amdn = 0.658090_rb  ! Molecular weight of dry air / nitrous oxide
+      real(kind=rb), parameter :: amdo2 = 0.905140_rb ! Molecular weight of dry air / oxygen
+      real(kind=rb), parameter :: amdc1 = 0.210852_rb ! Molecular weight of dry air / CFC11
+      real(kind=rb), parameter :: amdc2 = 0.239546_rb ! Molecular weight of dry air / CFC12
 
-      real(kind=jprb), parameter :: sbc = 5.67e-08_jprb   ! Stefan-Boltzmann constant (W/m2K4)
-      real(kind=jprb), parameter :: o2mmr = 0.23143_jprb  ! o2 mass mixing ratio
-
-      integer(kind=jpim) :: isp, l, ix, n, imol, ib       ! Loop indices
-      real(kind=jprb) :: amm, amttl, wvttl, wvsh, summol  
+      integer(kind=im) :: isp, l, ix, n, imol, ib       ! Loop indices
+      real(kind=rb) :: amm, amttl, wvttl, wvsh, summol  
 
 ! Add one to nlayers here to include extra model layer at top of atmosphere
       nlayers = nlay
@@ -668,18 +670,18 @@
 !  Initialize all molecular amounts and cloud properties to zero here, then pass input amounts
 !  into RRTM arrays below.
 
-      wkl(:,:) = 0.0_jprb
-      wx(:,:) = 0.0_jprb
-      cldfrac(:) = 0.0_jprb
-      tauc(:,:) = 0.0_jprb
-      ciwp(:) = 0.0_jprb
-      clwp(:) = 0.0_jprb
-      rei(:) = 0.0_jprb
-      dge(:) = 0.0_jprb
-      rel(:) = 0.0_jprb
-      taua(:,:) = 0.0_jprb
-      amttl = 0.0_jprb
-      wvttl = 0.0_jprb
+      wkl(:,:) = 0.0_rb
+      wx(:,:) = 0.0_rb
+      cldfrac(:) = 0.0_rb
+      tauc(:,:) = 0.0_rb
+      ciwp(:) = 0.0_rb
+      clwp(:) = 0.0_rb
+      rei(:) = 0.0_rb
+      dge(:) = 0.0_rb
+      rel(:) = 0.0_rb
+      taua(:,:) = 0.0_rb
+      amttl = 0.0_rb
+      wvttl = 0.0_rb
  
 !  Set surface temperature.
       tbound = tsfc(iplon)
@@ -710,15 +712,15 @@
 ! For h2o input in mmr:
 !         wkl(1,l) = h2o(iplon,l)*amdw
 ! For h2o input in specific humidity;
-!         wkl(1,l) = (h2o(iplon,l)/(1._jprb - h2o(iplon,l)))*amdw
+!         wkl(1,l) = (h2o(iplon,l)/(1._rb - h2o(iplon,l)))*amdw
          wkl(2,l) = co2vmr(iplon,l)
          wkl(3,l) = o3vmr(iplon,l)
          wkl(4,l) = n2ovmr(iplon,l)
          wkl(6,l) = ch4vmr(iplon,l)
-         wkl(7,l) = o2mmr*amdo2
-         amm = (1._jprb - wkl(1,l)) * amd + wkl(1,l) * amw            
-         coldry(l) = (pz(l-1)-pz(l)) * 1.e3_jprb * avogad / &
-                     (1.e2_jprb * grav * amm * (1._jprb + wkl(1,l)))
+         wkl(7,l) = o2vmr(iplon,l)
+         amm = (1._rb - wkl(1,l)) * amd + wkl(1,l) * amw            
+         coldry(l) = (pz(l-1)-pz(l)) * 1.e3_rb * avogad / &
+                     (1.e2_rb * grav * amm * (1._rb + wkl(1,l)))
       enddo
 
 ! Set cross section molecule amounts from input; convert to vmr if necessary
@@ -737,10 +739,10 @@
 ! If this feature is utilized, increase nlayers by one above, limit the two
 ! loops above to (nlayers-1), and set the top most (extra) layer values here. 
 
-!      pavel(nlayers) = 0.5_jprb * pz(nlayers-1)
+!      pavel(nlayers) = 0.5_rb * pz(nlayers-1)
 !      tavel(nlayers) = tavel(nlayers-1)
-!      pz(nlayers) = 1.e-4_jprb
-!      tz(nlayers-1) = 0.5_jprb * (tavel(nlayers)+tavel(nlayers-1))
+!      pz(nlayers) = 1.e-4_rb
+!      tz(nlayers-1) = 0.5_rb * (tavel(nlayers)+tavel(nlayers-1))
 !      tz(nlayers) = tz(nlayers-1)
 !      wkl(1,nlayers) = wkl(1,nlayers-1)
 !      wkl(2,nlayers) = wkl(2,nlayers-1)
@@ -748,9 +750,9 @@
 !      wkl(4,nlayers) = wkl(4,nlayers-1)
 !      wkl(6,nlayers) = wkl(6,nlayers-1)
 !      wkl(7,nlayers) = wkl(7,nlayers-1)
-!      amm = (1._jprb - wkl(1,nlayers-1)) * amd + wkl(1,nlayers-1) * amw
-!      coldry(nlayers) = (pz(nlayers-1)) * 1.e3_jprb * avogad / &
-!                        (1.e2_jprb * grav * amm * (1._jprb + wkl(1,nlayers-1)))
+!      amm = (1._rb - wkl(1,nlayers-1)) * amd + wkl(1,nlayers-1) * amw
+!      coldry(nlayers) = (pz(nlayers-1)) * 1.e3_rb * avogad / &
+!                        (1.e2_rb * grav * amm * (1._rb + wkl(1,nlayers-1)))
 !      wx(1,nlayers) = wx(1,nlayers-1)
 !      wx(2,nlayers) = wx(2,nlayers-1)
 !      wx(3,nlayers) = wx(3,nlayers-1)
@@ -761,11 +763,11 @@
 ! water vapor for diffusivity angle adjustments in rtrn and rtrnmr.
 
       do l = 1, nlayers
-         summol = 0.0_jprb
+         summol = 0.0_rb
          do imol = 2, nmol
             summol = summol + wkl(imol,l)
          enddo
-         wbrodl(l) = coldry(l) * (1._jprb - summol)
+         wbrodl(l) = coldry(l) * (1._rb - summol)
          do imol = 1, nmol
             wkl(imol,l) = coldry(l) * wkl(imol,l)
          enddo
@@ -773,19 +775,19 @@
          wvttl = wvttl + wkl(1,l)
          do ix = 1,maxxsec
             if (ixindx(ix) .ne. 0) then
-               wx(ixindx(ix),l) = coldry(l) * wx(ix,l) * 1.e-20_jprb
+               wx(ixindx(ix),l) = coldry(l) * wx(ix,l) * 1.e-20_rb
             endif
          enddo
       enddo
 
       wvsh = (amw * wvttl) / (amd * amttl)
-      pwvcm = wvsh * (1.e3_jprb * pz(0)) / (1.e2_jprb * grav)
+      pwvcm = wvsh * (1.e3_rb * pz(0)) / (1.e2_rb * grav)
 
 ! Set spectral surface emissivity for each longwave band.  
 
       do n=1,nbndlw
          semiss(n) = emis(iplon,n)
-!          semiss(n) = 1.0_jprb
+!          semiss(n) = 1.0_rb
       enddo
 
 ! Transfer aerosol optical properties to RRTM variable;
@@ -817,7 +819,7 @@
             clwp(l) = cliqwp(iplon,l)
             rei(l) = reice(iplon,l)
             if (iceflag .eq. 3) then
-               dge(l) = 1.5396_jprb * reice(iplon,l)
+               dge(l) = 1.5396_rb * reice(iplon,l)
             endif
             rel(l) = reliq(iplon,l)
             do n=1,nbndlw
@@ -829,14 +831,14 @@
 
 ! If an extra layer is being used in RRTMG, set all cloud properties to zero in the extra layer.
 
-!         cldfrac(nlayers) = 0.0_jprb
-!         tauc(:nbndlw,nlayers) = 0.0_jprb
-!         ciwp(nlayers) = 0.0_jprb
-!         clwp(nlayers) = 0.0_jprb
-!         rei(nlayers) = 0.0_jprb
-!         dge(nlayers) = 0.0_jprb
-!         rel(nlayers) = 0.0_jprb
-!         taua(nlayers,:) = 0.0_jprb
+!         cldfrac(nlayers) = 0.0_rb
+!         tauc(:nbndlw,nlayers) = 0.0_rb
+!         ciwp(nlayers) = 0.0_rb
+!         clwp(nlayers) = 0.0_rb
+!         rei(nlayers) = 0.0_rb
+!         dge(nlayers) = 0.0_rb
+!         rel(nlayers) = 0.0_rb
+!         taua(nlayers,:) = 0.0_rb
 
       endif
       

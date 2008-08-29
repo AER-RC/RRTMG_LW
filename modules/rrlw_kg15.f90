@@ -1,6 +1,6 @@
       module rrlw_kg15
 
-      use parkind ,only : jpim, jprb
+      use parkind ,only : im => kind_im, rb => kind_rb
 
       implicit none
       save
@@ -11,6 +11,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -22,13 +23,13 @@
 ! forrefo : real     
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: no15 = 16
+      integer(kind=im), parameter :: no15 = 16
 
-      real(kind=jprb) :: fracrefao(no15,9)
-      real(kind=jprb) :: kao(9,5,13,no15)
-      real(kind=jprb) :: kao_mn2(9,19,no15)
-      real(kind=jprb) :: selfrefo(10,no15)
-      real(kind=jprb) :: forrefo(4,no15)
+      real(kind=rb) :: fracrefao(no15,9)
+      real(kind=rb) :: kao(9,5,13,no15)
+      real(kind=rb) :: kao_mn2(9,19,no15)
+      real(kind=rb) :: selfrefo(10,no15)
+      real(kind=rb) :: forrefo(4,no15)
 
 
 !-----------------------------------------------------------------
@@ -37,6 +38,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -50,13 +52,13 @@
 ! absa    : real
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: ng15 = 2
+      integer(kind=im), parameter :: ng15 = 2
 
-      real(kind=jprb) :: fracrefa(ng15,9)
-      real(kind=jprb) :: ka(9,5,13,ng15) ,absa(585,ng15)
-      real(kind=jprb) :: ka_mn2(9,19,ng15)
-      real(kind=jprb) :: selfref(10,ng15)
-      real(kind=jprb) :: forref(4,ng15)
+      real(kind=rb) :: fracrefa(ng15,9)
+      real(kind=rb) :: ka(9,5,13,ng15) ,absa(585,ng15)
+      real(kind=rb) :: ka_mn2(9,19,ng15)
+      real(kind=rb) :: selfref(10,ng15)
+      real(kind=rb) :: forref(4,ng15)
 
       equivalence (ka(1,1,1,1),absa(1,1))
 

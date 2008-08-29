@@ -1,6 +1,6 @@
       module rrlw_wvn
 
-      use parkind, only : jpim, jprb
+      use parkind, only : im => kind_im, rb => kind_rb
       use parrrtm, only : nbndlw, mg, ngptlw, maxinpx
 
       implicit none
@@ -11,6 +11,7 @@
 
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !------------------------------------------------------------------
 
 !  name     type     purpose
@@ -48,27 +49,27 @@
 ! ixindx :  integer: Flag for active cross-sections in calculation
 !------------------------------------------------------------------
 
-      integer(kind=jpim) :: ng(nbndlw)
-      integer(kind=jpim) :: nspa(nbndlw)
-      integer(kind=jpim) :: nspb(nbndlw)
+      integer(kind=im) :: ng(nbndlw)
+      integer(kind=im) :: nspa(nbndlw)
+      integer(kind=im) :: nspb(nbndlw)
 
-      real(kind=jprb) :: wavenum1(nbndlw)
-      real(kind=jprb) :: wavenum2(nbndlw)
-      real(kind=jprb) :: delwave(nbndlw)
+      real(kind=rb) :: wavenum1(nbndlw)
+      real(kind=rb) :: wavenum2(nbndlw)
+      real(kind=rb) :: delwave(nbndlw)
 
-      real(kind=jprb) :: totplnk(181,nbndlw)
-      real(kind=jprb) :: totplk16(181)
+      real(kind=rb) :: totplnk(181,nbndlw)
+      real(kind=rb) :: totplk16(181)
 
-      integer(kind=jpim) :: ngc(nbndlw)
-      integer(kind=jpim) :: ngs(nbndlw)
-      integer(kind=jpim) :: ngn(ngptlw)
-      integer(kind=jpim) :: ngb(ngptlw)
-      integer(kind=jpim) :: ngm(nbndlw*mg)
+      integer(kind=im) :: ngc(nbndlw)
+      integer(kind=im) :: ngs(nbndlw)
+      integer(kind=im) :: ngn(ngptlw)
+      integer(kind=im) :: ngb(ngptlw)
+      integer(kind=im) :: ngm(nbndlw*mg)
 
-      real(kind=jprb) :: wt(mg)
-      real(kind=jprb) :: rwgt(nbndlw*mg)
+      real(kind=rb) :: wt(mg)
+      real(kind=rb) :: rwgt(nbndlw*mg)
 
-      integer(kind=jpim) :: nxmol
-      integer(kind=jpim) :: ixindx(maxinpx)
+      integer(kind=im) :: nxmol
+      integer(kind=im) :: ixindx(maxinpx)
 
       end module rrlw_wvn

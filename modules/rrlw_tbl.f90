@@ -1,6 +1,6 @@
       module rrlw_tbl
 
-      use parkind, only : jpim, jprb
+      use parkind, only : im => kind_im, rb => kind_rb
 
       implicit none
       save
@@ -11,6 +11,7 @@
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, Jun 2006
 ! Revised: MJIacono, AER, Aug 2007
+! Revised: MJIacono, AER, Aug 2008
 !------------------------------------------------------------------
 
 !  name     type     purpose
@@ -30,16 +31,16 @@
 ! bpade  :  real   : Inverse of Pade constant   
 !------------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: ntbl = 10000
+      integer(kind=im), parameter :: ntbl = 10000
 
-      real(kind=jprb), parameter :: tblint = 10000.0_jprb
+      real(kind=rb), parameter :: tblint = 10000.0_rb
 
-      real(kind=jprb) , dimension(0:ntbl) :: tau_tbl
-      real(kind=jprb) , dimension(0:ntbl) :: exp_tbl
-      real(kind=jprb) , dimension(0:ntbl) :: tfn_tbl
+      real(kind=rb) , dimension(0:ntbl) :: tau_tbl
+      real(kind=rb) , dimension(0:ntbl) :: exp_tbl
+      real(kind=rb) , dimension(0:ntbl) :: tfn_tbl
 
-      real(kind=jprb), parameter :: pade = 0.278_jprb
-      real(kind=jprb) :: bpade
+      real(kind=rb), parameter :: pade = 0.278_rb
+      real(kind=rb) :: bpade
 
       end module rrlw_tbl
 

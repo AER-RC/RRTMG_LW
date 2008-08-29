@@ -1,6 +1,6 @@
       module rrlw_kg08
 
-      use parkind ,only : jpim, jprb
+      use parkind ,only : im => kind_im, rb => kind_rb
 
       implicit none
       save
@@ -11,6 +11,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -30,22 +31,22 @@
 !cfc22adjo: real     
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: no8  = 16
+      integer(kind=im), parameter :: no8  = 16
 
-      real(kind=jprb) , dimension(no8) :: fracrefao
-      real(kind=jprb) , dimension(no8) :: fracrefbo
-      real(kind=jprb) , dimension(no8) :: cfc12o
-      real(kind=jprb) , dimension(no8) :: cfc22adjo
+      real(kind=rb) , dimension(no8) :: fracrefao
+      real(kind=rb) , dimension(no8) :: fracrefbo
+      real(kind=rb) , dimension(no8) :: cfc12o
+      real(kind=rb) , dimension(no8) :: cfc22adjo
 
-      real(kind=jprb) :: kao(5,13,no8)
-      real(kind=jprb) :: kao_mco2(19,no8)
-      real(kind=jprb) :: kao_mn2o(19,no8)
-      real(kind=jprb) :: kao_mo3(19,no8)
-      real(kind=jprb) :: kbo(5,13:59,no8)
-      real(kind=jprb) :: kbo_mco2(19,no8)
-      real(kind=jprb) :: kbo_mn2o(19,no8)
-      real(kind=jprb) :: selfrefo(10,no8)
-      real(kind=jprb) :: forrefo(4,no8)
+      real(kind=rb) :: kao(5,13,no8)
+      real(kind=rb) :: kao_mco2(19,no8)
+      real(kind=rb) :: kao_mn2o(19,no8)
+      real(kind=rb) :: kao_mo3(19,no8)
+      real(kind=rb) :: kbo(5,13:59,no8)
+      real(kind=rb) :: kbo_mco2(19,no8)
+      real(kind=rb) :: kbo_mn2o(19,no8)
+      real(kind=rb) :: selfrefo(10,no8)
+      real(kind=rb) :: forrefo(4,no8)
 
 !-----------------------------------------------------------------
 ! rrtmg_lw COMBINED abs. coefficients for interval 8
@@ -53,6 +54,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -75,22 +77,22 @@
 ! absb    : real
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: ng8  = 8
+      integer(kind=im), parameter :: ng8  = 8
 
-      real(kind=jprb) , dimension(ng8) :: fracrefa
-      real(kind=jprb) , dimension(ng8) :: fracrefb
-      real(kind=jprb) , dimension(ng8) :: cfc12
-      real(kind=jprb) , dimension(ng8) :: cfc22adj
+      real(kind=rb) , dimension(ng8) :: fracrefa
+      real(kind=rb) , dimension(ng8) :: fracrefb
+      real(kind=rb) , dimension(ng8) :: cfc12
+      real(kind=rb) , dimension(ng8) :: cfc22adj
 
-      real(kind=jprb) :: ka(5,13,ng8)    ,absa(65,ng8)
-      real(kind=jprb) :: kb(5,13:59,ng8) ,absb(235,ng8)
-      real(kind=jprb) :: ka_mco2(19,ng8)
-      real(kind=jprb) :: ka_mn2o(19,ng8)
-      real(kind=jprb) :: ka_mo3(19,ng8)
-      real(kind=jprb) :: kb_mco2(19,ng8)
-      real(kind=jprb) :: kb_mn2o(19,ng8)
-      real(kind=jprb) :: selfref(10,ng8)
-      real(kind=jprb) :: forref(4,ng8)
+      real(kind=rb) :: ka(5,13,ng8)    ,absa(65,ng8)
+      real(kind=rb) :: kb(5,13:59,ng8) ,absb(235,ng8)
+      real(kind=rb) :: ka_mco2(19,ng8)
+      real(kind=rb) :: ka_mn2o(19,ng8)
+      real(kind=rb) :: ka_mo3(19,ng8)
+      real(kind=rb) :: kb_mco2(19,ng8)
+      real(kind=rb) :: kb_mn2o(19,ng8)
+      real(kind=rb) :: selfref(10,ng8)
+      real(kind=rb) :: forref(4,ng8)
 
       equivalence (ka(1,1,1),absa(1,1)),(kb(1,13,1),absb(1,1))
 

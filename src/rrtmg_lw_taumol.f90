@@ -7,7 +7,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2008, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -17,7 +17,7 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
+      use parkind, only : im => kind_im, rb => kind_rb 
       use parrrtm, only : mg, nbndlw, maxxsec, ngptlw
       use rrlw_con, only: oneminus
       use rrlw_wvn, only: nspa, nspb
@@ -175,83 +175,83 @@
 ! ------- Declarations -------
 
 ! ----- Input -----
-      integer(kind=jpim), intent(in) :: nlayers         ! total number of layers
-      real(kind=jprb), intent(in) :: pavel(:)           ! layer pressures (mb) 
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: wx(:,:)            ! cross-section amounts (mol/cm2)
-                                                        !    Dimensions: (maxxsec,nlayers)
-      real(kind=jprb), intent(in) :: coldry(:)          ! column amount (dry air)
-                                                        !    Dimensions: (nlayers)
+      integer(kind=im), intent(in) :: nlayers         ! total number of layers
+      real(kind=rb), intent(in) :: pavel(:)           ! layer pressures (mb) 
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: wx(:,:)            ! cross-section amounts (mol/cm2)
+                                                      !    Dimensions: (maxxsec,nlayers)
+      real(kind=rb), intent(in) :: coldry(:)          ! column amount (dry air)
+                                                      !    Dimensions: (nlayers)
 
-      integer(kind=jpim), intent(in) :: laytrop         ! tropopause layer index
-      integer(kind=jpim), intent(in) :: jp(:)           ! 
-                                                        !    Dimensions: (nlayers)
-      integer(kind=jpim), intent(in) :: jt(:)           !
-                                                        !    Dimensions: (nlayers)
-      integer(kind=jpim), intent(in) :: jt1(:)          !
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: planklay(:,:)      ! 
-                                                        !    Dimensions: (nlayers,nbndlw)
-      real(kind=jprb), intent(in) :: planklev(0:,:)     ! 
-                                                        !    Dimensions: (nlayers,nbndlw)
-      real(kind=jprb), intent(in) :: plankbnd(:)        ! 
-                                                        !    Dimensions: (nbndlw)
+      integer(kind=im), intent(in) :: laytrop         ! tropopause layer index
+      integer(kind=im), intent(in) :: jp(:)           ! 
+                                                      !    Dimensions: (nlayers)
+      integer(kind=im), intent(in) :: jt(:)           !
+                                                      !    Dimensions: (nlayers)
+      integer(kind=im), intent(in) :: jt1(:)          !
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: planklay(:,:)      ! 
+                                                      !    Dimensions: (nlayers,nbndlw)
+      real(kind=rb), intent(in) :: planklev(0:,:)     ! 
+                                                      !    Dimensions: (nlayers,nbndlw)
+      real(kind=rb), intent(in) :: plankbnd(:)        ! 
+                                                      !    Dimensions: (nbndlw)
 
-      real(kind=jprb), intent(in) :: colh2o(:)          ! column amount (h2o)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: colco2(:)          ! column amount (co2)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: colo3(:)           ! column amount (o3)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: coln2o(:)          ! column amount (n2o)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: colco(:)           ! column amount (co)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: colch4(:)          ! column amount (ch4)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: colo2(:)           ! column amount (o2)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: colbrd(:)          ! column amount (broadening gases)
-                                                        !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: colh2o(:)          ! column amount (h2o)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: colco2(:)          ! column amount (co2)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: colo3(:)           ! column amount (o3)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: coln2o(:)          ! column amount (n2o)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: colco(:)           ! column amount (co)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: colch4(:)          ! column amount (ch4)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: colo2(:)           ! column amount (o2)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: colbrd(:)          ! column amount (broadening gases)
+                                                      !    Dimensions: (nlayers)
 
-      integer(kind=jpim), intent(in) :: indself(:)
-                                                        !    Dimensions: (nlayers)
-      integer(kind=jpim), intent(in) :: indfor(:)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: selffac(:)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: selffrac(:)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: forfac(:)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: forfrac(:)
-                                                        !    Dimensions: (nlayers)
+      integer(kind=im), intent(in) :: indself(:)
+                                                      !    Dimensions: (nlayers)
+      integer(kind=im), intent(in) :: indfor(:)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: selffac(:)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: selffrac(:)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: forfac(:)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: forfrac(:)
+                                                      !    Dimensions: (nlayers)
 
-      integer(kind=jpim), intent(in) :: indminor(:)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: minorfrac(:)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: scaleminor(:)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: scaleminorn2(:)
-                                                        !    Dimensions: (nlayers)
+      integer(kind=im), intent(in) :: indminor(:)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: minorfrac(:)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: scaleminor(:)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: scaleminorn2(:)
+                                                      !    Dimensions: (nlayers)
 
-      real(kind=jprb), intent(in) :: &                  !
-                         fac00(:), fac01(:), &          !    Dimensions: (nlayers)
-                         fac10(:), fac11(:) 
-      real(kind=jprb), intent(in) :: &                  !
-                         rat_h2oco2(:),rat_h2oco2_1(:), &
-                         rat_h2oo3(:),rat_h2oo3_1(:), & !    Dimensions: (nlayers)
-                         rat_h2on2o(:),rat_h2on2o_1(:), &
-                         rat_h2och4(:),rat_h2och4_1(:), &
-                         rat_n2oco2(:),rat_n2oco2_1(:), &
-                         rat_o3co2(:),rat_o3co2_1(:)
+      real(kind=rb), intent(in) :: &                  !
+                       fac00(:), fac01(:), &          !    Dimensions: (nlayers)
+                       fac10(:), fac11(:) 
+      real(kind=rb), intent(in) :: &                  !
+                       rat_h2oco2(:),rat_h2oco2_1(:), &
+                       rat_h2oo3(:),rat_h2oo3_1(:), & !    Dimensions: (nlayers)
+                       rat_h2on2o(:),rat_h2on2o_1(:), &
+                       rat_h2och4(:),rat_h2och4_1(:), &
+                       rat_n2oco2(:),rat_n2oco2_1(:), &
+                       rat_o3co2(:),rat_o3co2_1(:)
 
 ! ----- Output -----
-      real(kind=jprb), intent(out) :: fracs(:,:)        ! planck fractions
-                                                        !    Dimensions: (nlayers,ngptlw)
-      real(kind=jprb), intent(out) :: taug(:,:)         ! gaseous optical depth 
-                                                        !    Dimensions: (nlayers,ngptlw)
+      real(kind=rb), intent(out) :: fracs(:,:)        ! planck fractions
+                                                      !    Dimensions: (nlayers,ngptlw)
+      real(kind=rb), intent(out) :: taug(:,:)         ! gaseous optical depth 
+                                                      !    Dimensions: (nlayers,ngptlw)
 
       hvrtau = '$Revision$'
 
@@ -300,8 +300,8 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      real(kind=jprb) :: pp, corradj, scalen2, tauself, taufor, taun2
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      real(kind=rb) :: pp, corradj, scalen2, tauself, taufor, taun2
 
 
 ! Minor gas mapping levels:
@@ -322,8 +322,8 @@
          indm = indminor(lay)
          pp = pavel(lay)
          corradj =  1.
-         if (pp .lt. 250._jprb) then
-            corradj = 1._jprb - 0.15_jprb * (250._jprb-pp) / 154.4_jprb
+         if (pp .lt. 250._rb) then
+            corradj = 1._rb - 0.15_rb * (250._rb-pp) / 154.4_rb
          endif
 
          scalen2 = colbrd(lay) * scaleminorn2(lay)
@@ -352,7 +352,7 @@
          indf = indfor(lay)
          indm = indminor(lay)
          pp = pavel(lay)
-         corradj =  1._jprb - 0.15_jprb * (pp / 95.6_jprb)
+         corradj =  1._rb - 0.15_rb * (pp / 95.6_rb)
 
          scalen2 = colbrd(lay) * scaleminorn2(lay)
          do ig = 1, ng1
@@ -391,8 +391,8 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, ig
-      real(kind=jprb) :: pp, corradj, tauself, taufor
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, ig
+      real(kind=rb) :: pp, corradj, tauself, taufor
 
 
 ! Compute the optical depth by interpolating in ln(pressure) and 
@@ -407,7 +407,7 @@
          inds = indself(lay)
          indf = indfor(lay)
          pp = pavel(lay)
-         corradj = 1._jprb - .05_jprb * (pp - 100._jprb) / 900._jprb
+         corradj = 1._rb - .05_rb * (pp - 100._rb) / 900._rb
          do ig = 1, ng2
             tauself = selffac(lay) * (selfref(inds,ig) + selffrac(lay) * &
                  (selfref(inds+1,ig) - selfref(inds,ig)))
@@ -462,18 +462,18 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      integer(kind=jpim) :: js, js1, jmn2o, jpl
-      real(kind=jprb) :: speccomb, specparm, specmult, fs
-      real(kind=jprb) :: speccomb1, specparm1, specmult1, fs1
-      real(kind=jprb) :: speccomb_mn2o, specparm_mn2o, specmult_mn2o, &
-                         fmn2o, fmn2omf, chi_n2o, ratn2o, adjfac, adjcoln2o
-      real(kind=jprb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
-      real(kind=jprb) :: p, p4, fk0, fk1, fk2
-      real(kind=jprb) :: fac000, fac100, fac200, fac010, fac110, fac210
-      real(kind=jprb) :: fac001, fac101, fac201, fac011, fac111, fac211
-      real(kind=jprb) :: tauself, taufor, n2om1, n2om2, absn2o
-      real(kind=jprb) :: refrat_planck_a, refrat_planck_b, refrat_m_a, refrat_m_b
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      integer(kind=im) :: js, js1, jmn2o, jpl
+      real(kind=rb) :: speccomb, specparm, specmult, fs
+      real(kind=rb) :: speccomb1, specparm1, specmult1, fs1
+      real(kind=rb) :: speccomb_mn2o, specparm_mn2o, specmult_mn2o, &
+                       fmn2o, fmn2omf, chi_n2o, ratn2o, adjfac, adjcoln2o
+      real(kind=rb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
+      real(kind=rb) :: p, p4, fk0, fk1, fk2
+      real(kind=rb) :: fac000, fac100, fac200, fac010, fac110, fac210
+      real(kind=rb) :: fac001, fac101, fac201, fac011, fac111, fac211
+      real(kind=rb) :: tauself, taufor, n2om1, n2om2, absn2o
+      real(kind=rb) :: refrat_planck_a, refrat_planck_b, refrat_m_a, refrat_m_b
 
 
 
@@ -504,32 +504,32 @@
          speccomb = colh2o(lay) + rat_h2oco2(lay)*colco2(lay)
          specparm = colh2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 8._jprb*(specparm)
+         specmult = 8._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)        
+         fs = mod(specmult,1.0_rb)        
 
          speccomb1 = colh2o(lay) + rat_h2oco2_1(lay)*colco2(lay)
          specparm1 = colh2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 8._jprb*(specparm1)
+         specmult1 = 8._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
          speccomb_mn2o = colh2o(lay) + refrat_m_a*colco2(lay)
          specparm_mn2o = colh2o(lay)/speccomb_mn2o
          if (specparm_mn2o .ge. oneminus) specparm_mn2o = oneminus
-         specmult_mn2o = 8._jprb*specparm_mn2o
+         specmult_mn2o = 8._rb*specparm_mn2o
          jmn2o = 1 + int(specmult_mn2o)
-         fmn2o = mod(specmult_mn2o,1.0_jprb)
+         fmn2o = mod(specmult_mn2o,1.0_rb)
          fmn2omf = minorfrac(lay)*fmn2o
 !  In atmospheres where the amount of N2O is too great to be considered
 !  a minor species, adjust the column amount of N2O by an empirical factor 
 !  to obtain the proper contribution.
          chi_n2o = coln2o(lay)/coldry(lay)
-         ratn2o = 1.e20_jprb*chi_n2o/chi_mls(4,jp(lay)+1)
-         if (ratn2o .gt. 1.5_jprb) then
-            adjfac = 0.5_jprb+(ratn2o-0.5_jprb)**0.65_jprb
-            adjcoln2o = adjfac*chi_mls(4,jp(lay)+1)*coldry(lay)*1.e-20_jprb
+         ratn2o = 1.e20_rb*chi_n2o/chi_mls(4,jp(lay)+1)
+         if (ratn2o .gt. 1.5_rb) then
+            adjfac = 0.5_rb+(ratn2o-0.5_rb)**0.65_rb
+            adjcoln2o = adjfac*chi_mls(4,jp(lay)+1)*coldry(lay)*1.e-20_rb
          else
             adjcoln2o = coln2o(lay)
          endif
@@ -537,9 +537,9 @@
          speccomb_planck = colh2o(lay)+refrat_planck_a*colco2(lay)
          specparm_planck = colh2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 8._jprb*specparm_planck
+         specmult_planck = 8._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-1)*5+(jt(lay)-1))*nspa(3) + js
          ind1 = (jp(lay)*5+(jt1(lay)-1))*nspa(3) + js1
@@ -547,11 +547,11 @@
          indf = indfor(lay)
          indm = indminor(lay)
 
-         if (specparm .lt. 0.125_jprb .and. specparm1 .lt. 0.125_jprb) then
+         if (specparm .lt. 0.125_rb .and. specparm1 .lt. 0.125_rb) then
             p = fs - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -563,7 +563,7 @@
             p = fs1 - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -601,11 +601,11 @@
                fracs(lay,ngs2+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
-         else if (specparm .gt. 0.875_jprb .and. specparm1 .gt. 0.875_jprb) then
+         else if (specparm .gt. 0.875_rb .and. specparm1 .gt. 0.875_rb) then
             p = -fs 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -617,7 +617,7 @@
             p = -fs1 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -700,41 +700,41 @@
          speccomb = colh2o(lay) + rat_h2oco2(lay)*colco2(lay)
          specparm = colh2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 4._jprb*(specparm)
+         specmult = 4._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colh2o(lay) + rat_h2oco2_1(lay)*colco2(lay)
          specparm1 = colh2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 4._jprb*(specparm1)
+         specmult1 = 4._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
-         fac000 = (1._jprb - fs) * fac00(lay)
-         fac010 = (1._jprb - fs) * fac10(lay)
+         fac000 = (1._rb - fs) * fac00(lay)
+         fac010 = (1._rb - fs) * fac10(lay)
          fac100 = fs * fac00(lay)
          fac110 = fs * fac10(lay)
-         fac001 = (1._jprb - fs1) * fac01(lay)
-         fac011 = (1._jprb - fs1) * fac11(lay)
+         fac001 = (1._rb - fs1) * fac01(lay)
+         fac011 = (1._rb - fs1) * fac11(lay)
          fac101 = fs1 * fac01(lay)
          fac111 = fs1 * fac11(lay)
 
          speccomb_mn2o = colh2o(lay) + refrat_m_b*colco2(lay)
          specparm_mn2o = colh2o(lay)/speccomb_mn2o
          if (specparm_mn2o .ge. oneminus) specparm_mn2o = oneminus
-         specmult_mn2o = 4._jprb*specparm_mn2o
+         specmult_mn2o = 4._rb*specparm_mn2o
          jmn2o = 1 + int(specmult_mn2o)
-         fmn2o = mod(specmult_mn2o,1.0_jprb)
+         fmn2o = mod(specmult_mn2o,1.0_rb)
          fmn2omf = minorfrac(lay)*fmn2o
 !  In atmospheres where the amount of N2O is too great to be considered
 !  a minor species, adjust the column amount of N2O by an empirical factor 
 !  to obtain the proper contribution.
          chi_n2o = coln2o(lay)/coldry(lay)
          ratn2o = 1.e20*chi_n2o/chi_mls(4,jp(lay)+1)
-         if (ratn2o .gt. 1.5_jprb) then
-            adjfac = 0.5_jprb+(ratn2o-0.5_jprb)**0.65_jprb
-            adjcoln2o = adjfac*chi_mls(4,jp(lay)+1)*coldry(lay)*1.e-20_jprb
+         if (ratn2o .gt. 1.5_rb) then
+            adjfac = 0.5_rb+(ratn2o-0.5_rb)**0.65_rb
+            adjcoln2o = adjfac*chi_mls(4,jp(lay)+1)*coldry(lay)*1.e-20_rb
          else
             adjcoln2o = coln2o(lay)
          endif
@@ -742,9 +742,9 @@
          speccomb_planck = colh2o(lay)+refrat_planck_b*colco2(lay)
          specparm_planck = colh2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 4._jprb*specparm_planck
+         specmult_planck = 4._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-13)*5+(jt(lay)-1))*nspb(3) + js
          ind1 = ((jp(lay)-12)*5+(jt1(lay)-1))*nspb(3) + js1
@@ -795,16 +795,16 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, ig
-      integer(kind=jpim) :: js, js1, jpl
-      real(kind=jprb) :: speccomb, specparm, specmult, fs
-      real(kind=jprb) :: speccomb1, specparm1, specmult1, fs1
-      real(kind=jprb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
-      real(kind=jprb) :: p, p4, fk0, fk1, fk2
-      real(kind=jprb) :: fac000, fac100, fac200, fac010, fac110, fac210
-      real(kind=jprb) :: fac001, fac101, fac201, fac011, fac111, fac211
-      real(kind=jprb) :: tauself, taufor
-      real(kind=jprb) :: refrat_planck_a, refrat_planck_b
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, ig
+      integer(kind=im) :: js, js1, jpl
+      real(kind=rb) :: speccomb, specparm, specmult, fs
+      real(kind=rb) :: speccomb1, specparm1, specmult1, fs1
+      real(kind=rb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
+      real(kind=rb) :: p, p4, fk0, fk1, fk2
+      real(kind=rb) :: fac000, fac100, fac200, fac010, fac110, fac210
+      real(kind=rb) :: fac001, fac101, fac201, fac011, fac111, fac211
+      real(kind=rb) :: tauself, taufor
+      real(kind=rb) :: refrat_planck_a, refrat_planck_b
 
 
 ! P =   142.5940 mb
@@ -824,23 +824,23 @@
          speccomb = colh2o(lay) + rat_h2oco2(lay)*colco2(lay)
          specparm = colh2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 8._jprb*(specparm)
+         specmult = 8._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colh2o(lay) + rat_h2oco2_1(lay)*colco2(lay)
          specparm1 = colh2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 8._jprb*(specparm1)
+         specmult1 = 8._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
          speccomb_planck = colh2o(lay)+refrat_planck_a*colco2(lay)
          specparm_planck = colh2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 8._jprb*specparm_planck
+         specmult_planck = 8._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-1)*5+(jt(lay)-1))*nspa(4) + js
          ind1 = (jp(lay)*5+(jt1(lay)-1))*nspa(4) + js1
@@ -851,7 +851,7 @@
             p = fs - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -863,7 +863,7 @@
             p = fs1 - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -895,11 +895,11 @@
                fracs(lay,ngs3+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
-         else if (specparm .gt. 0.875_jprb .and. specparm1 .gt. 0.875_jprb) then
+         else if (specparm .gt. 0.875_rb .and. specparm1 .gt. 0.875_rb) then
             p = -fs 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -911,7 +911,7 @@
             p = -fs1 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -943,13 +943,13 @@
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
          else
-            fac000 = (1._jprb - fs) * fac00(lay)
-            fac010 = (1._jprb - fs) * fac10(lay)
+            fac000 = (1._rb - fs) * fac00(lay)
+            fac010 = (1._rb - fs) * fac10(lay)
             fac100 = fs * fac00(lay)
             fac110 = fs * fac10(lay)
 
-            fac001 = (1._jprb - fs1) * fac01(lay)
-            fac011 = (1._jprb - fs1) * fac11(lay)
+            fac001 = (1._rb - fs1) * fac01(lay)
+            fac011 = (1._rb - fs1) * fac11(lay)
             fac101 = fs1 * fac01(lay)
             fac111 = fs1 * fac11(lay)
 
@@ -981,32 +981,32 @@
          speccomb = colo3(lay) + rat_o3co2(lay)*colco2(lay)
          specparm = colo3(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 4._jprb*(specparm)
+         specmult = 4._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colo3(lay) + rat_o3co2_1(lay)*colco2(lay)
          specparm1 = colo3(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 4._jprb*(specparm1)
+         specmult1 = 4._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
-         fac000 = (1._jprb - fs) * fac00(lay)
-         fac010 = (1._jprb - fs) * fac10(lay)
+         fac000 = (1._rb - fs) * fac00(lay)
+         fac010 = (1._rb - fs) * fac10(lay)
          fac100 = fs * fac00(lay)
          fac110 = fs * fac10(lay)
-         fac001 = (1._jprb - fs1) * fac01(lay)
-         fac011 = (1._jprb - fs1) * fac11(lay)
+         fac001 = (1._rb - fs1) * fac01(lay)
+         fac011 = (1._rb - fs1) * fac11(lay)
          fac101 = fs1 * fac01(lay)
          fac111 = fs1 * fac11(lay)
 
          speccomb_planck = colo3(lay)+refrat_planck_b*colco2(lay)
          specparm_planck = colo3(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 4._jprb*specparm_planck
+         specmult_planck = 4._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-13)*5+(jt(lay)-1))*nspb(4) + js
          ind1 = ((jp(lay)-12)*5+(jt1(lay)-1))*nspb(4) + js1
@@ -1059,17 +1059,17 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      integer(kind=jpim) :: js, js1, jmo3, jpl
-      real(kind=jprb) :: speccomb, specparm, specmult, fs
-      real(kind=jprb) :: speccomb1, specparm1, specmult1, fs1
-      real(kind=jprb) :: speccomb_mo3, specparm_mo3, specmult_mo3, fmo3
-      real(kind=jprb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
-      real(kind=jprb) :: p, p4, fk0, fk1, fk2
-      real(kind=jprb) :: fac000, fac100, fac200, fac010, fac110, fac210
-      real(kind=jprb) :: fac001, fac101, fac201, fac011, fac111, fac211
-      real(kind=jprb) :: tauself, taufor, o3m1, o3m2, abso3
-      real(kind=jprb) :: refrat_planck_a, refrat_planck_b, refrat_m_a
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      integer(kind=im) :: js, js1, jmo3, jpl
+      real(kind=rb) :: speccomb, specparm, specmult, fs
+      real(kind=rb) :: speccomb1, specparm1, specmult1, fs1
+      real(kind=rb) :: speccomb_mo3, specparm_mo3, specmult_mo3, fmo3
+      real(kind=rb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
+      real(kind=rb) :: p, p4, fk0, fk1, fk2
+      real(kind=rb) :: fac000, fac100, fac200, fac010, fac110, fac210
+      real(kind=rb) :: fac001, fac101, fac201, fac011, fac111, fac211
+      real(kind=rb) :: tauself, taufor, o3m1, o3m2, abso3
+      real(kind=rb) :: refrat_planck_a, refrat_planck_b, refrat_m_a
 
 
 ! Minor gas mapping level :
@@ -1099,30 +1099,30 @@
          speccomb = colh2o(lay) + rat_h2oco2(lay)*colco2(lay)
          specparm = colh2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 8._jprb*(specparm)
+         specmult = 8._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colh2o(lay) + rat_h2oco2_1(lay)*colco2(lay)
          specparm1 = colh2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 8._jprb*(specparm1)
+         specmult1 = 8._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
          speccomb_mo3 = colh2o(lay) + refrat_m_a*colco2(lay)
          specparm_mo3 = colh2o(lay)/speccomb_mo3
          if (specparm_mo3 .ge. oneminus) specparm_mo3 = oneminus
-         specmult_mo3 = 8._jprb*specparm_mo3
+         specmult_mo3 = 8._rb*specparm_mo3
          jmo3 = 1 + int(specmult_mo3)
-         fmo3 = mod(specmult_mo3,1.0_jprb)
+         fmo3 = mod(specmult_mo3,1.0_rb)
 
          speccomb_planck = colh2o(lay)+refrat_planck_a*colco2(lay)
          specparm_planck = colh2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 8._jprb*specparm_planck
+         specmult_planck = 8._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-1)*5+(jt(lay)-1))*nspa(5) + js
          ind1 = (jp(lay)*5+(jt1(lay)-1))*nspa(5) + js1
@@ -1130,11 +1130,11 @@
          indf = indfor(lay)
          indm = indminor(lay)
 
-         if (specparm .lt. 0.125_jprb .and. specparm1 .lt. 0.125_jprb) then
+         if (specparm .lt. 0.125_rb .and. specparm1 .lt. 0.125_rb) then
             p = fs - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -1146,7 +1146,7 @@
             p = fs1 - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -1185,11 +1185,11 @@
                fracs(lay,ngs4+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
            enddo
-      else if (specparm .gt. 0.875_jprb .and. specparm1 .gt. 0.875_jprb) then
+      else if (specparm .gt. 0.875_rb .and. specparm1 .gt. 0.875_rb) then
             p = -fs 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -1201,7 +1201,7 @@
             p = -fs1 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -1241,13 +1241,13 @@
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
        else
-            fac000 = (1._jprb - fs) * fac00(lay)
-            fac010 = (1._jprb - fs) * fac10(lay)
+            fac000 = (1._rb - fs) * fac00(lay)
+            fac010 = (1._rb - fs) * fac10(lay)
             fac100 = fs * fac00(lay)
             fac110 = fs * fac10(lay)
 
-            fac001 = (1._jprb - fs1) * fac01(lay)
-            fac011 = (1._jprb - fs1) * fac11(lay)
+            fac001 = (1._rb - fs1) * fac01(lay)
+            fac011 = (1._rb - fs1) * fac11(lay)
             fac101 = fs1 * fac01(lay)
             fac111 = fs1 * fac11(lay)
 
@@ -1286,32 +1286,32 @@
          speccomb = colo3(lay) + rat_o3co2(lay)*colco2(lay)
          specparm = colo3(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 4._jprb*(specparm)
+         specmult = 4._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colo3(lay) + rat_o3co2_1(lay)*colco2(lay)
          specparm1 = colo3(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 4._jprb*(specparm1)
+         specmult1 = 4._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
-         fac000 = (1._jprb - fs) * fac00(lay)
-         fac010 = (1._jprb - fs) * fac10(lay)
+         fac000 = (1._rb - fs) * fac00(lay)
+         fac010 = (1._rb - fs) * fac10(lay)
          fac100 = fs * fac00(lay)
          fac110 = fs * fac10(lay)
-         fac001 = (1._jprb - fs1) * fac01(lay)
-         fac011 = (1._jprb - fs1) * fac11(lay)
+         fac001 = (1._rb - fs1) * fac01(lay)
+         fac011 = (1._rb - fs1) * fac11(lay)
          fac101 = fs1 * fac01(lay)
          fac111 = fs1 * fac11(lay)
 
          speccomb_planck = colo3(lay)+refrat_planck_b*colco2(lay)
          specparm_planck = colo3(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 4._jprb*specparm_planck
+         specmult_planck = 4._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-13)*5+(jt(lay)-1))*nspb(5) + js
          ind1 = ((jp(lay)-12)*5+(jt1(lay)-1))*nspb(5) + js1
@@ -1353,9 +1353,9 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      real(kind=jprb) :: chi_co2, ratco2, adjfac, adjcolco2
-      real(kind=jprb) :: tauself, taufor, absco2
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      real(kind=rb) :: chi_co2, ratco2, adjfac, adjcolco2
+      real(kind=rb) :: tauself, taufor, absco2
 
 
 ! Minor gas mapping level:
@@ -1373,10 +1373,10 @@
 ! a minor species, adjust the column amount of CO2 by an empirical factor 
 ! to obtain the proper contribution.
          chi_co2 = colco2(lay)/(coldry(lay))
-         ratco2 = 1.e20_jprb*chi_co2/chi_mls(2,jp(lay)+1)
-         if (ratco2 .gt. 3.0_jprb) then
-            adjfac = 2.0_jprb+(ratco2-2.0_jprb)**0.77_jprb
-            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1)*coldry(lay)*1.e-20_jprb
+         ratco2 = 1.e20_rb*chi_co2/chi_mls(2,jp(lay)+1)
+         if (ratco2 .gt. 3.0_rb) then
+            adjfac = 2.0_rb+(ratco2-2.0_rb)**0.77_rb
+            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1)*coldry(lay)*1.e-20_rb
          else
             adjcolco2 = colco2(lay)
          endif
@@ -1412,7 +1412,7 @@
       do lay = laytrop+1, nlayers
 
          do ig = 1, ng6
-            taug(lay,ngs5+ig) = 0.0 &
+            taug(lay,ngs5+ig) = 0.0_rb &
                  + wx(2,lay) * cfc11adj(ig) &
                  + wx(3,lay) * cfc12(ig)
             fracs(lay,ngs5+ig) = fracrefa(ig)
@@ -1439,18 +1439,18 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      integer(kind=jpim) :: js, js1, jmco2, jpl
-      real(kind=jprb) :: speccomb, specparm, specmult, fs
-      real(kind=jprb) :: speccomb1, specparm1, specmult1, fs1
-      real(kind=jprb) :: speccomb_mco2, specparm_mco2, specmult_mco2, fmco2
-      real(kind=jprb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
-      real(kind=jprb) :: p, p4, fk0, fk1, fk2
-      real(kind=jprb) :: fac000, fac100, fac200, fac010, fac110, fac210
-      real(kind=jprb) :: fac001, fac101, fac201, fac011, fac111, fac211
-      real(kind=jprb) :: tauself, taufor, co2m1, co2m2, absco2
-      real(kind=jprb) :: chi_co2, ratco2, adjfac, adjcolco2
-      real(kind=jprb) :: refrat_planck_a, refrat_m_a
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      integer(kind=im) :: js, js1, jmco2, jpl
+      real(kind=rb) :: speccomb, specparm, specmult, fs
+      real(kind=rb) :: speccomb1, specparm1, specmult1, fs1
+      real(kind=rb) :: speccomb_mco2, specparm_mco2, specmult_mco2, fmco2
+      real(kind=rb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
+      real(kind=rb) :: p, p4, fk0, fk1, fk2
+      real(kind=rb) :: fac000, fac100, fac200, fac010, fac110, fac210
+      real(kind=rb) :: fac001, fac101, fac201, fac011, fac111, fac211
+      real(kind=rb) :: tauself, taufor, co2m1, co2m2, absco2
+      real(kind=rb) :: chi_co2, ratco2, adjfac, adjcolco2
+      real(kind=rb) :: refrat_planck_a, refrat_m_a
 
 
 ! Minor gas mapping level :
@@ -1477,33 +1477,33 @@
          speccomb = colh2o(lay) + rat_h2oo3(lay)*colo3(lay)
          specparm = colh2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 8._jprb*(specparm)
+         specmult = 8._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colh2o(lay) + rat_h2oo3_1(lay)*colo3(lay)
          specparm1 = colh2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 8._jprb*(specparm1)
+         specmult1 = 8._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
          speccomb_mco2 = colh2o(lay) + refrat_m_a*colo3(lay)
          specparm_mco2 = colh2o(lay)/speccomb_mco2
          if (specparm_mco2 .ge. oneminus) specparm_mco2 = oneminus
-         specmult_mco2 = 8._jprb*specparm_mco2
+         specmult_mco2 = 8._rb*specparm_mco2
 
          jmco2 = 1 + int(specmult_mco2)
-         fmco2 = mod(specmult_mco2,1.0_jprb)
+         fmco2 = mod(specmult_mco2,1.0_rb)
 
 !  In atmospheres where the amount of CO2 is too great to be considered
 !  a minor species, adjust the column amount of CO2 by an empirical factor 
 !  to obtain the proper contribution.
          chi_co2 = colco2(lay)/(coldry(lay))
          ratco2 = 1.e20*chi_co2/chi_mls(2,jp(lay)+1)
-         if (ratco2 .gt. 3.0_jprb) then
-            adjfac = 3.0_jprb+(ratco2-3.0_jprb)**0.79_jprb
-            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1)*coldry(lay)*1.e-20_jprb
+         if (ratco2 .gt. 3.0_rb) then
+            adjfac = 3.0_rb+(ratco2-3.0_rb)**0.79_rb
+            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1)*coldry(lay)*1.e-20_rb
          else
             adjcolco2 = colco2(lay)
          endif
@@ -1511,9 +1511,9 @@
          speccomb_planck = colh2o(lay)+refrat_planck_a*colo3(lay)
          specparm_planck = colh2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 8._jprb*specparm_planck
+         specmult_planck = 8._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-1)*5+(jt(lay)-1))*nspa(7) + js
          ind1 = (jp(lay)*5+(jt1(lay)-1))*nspa(7) + js1
@@ -1521,11 +1521,11 @@
          indf = indfor(lay)
          indm = indminor(lay)
 
-         if (specparm .lt. 0.125_jprb .and. specparm1 .lt. 0.125_jprb) then
+         if (specparm .lt. 0.125_rb .and. specparm1 .lt. 0.125_rb) then
             p = fs - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -1537,7 +1537,7 @@
             p = fs1 - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -1575,11 +1575,11 @@
                fracs(lay,ngs6+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
-         else if (specparm .gt. 0.875_jprb .and. specparm1 .gt. 0.875_jprb) then
+         else if (specparm .gt. 0.875_rb .and. specparm1 .gt. 0.875_rb) then
             p = -fs 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -1591,7 +1591,7 @@
             p = -fs1 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -1630,13 +1630,13 @@
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
          else
-            fac000 = (1._jprb - fs) * fac00(lay)
-            fac010 = (1._jprb - fs) * fac10(lay)
+            fac000 = (1._rb - fs) * fac00(lay)
+            fac010 = (1._rb - fs) * fac10(lay)
             fac100 = fs * fac00(lay)
             fac110 = fs * fac10(lay)
 
-            fac001 = (1._jprb - fs1) * fac01(lay)
-            fac011 = (1._jprb - fs1) * fac11(lay)
+            fac001 = (1._rb - fs1) * fac01(lay)
+            fac011 = (1._rb - fs1) * fac11(lay)
             fac101 = fs1 * fac01(lay)
             fac111 = fs1 * fac11(lay)
 
@@ -1676,9 +1676,9 @@
 !  to obtain the proper contribution.
          chi_co2 = colco2(lay)/(coldry(lay))
          ratco2 = 1.e20*chi_co2/chi_mls(2,jp(lay)+1)
-         if (ratco2 .gt. 3.0_jprb) then
-            adjfac = 2.0_jprb+(ratco2-2.0_jprb)**0.79_jprb
-            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1)*coldry(lay)*1.e-20_jprb
+         if (ratco2 .gt. 3.0_rb) then
+            adjfac = 2.0_rb+(ratco2-2.0_rb)**0.79_rb
+            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1)*coldry(lay)*1.e-20_rb
          else
             adjcolco2 = colco2(lay)
          endif
@@ -1702,12 +1702,12 @@
 ! Empirical modification to code to improve stratospheric cooling rates
 ! for o3.  revised to apply weighting for g-point reduction in this band.
 
-         taug(lay,ngs6+6)=taug(lay,ngs6+6)*0.92_jprb
-         taug(lay,ngs6+7)=taug(lay,ngs6+7)*0.88_jprb
-         taug(lay,ngs6+8)=taug(lay,ngs6+8)*1.07_jprb
-         taug(lay,ngs6+9)=taug(lay,ngs6+9)*1.1_jprb
-         taug(lay,ngs6+10)=taug(lay,ngs6+10)*0.99_jprb
-         taug(lay,ngs6+11)=taug(lay,ngs6+11)*0.855_jprb
+         taug(lay,ngs6+6)=taug(lay,ngs6+6)*0.92_rb
+         taug(lay,ngs6+7)=taug(lay,ngs6+7)*0.88_rb
+         taug(lay,ngs6+8)=taug(lay,ngs6+8)*1.07_rb
+         taug(lay,ngs6+9)=taug(lay,ngs6+9)*1.1_rb
+         taug(lay,ngs6+10)=taug(lay,ngs6+10)*0.99_rb
+         taug(lay,ngs6+11)=taug(lay,ngs6+11)*0.855_rb
 
       enddo
 
@@ -1732,9 +1732,9 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      real(kind=jprb) :: tauself, taufor, absco2, abso3, absn2o
-      real(kind=jprb) :: chi_co2, ratco2, adjfac, adjcolco2
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      real(kind=rb) :: tauself, taufor, absco2, abso3, absn2o
+      real(kind=rb) :: chi_co2, ratco2, adjfac, adjcolco2
 
 
 ! Minor gas mapping level:
@@ -1757,10 +1757,10 @@
 !  a minor species, adjust the column amount of CO2 by an empirical factor 
 !  to obtain the proper contribution.
          chi_co2 = colco2(lay)/(coldry(lay))
-         ratco2 = 1.e20_jprb*chi_co2/chi_mls(2,jp(lay)+1)
-         if (ratco2 .gt. 3.0_jprb) then
-            adjfac = 2.0_jprb+(ratco2-2.0_jprb)**0.65_jprb
-            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1)*coldry(lay)*1.e-20_jprb
+         ratco2 = 1.e20_rb*chi_co2/chi_mls(2,jp(lay)+1)
+         if (ratco2 .gt. 3.0_rb) then
+            adjfac = 2.0_rb+(ratco2-2.0_rb)**0.65_rb
+            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1)*coldry(lay)*1.e-20_rb
          else
             adjcolco2 = colco2(lay)
          endif
@@ -1804,10 +1804,10 @@
 !  a minor species, adjust the column amount of CO2 by an empirical factor 
 !  to obtain the proper contribution.
          chi_co2 = colco2(lay)/coldry(lay)
-         ratco2 = 1.e20_jprb*chi_co2/chi_mls(2,jp(lay)+1)
-         if (ratco2 .gt. 3.0_jprb) then
-            adjfac = 2.0_jprb+(ratco2-2.0_jprb)**0.65_jprb
-            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1) * coldry(lay)*1.e-20_jprb
+         ratco2 = 1.e20_rb*chi_co2/chi_mls(2,jp(lay)+1)
+         if (ratco2 .gt. 3.0_rb) then
+            adjfac = 2.0_rb+(ratco2-2.0_rb)**0.65_rb
+            adjcolco2 = adjfac*chi_mls(2,jp(lay)+1) * coldry(lay)*1.e-20_rb
          else
             adjcolco2 = colco2(lay)
          endif
@@ -1854,18 +1854,18 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      integer(kind=jpim) :: js, js1, jmn2o, jpl
-      real(kind=jprb) :: speccomb, specparm, specmult, fs
-      real(kind=jprb) :: speccomb1, specparm1, specmult1, fs1
-      real(kind=jprb) :: speccomb_mn2o, specparm_mn2o, specmult_mn2o, fmn2o
-      real(kind=jprb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
-      real(kind=jprb) :: p, p4, fk0, fk1, fk2
-      real(kind=jprb) :: fac000, fac100, fac200, fac010, fac110, fac210
-      real(kind=jprb) :: fac001, fac101, fac201, fac011, fac111, fac211
-      real(kind=jprb) :: tauself, taufor, n2om1, n2om2, absn2o
-      real(kind=jprb) :: chi_n2o, ratn2o, adjfac, adjcoln2o
-      real(kind=jprb) :: refrat_planck_a, refrat_m_a
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      integer(kind=im) :: js, js1, jmn2o, jpl
+      real(kind=rb) :: speccomb, specparm, specmult, fs
+      real(kind=rb) :: speccomb1, specparm1, specmult1, fs1
+      real(kind=rb) :: speccomb_mn2o, specparm_mn2o, specmult_mn2o, fmn2o
+      real(kind=rb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
+      real(kind=rb) :: p, p4, fk0, fk1, fk2
+      real(kind=rb) :: fac000, fac100, fac200, fac010, fac110, fac210
+      real(kind=rb) :: fac001, fac101, fac201, fac011, fac111, fac211
+      real(kind=rb) :: tauself, taufor, n2om1, n2om2, absn2o
+      real(kind=rb) :: chi_n2o, ratn2o, adjfac, adjcoln2o
+      real(kind=rb) :: refrat_planck_a, refrat_m_a
 
 
 ! Minor gas mapping level :
@@ -1892,32 +1892,32 @@
          speccomb = colh2o(lay) + rat_h2och4(lay)*colch4(lay)
          specparm = colh2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 8._jprb*(specparm)
+         specmult = 8._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colh2o(lay) + rat_h2och4_1(lay)*colch4(lay)
          specparm1 = colh2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 8._jprb*(specparm1)
+         specmult1 = 8._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
          speccomb_mn2o = colh2o(lay) + refrat_m_a*colch4(lay)
          specparm_mn2o = colh2o(lay)/speccomb_mn2o
          if (specparm_mn2o .ge. oneminus) specparm_mn2o = oneminus
-         specmult_mn2o = 8._jprb*specparm_mn2o
+         specmult_mn2o = 8._rb*specparm_mn2o
          jmn2o = 1 + int(specmult_mn2o)
-         fmn2o = mod(specmult_mn2o,1.0_jprb)
+         fmn2o = mod(specmult_mn2o,1.0_rb)
 
 !  In atmospheres where the amount of N2O is too great to be considered
 !  a minor species, adjust the column amount of N2O by an empirical factor 
 !  to obtain the proper contribution.
          chi_n2o = coln2o(lay)/(coldry(lay))
-         ratn2o = 1.e20_jprb*chi_n2o/chi_mls(4,jp(lay)+1)
-         if (ratn2o .gt. 1.5_jprb) then
-            adjfac = 0.5_jprb+(ratn2o-0.5_jprb)**0.65_jprb
-            adjcoln2o = adjfac*chi_mls(4,jp(lay)+1)*coldry(lay)*1.e-20_jprb
+         ratn2o = 1.e20_rb*chi_n2o/chi_mls(4,jp(lay)+1)
+         if (ratn2o .gt. 1.5_rb) then
+            adjfac = 0.5_rb+(ratn2o-0.5_rb)**0.65_rb
+            adjcoln2o = adjfac*chi_mls(4,jp(lay)+1)*coldry(lay)*1.e-20_rb
          else
             adjcoln2o = coln2o(lay)
          endif
@@ -1925,9 +1925,9 @@
          speccomb_planck = colh2o(lay)+refrat_planck_a*colch4(lay)
          specparm_planck = colh2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 8._jprb*specparm_planck
+         specmult_planck = 8._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-1)*5+(jt(lay)-1))*nspa(9) + js
          ind1 = (jp(lay)*5+(jt1(lay)-1))*nspa(9) + js1
@@ -1935,11 +1935,11 @@
          indf = indfor(lay)
          indm = indminor(lay)
 
-         if (specparm .lt. 0.125_jprb .and. specparm1 .lt. 0.125_jprb) then
+         if (specparm .lt. 0.125_rb .and. specparm1 .lt. 0.125_rb) then
             p = fs - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -1951,7 +1951,7 @@
             p = fs1 - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -1989,11 +1989,11 @@
                fracs(lay,ngs8+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
-         else if (specparm .gt. 0.875_jprb .and. specparm1 .gt. 0.875_jprb) then
+         else if (specparm .gt. 0.875_rb .and. specparm1 .gt. 0.875_rb) then
             p = -fs 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -2005,7 +2005,7 @@
             p = -fs1 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -2044,13 +2044,13 @@
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
          else
-            fac000 = (1._jprb - fs) * fac00(lay)
-            fac010 = (1._jprb - fs) * fac10(lay)
+            fac000 = (1._rb - fs) * fac00(lay)
+            fac010 = (1._rb - fs) * fac10(lay)
             fac100 = fs * fac00(lay)
             fac110 = fs * fac10(lay)
 
-            fac001 = (1._jprb - fs1) * fac01(lay)
-            fac011 = (1._jprb - fs1) * fac11(lay)
+            fac001 = (1._rb - fs1) * fac01(lay)
+            fac011 = (1._rb - fs1) * fac11(lay)
             fac101 = fs1 * fac01(lay)
             fac111 = fs1 * fac11(lay)
 
@@ -2089,10 +2089,10 @@
 !  a minor species, adjust the column amount of N2O by an empirical factor 
 !  to obtain the proper contribution.
          chi_n2o = coln2o(lay)/(coldry(lay))
-         ratn2o = 1.e20_jprb*chi_n2o/chi_mls(4,jp(lay)+1)
-         if (ratn2o .gt. 1.5_jprb) then
-            adjfac = 0.5_jprb+(ratn2o-0.5_jprb)**0.65_jprb
-            adjcoln2o = adjfac*chi_mls(4,jp(lay)+1)*coldry(lay)*1.e-20_jprb
+         ratn2o = 1.e20_rb*chi_n2o/chi_mls(4,jp(lay)+1)
+         if (ratn2o .gt. 1.5_rb) then
+            adjfac = 0.5_rb+(ratn2o-0.5_rb)**0.65_rb
+            adjcoln2o = adjfac*chi_mls(4,jp(lay)+1)*coldry(lay)*1.e-20_rb
          else
             adjcoln2o = coln2o(lay)
          endif
@@ -2132,8 +2132,8 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, ig
-      real(kind=jprb) :: tauself, taufor
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, ig
+      real(kind=rb) :: tauself, taufor
 
 
 ! Compute the optical depth by interpolating in ln(pressure) and 
@@ -2200,8 +2200,8 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      real(kind=jprb) :: scaleo2, tauself, taufor, tauo2
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      real(kind=rb) :: scaleo2, tauself, taufor, tauo2
 
 
 ! Minor gas mapping level :
@@ -2280,16 +2280,16 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, ig
-      integer(kind=jpim) :: js, js1, jpl
-      real(kind=jprb) :: speccomb, specparm, specmult, fs
-      real(kind=jprb) :: speccomb1, specparm1, specmult1, fs1
-      real(kind=jprb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
-      real(kind=jprb) :: p, p4, fk0, fk1, fk2
-      real(kind=jprb) :: fac000, fac100, fac200, fac010, fac110, fac210
-      real(kind=jprb) :: fac001, fac101, fac201, fac011, fac111, fac211
-      real(kind=jprb) :: tauself, taufor
-      real(kind=jprb) :: refrat_planck_a
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, ig
+      integer(kind=im) :: js, js1, jpl
+      real(kind=rb) :: speccomb, specparm, specmult, fs
+      real(kind=rb) :: speccomb1, specparm1, specmult1, fs1
+      real(kind=rb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
+      real(kind=rb) :: p, p4, fk0, fk1, fk2
+      real(kind=rb) :: fac000, fac100, fac200, fac010, fac110, fac210
+      real(kind=rb) :: fac001, fac101, fac201, fac011, fac111, fac211
+      real(kind=rb) :: tauself, taufor
+      real(kind=rb) :: refrat_planck_a
 
 
 ! Calculate reference ratio to be used in calculation of Planck
@@ -2309,34 +2309,34 @@
          speccomb = colh2o(lay) + rat_h2oco2(lay)*colco2(lay)
          specparm = colh2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 8._jprb*(specparm)
+         specmult = 8._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colh2o(lay) + rat_h2oco2_1(lay)*colco2(lay)
          specparm1 = colh2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 8._jprb*(specparm1)
+         specmult1 = 8._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
          speccomb_planck = colh2o(lay)+refrat_planck_a*colco2(lay)
          specparm_planck = colh2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 8._jprb*specparm_planck
+         specmult_planck = 8._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-1)*5+(jt(lay)-1))*nspa(12) + js
          ind1 = (jp(lay)*5+(jt1(lay)-1))*nspa(12) + js1
          inds = indself(lay)
          indf = indfor(lay)
 
-         if (specparm .lt. 0.125_jprb .and. specparm1 .lt. 0.125_jprb) then
+         if (specparm .lt. 0.125_rb .and. specparm1 .lt. 0.125_rb) then
             p = fs - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -2348,7 +2348,7 @@
             p = fs1 - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -2380,11 +2380,11 @@
                fracs(lay,ngs11+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
-         else if (specparm .gt. 0.875_jprb .and. specparm1 .gt. 0.875_jprb) then
+         else if (specparm .gt. 0.875_rb .and. specparm1 .gt. 0.875_rb) then
             p = -fs 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -2396,7 +2396,7 @@
             p = -fs1 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -2429,13 +2429,13 @@
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
          else
-            fac000 = (1._jprb - fs) * fac00(lay)
-            fac010 = (1._jprb - fs) * fac10(lay)
+            fac000 = (1._rb - fs) * fac00(lay)
+            fac010 = (1._rb - fs) * fac10(lay)
             fac100 = fs * fac00(lay)
             fac110 = fs * fac10(lay)
 
-            fac001 = (1._jprb - fs1) * fac01(lay)
-            fac011 = (1._jprb - fs1) * fac11(lay)
+            fac001 = (1._rb - fs1) * fac01(lay)
+            fac011 = (1._rb - fs1) * fac11(lay)
             fac101 = fs1 * fac01(lay)
             fac111 = fs1 * fac11(lay)
 
@@ -2464,8 +2464,8 @@
 ! Upper atmosphere loop
       do lay = laytrop+1, nlayers
          do ig = 1, ng12
-            taug(lay,ngs11+ig) = 0.0_jprb
-            fracs(lay,ngs11+ig) = 0.0_jprb
+            taug(lay,ngs11+ig) = 0.0_rb
+            fracs(lay,ngs11+ig) = 0.0_rb
          enddo
       enddo
 
@@ -2488,20 +2488,20 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      integer(kind=jpim) :: js, js1, jmco2, jmco, jpl
-      real(kind=jprb) :: speccomb, specparm, specmult, fs
-      real(kind=jprb) :: speccomb1, specparm1, specmult1, fs1
-      real(kind=jprb) :: speccomb_mco2, specparm_mco2, specmult_mco2, fmco2
-      real(kind=jprb) :: speccomb_mco, specparm_mco, specmult_mco, fmco
-      real(kind=jprb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
-      real(kind=jprb) :: p, p4, fk0, fk1, fk2
-      real(kind=jprb) :: fac000, fac100, fac200, fac010, fac110, fac210
-      real(kind=jprb) :: fac001, fac101, fac201, fac011, fac111, fac211
-      real(kind=jprb) :: tauself, taufor, co2m1, co2m2, absco2 
-      real(kind=jprb) :: com1, com2, absco, abso3
-      real(kind=jprb) :: chi_co2, ratco2, adjfac, adjcolco2
-      real(kind=jprb) :: refrat_planck_a, refrat_m_a, refrat_m_a3
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      integer(kind=im) :: js, js1, jmco2, jmco, jpl
+      real(kind=rb) :: speccomb, specparm, specmult, fs
+      real(kind=rb) :: speccomb1, specparm1, specmult1, fs1
+      real(kind=rb) :: speccomb_mco2, specparm_mco2, specmult_mco2, fmco2
+      real(kind=rb) :: speccomb_mco, specparm_mco, specmult_mco, fmco
+      real(kind=rb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
+      real(kind=rb) :: p, p4, fk0, fk1, fk2
+      real(kind=rb) :: fac000, fac100, fac200, fac010, fac110, fac210
+      real(kind=rb) :: fac001, fac101, fac201, fac011, fac111, fac211
+      real(kind=rb) :: tauself, taufor, co2m1, co2m2, absco2 
+      real(kind=rb) :: com1, com2, absco, abso3
+      real(kind=rb) :: chi_co2, ratco2, adjfac, adjcolco2
+      real(kind=rb) :: refrat_planck_a, refrat_m_a, refrat_m_a3
 
 
 ! Minor gas mapping levels :
@@ -2532,32 +2532,32 @@
          speccomb = colh2o(lay) + rat_h2on2o(lay)*coln2o(lay)
          specparm = colh2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 8._jprb*(specparm)
+         specmult = 8._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colh2o(lay) + rat_h2on2o_1(lay)*coln2o(lay)
          specparm1 = colh2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 8._jprb*(specparm1)
+         specmult1 = 8._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
          speccomb_mco2 = colh2o(lay) + refrat_m_a*coln2o(lay)
          specparm_mco2 = colh2o(lay)/speccomb_mco2
          if (specparm_mco2 .ge. oneminus) specparm_mco2 = oneminus
-         specmult_mco2 = 8._jprb*specparm_mco2
+         specmult_mco2 = 8._rb*specparm_mco2
          jmco2 = 1 + int(specmult_mco2)
-         fmco2 = mod(specmult_mco2,1.0_jprb)
+         fmco2 = mod(specmult_mco2,1.0_rb)
 
 !  In atmospheres where the amount of CO2 is too great to be considered
 !  a minor species, adjust the column amount of CO2 by an empirical factor 
 !  to obtain the proper contribution.
          chi_co2 = colco2(lay)/(coldry(lay))
-         ratco2 = 1.e20_jprb*chi_co2/3.55e-4_jprb
-         if (ratco2 .gt. 3.0_jprb) then
-            adjfac = 2.0_jprb+(ratco2-2.0_jprb)**0.68_jprb
-            adjcolco2 = adjfac*3.55e-4*coldry(lay)*1.e-20_jprb
+         ratco2 = 1.e20_rb*chi_co2/3.55e-4_rb
+         if (ratco2 .gt. 3.0_rb) then
+            adjfac = 2.0_rb+(ratco2-2.0_rb)**0.68_rb
+            adjcolco2 = adjfac*3.55e-4*coldry(lay)*1.e-20_rb
          else
             adjcolco2 = colco2(lay)
          endif
@@ -2565,16 +2565,16 @@
          speccomb_mco = colh2o(lay) + refrat_m_a3*coln2o(lay)
          specparm_mco = colh2o(lay)/speccomb_mco
          if (specparm_mco .ge. oneminus) specparm_mco = oneminus
-         specmult_mco = 8._jprb*specparm_mco
+         specmult_mco = 8._rb*specparm_mco
          jmco = 1 + int(specmult_mco)
-         fmco = mod(specmult_mco,1.0_jprb)
+         fmco = mod(specmult_mco,1.0_rb)
 
          speccomb_planck = colh2o(lay)+refrat_planck_a*coln2o(lay)
          specparm_planck = colh2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 8._jprb*specparm_planck
+         specmult_planck = 8._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-1)*5+(jt(lay)-1))*nspa(13) + js
          ind1 = (jp(lay)*5+(jt1(lay)-1))*nspa(13) + js1
@@ -2582,11 +2582,11 @@
          indf = indfor(lay)
          indm = indminor(lay)
 
-         if (specparm .lt. 0.125_jprb .and. specparm1 .lt. 0.125_jprb) then
+         if (specparm .lt. 0.125_rb .and. specparm1 .lt. 0.125_rb) then
             p = fs - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -2598,7 +2598,7 @@
             p = fs1 - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -2642,11 +2642,11 @@
                fracs(lay,ngs12+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
-         else if (specparm .gt. 0.875_jprb .and. specparm1 .gt. 0.875_jprb) then
+         else if (specparm .gt. 0.875_rb .and. specparm1 .gt. 0.875_rb) then
             p = -fs 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -2658,7 +2658,7 @@
             p = -fs1 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -2703,13 +2703,13 @@
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
        else
-            fac000 = (1._jprb - fs) * fac00(lay)
-            fac010 = (1._jprb - fs) * fac10(lay)
+            fac000 = (1._rb - fs) * fac00(lay)
+            fac010 = (1._rb - fs) * fac10(lay)
             fac100 = fs * fac00(lay)
             fac110 = fs * fac10(lay)
 
-            fac001 = (1._jprb - fs1) * fac01(lay)
-            fac011 = (1._jprb - fs1) * fac11(lay)
+            fac001 = (1._rb - fs1) * fac01(lay)
+            fac011 = (1._rb - fs1) * fac11(lay)
             fac101 = fs1 * fac01(lay)
             fac111 = fs1 * fac11(lay)
 
@@ -2776,8 +2776,8 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, ig
-      real(kind=jprb) :: tauself, taufor
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, ig
+      real(kind=rb) :: tauself, taufor
 
 
 ! Compute the optical depth by interpolating in ln(pressure) and 
@@ -2839,17 +2839,17 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, indm, ig
-      integer(kind=jpim) :: js, js1, jmn2, jpl
-      real(kind=jprb) :: speccomb, specparm, specmult, fs
-      real(kind=jprb) :: speccomb1, specparm1, specmult1, fs1
-      real(kind=jprb) :: speccomb_mn2, specparm_mn2, specmult_mn2, fmn2
-      real(kind=jprb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
-      real(kind=jprb) :: p, p4, fk0, fk1, fk2
-      real(kind=jprb) :: fac000, fac100, fac200, fac010, fac110, fac210
-      real(kind=jprb) :: fac001, fac101, fac201, fac011, fac111, fac211
-      real(kind=jprb) :: scalen2, tauself, taufor, n2m1, n2m2, taun2 
-      real(kind=jprb) :: refrat_planck_a, refrat_m_a
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, indm, ig
+      integer(kind=im) :: js, js1, jmn2, jpl
+      real(kind=rb) :: speccomb, specparm, specmult, fs
+      real(kind=rb) :: speccomb1, specparm1, specmult1, fs1
+      real(kind=rb) :: speccomb_mn2, specparm_mn2, specmult_mn2, fmn2
+      real(kind=rb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
+      real(kind=rb) :: p, p4, fk0, fk1, fk2
+      real(kind=rb) :: fac000, fac100, fac200, fac010, fac110, fac210
+      real(kind=rb) :: fac001, fac101, fac201, fac011, fac111, fac211
+      real(kind=rb) :: scalen2, tauself, taufor, n2m1, n2m2, taun2 
+      real(kind=rb) :: refrat_planck_a, refrat_m_a
 
 
 ! Minor gas mapping level : 
@@ -2874,30 +2874,30 @@
          speccomb = coln2o(lay) + rat_n2oco2(lay)*colco2(lay)
          specparm = coln2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 8._jprb*(specparm)
+         specmult = 8._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = coln2o(lay) + rat_n2oco2_1(lay)*colco2(lay)
          specparm1 = coln2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 8._jprb*(specparm1)
+         specmult1 = 8._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
          speccomb_mn2 = coln2o(lay) + refrat_m_a*colco2(lay)
          specparm_mn2 = coln2o(lay)/speccomb_mn2
          if (specparm_mn2 .ge. oneminus) specparm_mn2 = oneminus
-         specmult_mn2 = 8._jprb*specparm_mn2
+         specmult_mn2 = 8._rb*specparm_mn2
          jmn2 = 1 + int(specmult_mn2)
-         fmn2 = mod(specmult_mn2,1.0_jprb)
+         fmn2 = mod(specmult_mn2,1.0_rb)
 
          speccomb_planck = coln2o(lay)+refrat_planck_a*colco2(lay)
          specparm_planck = coln2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 8._jprb*specparm_planck
+         specmult_planck = 8._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-1)*5+(jt(lay)-1))*nspa(15) + js
          ind1 = (jp(lay)*5+(jt1(lay)-1))*nspa(15) + js1
@@ -2906,11 +2906,11 @@
          indm = indminor(lay)
          
          scalen2 = colbrd(lay)*scaleminor(lay)
-         if (specparm .lt. 0.125_jprb .and. specparm1 .lt. 0.125_jprb) then
+         if (specparm .lt. 0.125_rb .and. specparm1 .lt. 0.125_rb) then
             p = fs - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -2922,7 +2922,7 @@
             p = fs1 - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -2961,11 +2961,11 @@
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
 
-         else if (specparm .gt. 0.875_jprb .and. specparm1 .gt. 0.875_jprb) then
+         else if (specparm .gt. 0.875_rb .and. specparm1 .gt. 0.875_rb) then
             p = -fs 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -2977,7 +2977,7 @@
             p = -fs1 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -3017,13 +3017,13 @@
             enddo
 
          else
-            fac000 = (1._jprb - fs) * fac00(lay)
-            fac010 = (1._jprb - fs) * fac10(lay)
+            fac000 = (1._rb - fs) * fac00(lay)
+            fac010 = (1._rb - fs) * fac10(lay)
             fac100 = fs * fac00(lay)
             fac110 = fs * fac10(lay)
 
-            fac001 = (1._jprb - fs1) * fac01(lay)
-            fac011 = (1._jprb - fs1) * fac11(lay)
+            fac001 = (1._rb - fs1) * fac01(lay)
+            fac011 = (1._rb - fs1) * fac11(lay)
             fac101 = fs1 * fac01(lay)
             fac111 = fs1 * fac11(lay)
 
@@ -3058,8 +3058,8 @@
 ! Upper atmosphere loop
       do lay = laytrop+1, nlayers
          do ig = 1, ng15
-            taug(lay,ngs14+ig) = 0.0_jprb
-            fracs(lay,ngs14+ig) = 0.0_jprb
+            taug(lay,ngs14+ig) = 0.0_rb
+            fracs(lay,ngs14+ig) = 0.0_rb
          enddo
       enddo
 
@@ -3082,16 +3082,16 @@
 ! ------- Declarations -------
 
 ! Local 
-      integer(kind=jpim) :: lay, ind0, ind1, inds, indf, ig
-      integer(kind=jpim) :: js, js1, jpl
-      real(kind=jprb) :: speccomb, specparm, specmult, fs
-      real(kind=jprb) :: speccomb1, specparm1, specmult1, fs1
-      real(kind=jprb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
-      real(kind=jprb) :: p, p4, fk0, fk1, fk2
-      real(kind=jprb) :: fac000, fac100, fac200, fac010, fac110, fac210
-      real(kind=jprb) :: fac001, fac101, fac201, fac011, fac111, fac211
-      real(kind=jprb) :: tauself, taufor
-      real(kind=jprb) :: refrat_planck_a
+      integer(kind=im) :: lay, ind0, ind1, inds, indf, ig
+      integer(kind=im) :: js, js1, jpl
+      real(kind=rb) :: speccomb, specparm, specmult, fs
+      real(kind=rb) :: speccomb1, specparm1, specmult1, fs1
+      real(kind=rb) :: speccomb_planck, specparm_planck, specmult_planck, fpl
+      real(kind=rb) :: p, p4, fk0, fk1, fk2
+      real(kind=rb) :: fac000, fac100, fac200, fac010, fac110, fac210
+      real(kind=rb) :: fac001, fac101, fac201, fac011, fac111, fac211
+      real(kind=rb) :: tauself, taufor
+      real(kind=rb) :: refrat_planck_a
 
 
 ! Calculate reference ratio to be used in calculation of Planck
@@ -3111,34 +3111,34 @@
          speccomb = colh2o(lay) + rat_h2och4(lay)*colch4(lay)
          specparm = colh2o(lay)/speccomb
          if (specparm .ge. oneminus) specparm = oneminus
-         specmult = 8._jprb*(specparm)
+         specmult = 8._rb*(specparm)
          js = 1 + int(specmult)
-         fs = mod(specmult,1.0_jprb)
+         fs = mod(specmult,1.0_rb)
 
          speccomb1 = colh2o(lay) + rat_h2och4_1(lay)*colch4(lay)
          specparm1 = colh2o(lay)/speccomb1
          if (specparm1 .ge. oneminus) specparm1 = oneminus
-         specmult1 = 8._jprb*(specparm1)
+         specmult1 = 8._rb*(specparm1)
          js1 = 1 + int(specmult1)
-         fs1 = mod(specmult1,1.0_jprb)
+         fs1 = mod(specmult1,1.0_rb)
 
          speccomb_planck = colh2o(lay)+refrat_planck_a*colch4(lay)
          specparm_planck = colh2o(lay)/speccomb_planck
          if (specparm_planck .ge. oneminus) specparm_planck=oneminus
-         specmult_planck = 8._jprb*specparm_planck
+         specmult_planck = 8._rb*specparm_planck
          jpl= 1 + int(specmult_planck)
-         fpl = mod(specmult_planck,1.0_jprb)
+         fpl = mod(specmult_planck,1.0_rb)
 
          ind0 = ((jp(lay)-1)*5+(jt(lay)-1))*nspa(16) + js
          ind1 = (jp(lay)*5+(jt1(lay)-1))*nspa(16) + js1
          inds = indself(lay)
          indf = indfor(lay)
 
-         if (specparm .lt. 0.125_jprb .and. specparm1 .lt. 0.125_jprb) then
+         if (specparm .lt. 0.125_rb .and. specparm1 .lt. 0.125_rb) then
             p = fs - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -3150,7 +3150,7 @@
             p = fs1 - 1
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -3182,11 +3182,11 @@
                fracs(lay,ngs15+ig) = fracrefa(ig,jpl) + fpl * &
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
-         else if (specparm .gt. 0.875_jprb .and. specparm1 .gt. 0.875_jprb) then
+         else if (specparm .gt. 0.875_rb .and. specparm1 .gt. 0.875_rb) then
             p = -fs 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac000 = fk0*fac00(lay)
             fac100 = fk1*fac00(lay)
@@ -3198,7 +3198,7 @@
             p = -fs1 
             p4 = p**4
             fk0 = p4
-            fk1 = 1 - p - 2.0_jprb*p4
+            fk1 = 1 - p - 2.0_rb*p4
             fk2 = p + p4
             fac001 = fk0*fac01(lay)
             fac101 = fk1*fac01(lay)
@@ -3231,13 +3231,13 @@
                     (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))
             enddo
          else
-            fac000 = (1._jprb - fs) * fac00(lay)
-            fac010 = (1._jprb - fs) * fac10(lay)
+            fac000 = (1._rb - fs) * fac00(lay)
+            fac010 = (1._rb - fs) * fac10(lay)
             fac100 = fs * fac00(lay)
             fac110 = fs * fac10(lay)
 
-            fac001 = (1._jprb - fs1) * fac01(lay)
-            fac011 = (1._jprb - fs1) * fac11(lay)
+            fac001 = (1._rb - fs1) * fac01(lay)
+            fac011 = (1._rb - fs1) * fac11(lay)
             fac101 = fs1 * fac01(lay)
             fac111 = fs1 * fac11(lay)
 

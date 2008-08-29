@@ -7,7 +7,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2008, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -17,7 +17,7 @@
 
 ! --------- Modules ----------
 
-      use parkind, only : jpim, jprb 
+      use parkind, only : im => kind_im, rb => kind_rb
       use parrrtm, only : ngptlw
       use rrlw_cld, only: abscld1, absliq0, absliq1, &
                           absice0, absice1, absice2, absice3
@@ -37,46 +37,47 @@
 
 ! ------- Input -------
 
-      integer(kind=jpim), intent(in) :: nlayers         ! total number of layers
-      integer(kind=jpim), intent(in) :: inflag          ! see definitions
-      integer(kind=jpim), intent(in) :: iceflag         ! see definitions
-      integer(kind=jpim), intent(in) :: liqflag         ! see definitions
+      integer(kind=im), intent(in) :: nlayers         ! total number of layers
+      integer(kind=im), intent(in) :: inflag          ! see definitions
+      integer(kind=im), intent(in) :: iceflag         ! see definitions
+      integer(kind=im), intent(in) :: liqflag         ! see definitions
 
-      real(kind=jprb), intent(in) :: cldfmc(:,:)        ! cloud fraction [mcica]
-                                                        !    Dimensions: (ngptlw,nlayers)
-      real(kind=jprb), intent(in) :: ciwpmc(:,:)        ! cloud ice water path [mcica]
-                                                        !    Dimensions: (ngptlw,nlayers)
-      real(kind=jprb), intent(in) :: clwpmc(:,:)        ! cloud liquid water path [mcica]
-                                                        !    Dimensions: (ngptlw,nlayers)
-      real(kind=jprb), intent(in) :: relqmc(:)          ! liquid particle effective radius (microns)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: reicmc(:)          ! ice particle effective radius (microns)
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: dgesmc(:)          ! ice particle generalized effective size (microns)
-                                                        !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: cldfmc(:,:)        ! cloud fraction [mcica]
+                                                      !    Dimensions: (ngptlw,nlayers)
+      real(kind=rb), intent(in) :: ciwpmc(:,:)        ! cloud ice water path [mcica]
+                                                      !    Dimensions: (ngptlw,nlayers)
+      real(kind=rb), intent(in) :: clwpmc(:,:)        ! cloud liquid water path [mcica]
+                                                      !    Dimensions: (ngptlw,nlayers)
+      real(kind=rb), intent(in) :: relqmc(:)          ! liquid particle effective radius (microns)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: reicmc(:)          ! ice particle effective radius (microns)
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: dgesmc(:)          ! ice particle generalized effective size (microns)
+                                                      !    Dimensions: (nlayers)
 
 ! ------- Output -------
 
-      integer(kind=jpim), intent(out) :: ncbands        ! number of cloud spectral bands
-      real(kind=jprb), intent(inout) :: taucmc(:,:)     ! cloud optical depth [mcica]
-                                                        !    Dimensions: (ngptlw,nlayers)
+      integer(kind=im), intent(out) :: ncbands        ! number of cloud spectral bands
+      real(kind=rb), intent(inout) :: taucmc(:,:)     ! cloud optical depth [mcica]
+                                                      !    Dimensions: (ngptlw,nlayers)
 
 ! ------- Local -------
 
-      integer(kind=jpim) :: lay                 ! Layer index
-      integer(kind=jpim) :: ib                  ! spectral band index
-      integer(kind=jpim) :: ig                  ! g-point interval index
-      integer(kind=jpim) :: index 
+      integer(kind=im) :: lay                         ! Layer index
+      integer(kind=im) :: ib                          ! spectral band index
+      integer(kind=im) :: ig                          ! g-point interval index
+      integer(kind=im) :: index 
 
-      real(kind=jprb) :: abscoice(ngptlw)       ! ice absorption coefficients
-      real(kind=jprb) :: abscoliq(ngptlw)       ! liquid absorption coefficients
-      real(kind=jprb) :: cwp                    ! cloud water path
-      real(kind=jprb) :: radice                 ! cloud ice effective radius (microns)
-      real(kind=jprb) :: dgeice                 ! cloud ice generalized effective size
-      real(kind=jprb) :: factor                 ! 
-      real(kind=jprb) :: fint                   ! 
-      real(kind=jprb) :: radliq                 ! cloud liquid droplet radius (microns)
-      real(kind=jprb), parameter :: eps = 1.e-6_jprb ! epsilon
+      real(kind=rb) :: abscoice(ngptlw)               ! ice absorption coefficients
+      real(kind=rb) :: abscoliq(ngptlw)               ! liquid absorption coefficients
+      real(kind=rb) :: cwp                            ! cloud water path
+      real(kind=rb) :: radice                         ! cloud ice effective radius (microns)
+      real(kind=rb) :: dgeice                         ! cloud ice generalized effective size
+      real(kind=rb) :: factor                         ! 
+      real(kind=rb) :: fint                           ! 
+      real(kind=rb) :: radliq                         ! cloud liquid droplet radius (microns)
+      real(kind=rb), parameter :: eps = 1.e-6_rb      ! epsilon
+      real(kind=rb), parameter :: cldmin = 1.e-80_rb  ! minimum value for cloud quantities
 
 ! ------- Definitions -------
 
@@ -140,7 +141,7 @@
 ! This initialization is done in rrtmg_lw_subcol.F90.
 !      do lay = 1, nlayers
 !         do ig = 1, ngptlw
-!            taucmc(ig,lay) = 0.0_jprb
+!            taucmc(ig,lay) = 0.0_rb
 !         enddo
 !      enddo
 
@@ -149,8 +150,8 @@
 
         do ig = 1, ngptlw
           cwp = ciwpmc(ig,lay) + clwpmc(ig,lay)
-          if (cldfmc(ig,lay) .ge. eps .and. &
-             (cwp .ge. eps .or. taucmc(ig,lay) .ge. eps)) then
+          if (cldfmc(ig,lay) .ge. cldmin .and. &
+             (cwp .ge. cldmin .or. taucmc(ig,lay) .ge. cldmin)) then
 
 ! Ice clouds and water clouds combined.
             if (inflag .eq. 0) then
@@ -167,15 +168,15 @@
                radice = reicmc(lay)
 
 ! Calculation of absorption coefficients due to ice clouds.
-               if (ciwpmc(ig,lay) .eq. 0.0_jprb) then
-                  abscoice(ig) = 0.0_jprb
+               if (ciwpmc(ig,lay) .eq. 0.0_rb) then
+                  abscoice(ig) = 0.0_rb
 
                elseif (iceflag .eq. 0) then
-                  if (radice .lt. 10.0_jprb) stop 'ICE RADIUS TOO SMALL'
+                  if (radice .lt. 10.0_rb) stop 'ICE RADIUS TOO SMALL'
                   abscoice(ig) = absice0(1) + absice0(2)/radice
 
                elseif (iceflag .eq. 1) then
-                  if (radice .lt. 13.0_jprb .or. radice .gt. 130._jprb) stop &
+                  if (radice .lt. 13.0_rb .or. radice .gt. 130._rb) stop &
                       'ICE RADIUS OUT OF BOUNDS'
                   ncbands = 5
                   ib = ngb(ig)
@@ -188,10 +189,10 @@
 ! *** NOTE: Transition between two methods has not been smoothed. 
 
                elseif (iceflag .eq. 2) then
-                  if (radice .lt. 5.0_jprb) stop 'ICE RADIUS OUT OF BOUNDS'
-                  if (radice .ge. 5.0_jprb .and. radice .le. 131._jprb) then
+                  if (radice .lt. 5.0_rb) stop 'ICE RADIUS OUT OF BOUNDS'
+                  if (radice .ge. 5.0_rb .and. radice .le. 131._rb) then
                      ncbands = 16
-                     factor = (radice - 2._jprb)/3._jprb
+                     factor = (radice - 2._rb)/3._rb
                      index = int(factor)
                      if (index .eq. 43) index = 42
                      fint = factor - float(index)
@@ -199,7 +200,7 @@
                      abscoice(ig) = &
                          absice2(index,ib) + fint * &
                          (absice2(index+1,ib) - (absice2(index,ib))) 
-                  elseif (radice .gt. 131._jprb) then
+                  elseif (radice .gt. 131._rb) then
                      abscoice(ig) = absice0(1) + absice0(2)/radice
                   endif
                
@@ -212,10 +213,10 @@
 
                elseif (iceflag .eq. 3) then
                   dgeice = dgesmc(lay)
-                  if (dgeice .lt. 5.0_jprb) stop 'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
-                  if (dgeice .ge. 5.0_jprb .and. dgeice .le. 140._jprb) then
+                  if (dgeice .lt. 5.0_rb) stop 'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
+                  if (dgeice .ge. 5.0_rb .and. dgeice .le. 140._rb) then
                      ncbands = 16
-                     factor = (dgeice - 2._jprb)/3._jprb
+                     factor = (dgeice - 2._rb)/3._rb
                      index = int(factor)
                      if (index .eq. 46) index = 45
                      fint = factor - float(index)
@@ -223,27 +224,27 @@
                      abscoice(ig) = &
                          absice3(index,ib) + fint * &
                          (absice3(index+1,ib) - (absice3(index,ib)))
-                  elseif (dgeice .gt. 140._jprb) then
+                  elseif (dgeice .gt. 140._rb) then
                      abscoice(ig) = absice0(1) + absice0(2)/radice
                   endif
    
                endif
                   
 ! Calculation of absorption coefficients due to water clouds.
-               if (clwpmc(ig,lay) .eq. 0.0_jprb) then
-                  abscoliq(ig) = 0.0_jprb
+               if (clwpmc(ig,lay) .eq. 0.0_rb) then
+                  abscoliq(ig) = 0.0_rb
 
                elseif (liqflag .eq. 0) then
                    abscoliq(ig) = absliq0
 
                elseif (liqflag .eq. 1) then
                   radliq = relqmc(lay)
-                  if (radliq .lt. 1.5_jprb .or. radliq .gt. 60._jprb) stop &
+                  if (radliq .lt. 1.5_rb .or. radliq .gt. 60._rb) stop &
                        'LIQUID EFFECTIVE RADIUS OUT OF BOUNDS'
-                  index = radliq - 1.5_jprb
+                  index = radliq - 1.5_rb
                   if (index .eq. 58) index = 57
                   if (index .eq. 0) index = 1
-                  fint = radliq - 1.5_jprb - index
+                  fint = radliq - 1.5_rb - index
                   ib = ngb(ig)
                   abscoliq(ig) = &
                         absliq1(index,ib) + fint * &

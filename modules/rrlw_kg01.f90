@@ -1,6 +1,6 @@
       module rrlw_kg01
 
-      use parkind ,only : jpim, jprb
+      use parkind ,only : im => kind_im, rb => kind_rb
 
       implicit none
       save
@@ -11,6 +11,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -25,13 +26,13 @@
 ! forrefo : real
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: no1  = 16
+      integer(kind=im), parameter :: no1  = 16
 
-      real(kind=jprb) :: fracrefao(no1)  , fracrefbo(no1)
-      real(kind=jprb) :: kao(5,13,no1)
-      real(kind=jprb) :: kbo(5,13:59,no1)
-      real(kind=jprb) :: kao_mn2(19,no1) , kbo_mn2(19,no1)
-      real(kind=jprb) :: selfrefo(10,no1), forrefo(4,no1)
+      real(kind=rb) :: fracrefao(no1)  , fracrefbo(no1)
+      real(kind=rb) :: kao(5,13,no1)
+      real(kind=rb) :: kbo(5,13:59,no1)
+      real(kind=rb) :: kao_mn2(19,no1) , kbo_mn2(19,no1)
+      real(kind=rb) :: selfrefo(10,no1), forrefo(4,no1)
 
 !-----------------------------------------------------------------
 ! rrtmg_lw COMBINED abs. coefficients for interval 1
@@ -39,6 +40,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -55,13 +57,13 @@
 ! forref  : real
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: ng1  = 10
+      integer(kind=im), parameter :: ng1  = 10
 
-      real(kind=jprb) :: fracrefa(ng1)  , fracrefb(ng1)
-      real(kind=jprb) :: ka(5,13,ng1)   , absa(65,ng1)
-      real(kind=jprb) :: kb(5,13:59,ng1), absb(235,ng1)
-      real(kind=jprb) :: ka_mn2(19,ng1) , kb_mn2(19,ng1)
-      real(kind=jprb) :: selfref(10,ng1), forref(4,ng1)
+      real(kind=rb) :: fracrefa(ng1)  , fracrefb(ng1)
+      real(kind=rb) :: ka(5,13,ng1)   , absa(65,ng1)
+      real(kind=rb) :: kb(5,13:59,ng1), absb(235,ng1)
+      real(kind=rb) :: ka_mn2(19,ng1) , kb_mn2(19,ng1)
+      real(kind=rb) :: selfref(10,ng1), forref(4,ng1)
 
       equivalence (ka(1,1,1),absa(1,1)), (kb(1,13,1),absb(1,1))
 

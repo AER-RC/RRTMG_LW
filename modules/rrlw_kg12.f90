@@ -1,6 +1,6 @@
       module rrlw_kg12
 
-      use parkind ,only : jpim, jprb
+      use parkind ,only : im => kind_im, rb => kind_rb
 
       implicit none
       save
@@ -11,6 +11,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -21,12 +22,12 @@
 ! forrefo : real     
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: no12 = 16
+      integer(kind=im), parameter :: no12 = 16
 
-      real(kind=jprb) :: fracrefao(no12,9)
-      real(kind=jprb) :: kao(9,5,13,no12)
-      real(kind=jprb) :: selfrefo(10,no12)
-      real(kind=jprb) :: forrefo(4,no12)
+      real(kind=rb) :: fracrefao(no12,9)
+      real(kind=rb) :: kao(9,5,13,no12)
+      real(kind=rb) :: selfrefo(10,no12)
+      real(kind=rb) :: forrefo(4,no12)
 
 !-----------------------------------------------------------------
 ! rrtmg_lw COMBINED abs. coefficients for interval 12
@@ -34,6 +35,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -46,12 +48,12 @@
 ! absa    : real
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: ng12 = 8
+      integer(kind=im), parameter :: ng12 = 8
 
-      real(kind=jprb) :: fracrefa(ng12,9)
-      real(kind=jprb) :: ka(9,5,13,ng12) ,absa(585,ng12)
-      real(kind=jprb) :: selfref(10,ng12)
-      real(kind=jprb) :: forref(4,ng12)
+      real(kind=rb) :: fracrefa(ng12,9)
+      real(kind=rb) :: ka(9,5,13,ng12) ,absa(585,ng12)
+      real(kind=rb) :: selfref(10,ng12)
+      real(kind=rb) :: forref(4,ng12)
 
       equivalence (ka(1,1,1,1),absa(1,1))
 

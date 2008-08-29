@@ -1,6 +1,6 @@
       module rrlw_kg03
 
-      use parkind ,only : jpim, jprb
+      use parkind ,only : im => kind_im, rb => kind_rb
 
       implicit none
       save
@@ -11,6 +11,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -25,14 +26,14 @@
 ! forrefo : real
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: no3  = 16
+      integer(kind=im), parameter :: no3  = 16
 
-      real(kind=jprb) :: fracrefao(no3,10) ,fracrefbo(no3,5)
-      real(kind=jprb) :: kao(9,5,13,no3)
-      real(kind=jprb) :: kbo(5,5,13:59,no3)
-      real(kind=jprb) :: kao_mn2o(9,19,no3), kbo_mn2o(5,19,no3)
-      real(kind=jprb) :: selfrefo(10,no3)
-      real(kind=jprb) :: forrefo(4,no3)
+      real(kind=rb) :: fracrefao(no3,10) ,fracrefbo(no3,5)
+      real(kind=rb) :: kao(9,5,13,no3)
+      real(kind=rb) :: kbo(5,5,13:59,no3)
+      real(kind=rb) :: kao_mn2o(9,19,no3), kbo_mn2o(5,19,no3)
+      real(kind=rb) :: selfrefo(10,no3)
+      real(kind=rb) :: forrefo(4,no3)
 
 !-----------------------------------------------------------------
 ! rrtmg_lw COMBINED abs. coefficients for interval 3
@@ -40,6 +41,7 @@
 !
 ! Initial version:  JJMorcrette, ECMWF, jul1998
 ! Revised: MJIacono, AER, jun2006
+! Revised: MJIacono, AER, aug2008
 !-----------------------------------------------------------------
 !
 !  name     type     purpose
@@ -57,14 +59,14 @@
 ! absb    : real
 !-----------------------------------------------------------------
 
-      integer(kind=jpim), parameter :: ng3  = 16
+      integer(kind=im), parameter :: ng3  = 16
 
-      real(kind=jprb) :: fracrefa(ng3,10) ,fracrefb(ng3,5)
-      real(kind=jprb) :: ka(9,5,13,ng3)  ,absa(585,ng3)
-      real(kind=jprb) :: kb(5,5,13:59,ng3),absb(1175,ng3)
-      real(kind=jprb) :: ka_mn2o(9,19,ng3), kb_mn2o(5,19,ng3)
-      real(kind=jprb) :: selfref(10,ng3)
-      real(kind=jprb) :: forref(4,ng3)
+      real(kind=rb) :: fracrefa(ng3,10) ,fracrefb(ng3,5)
+      real(kind=rb) :: ka(9,5,13,ng3)  ,absa(585,ng3)
+      real(kind=rb) :: kb(5,5,13:59,ng3),absb(1175,ng3)
+      real(kind=rb) :: ka_mn2o(9,19,ng3), kb_mn2o(5,19,ng3)
+      real(kind=rb) :: selfref(10,ng3)
+      real(kind=rb) :: forref(4,ng3)
 
       equivalence (ka(1,1,1,1),absa(1,1)),(kb(1,1,13,1),absb(1,1))
 

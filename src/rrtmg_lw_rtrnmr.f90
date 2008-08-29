@@ -7,7 +7,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2008, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -17,7 +17,7 @@
 
 ! ------- Modules -------
 
-      use parkind, only : jpim, jprb 
+      use parkind, only : im => kind_im, rb => kind_rb
       use parrrtm, only : mg, nbndlw, ngptlw
       use rrlw_con, only: fluxfac, heatfac
       use rrlw_wvn, only: delwave, ngs
@@ -56,98 +56,98 @@
 ! ------- Declarations -------
 
 ! ----- Input -----
-      integer(kind=jpim), intent(in) :: nlayers         ! total number of layers
-      integer(kind=jpim), intent(in) :: istart          ! beginning band of calculation
-      integer(kind=jpim), intent(in) :: iend            ! ending band of calculation
-      integer(kind=jpim), intent(in) :: iout            ! output option flag
+      integer(kind=im), intent(in) :: nlayers         ! total number of layers
+      integer(kind=im), intent(in) :: istart          ! beginning band of calculation
+      integer(kind=im), intent(in) :: iend            ! ending band of calculation
+      integer(kind=im), intent(in) :: iout            ! output option flag
 
 ! Atmosphere
-      real(kind=jprb), intent(in) :: pz(0:)             ! level (interface) pressures (hPa, mb)
-                                                        !    Dimensions: (0:nlayers)
-      real(kind=jprb), intent(in) :: pwvcm              ! precipitable water vapor (cm)
-      real(kind=jprb), intent(in) :: semiss(:)          ! lw surface emissivity
-                                                        !    Dimensions: (nbndlw)
-      real(kind=jprb), intent(in) :: planklay(:,:)      ! 
-                                                        !    Dimensions: (nlayers,nbndlw)
-      real(kind=jprb), intent(in) :: planklev(0:,:)     ! 
-                                                        !    Dimensions: (0:nlayers,nbndlw)
-      real(kind=jprb), intent(in) :: plankbnd(:)        ! 
-                                                        !    Dimensions: (nbndlw)
-      real(kind=jprb), intent(in) :: fracs(:,:)         ! 
-                                                        !    Dimensions: (nlayers,ngptw)
-      real(kind=jprb), intent(in) :: taut(:,:)          ! gaseous + aerosol optical depths
-                                                        !    Dimensions: (nlayers,ngptlw)
+      real(kind=rb), intent(in) :: pz(0:)             ! level (interface) pressures (hPa, mb)
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(in) :: pwvcm              ! precipitable water vapor (cm)
+      real(kind=rb), intent(in) :: semiss(:)          ! lw surface emissivity
+                                                      !    Dimensions: (nbndlw)
+      real(kind=rb), intent(in) :: planklay(:,:)      ! 
+                                                      !    Dimensions: (nlayers,nbndlw)
+      real(kind=rb), intent(in) :: planklev(0:,:)     ! 
+                                                      !    Dimensions: (0:nlayers,nbndlw)
+      real(kind=rb), intent(in) :: plankbnd(:)        ! 
+                                                      !    Dimensions: (nbndlw)
+      real(kind=rb), intent(in) :: fracs(:,:)         ! 
+                                                      !    Dimensions: (nlayers,ngptw)
+      real(kind=rb), intent(in) :: taut(:,:)          ! gaseous + aerosol optical depths
+                                                      !    Dimensions: (nlayers,ngptlw)
 
 ! Clouds
-      integer(kind=jpim), intent(in) :: ncbands         ! number of cloud spectral bands
-      real(kind=jprb), intent(in) :: cldfrac(:)         ! layer cloud fraction
-                                                        !    Dimensions: (nlayers)
-      real(kind=jprb), intent(in) :: taucloud(:,:)      ! layer cloud optical depth
-                                                        !    Dimensions: (nlayers,nbndlw)
+      integer(kind=im), intent(in) :: ncbands         ! number of cloud spectral bands
+      real(kind=rb), intent(in) :: cldfrac(:)         ! layer cloud fraction
+                                                      !    Dimensions: (nlayers)
+      real(kind=rb), intent(in) :: taucloud(:,:)      ! layer cloud optical depth
+                                                      !    Dimensions: (nlayers,nbndlw)
 ! ----- Output -----
-      real(kind=jprb), intent(out) :: totuflux(0:)      ! upward longwave flux (w/m2)
-                                                        !    Dimensions: (0:nlayers)
-      real(kind=jprb), intent(out) :: totdflux(0:)      ! downward longwave flux (w/m2)
-                                                        !    Dimensions: (0:nlayers)
-      real(kind=jprb), intent(out) :: fnet(0:)          ! net longwave flux (w/m2)
-                                                        !    Dimensions: (0:nlayers)
-      real(kind=jprb), intent(out) :: htr(0:)           ! longwave heating rate (k/day)
-                                                        !    Dimensions: (0:nlayers)
-      real(kind=jprb), intent(out) :: totuclfl(0:)      ! clear sky upward longwave flux (w/m2)
-                                                        !    Dimensions: (0:nlayers)
-      real(kind=jprb), intent(out) :: totdclfl(0:)      ! clear sky downward longwave flux (w/m2)
-                                                        !    Dimensions: (0:nlayers)
-      real(kind=jprb), intent(out) :: fnetc(0:)         ! clear sky net longwave flux (w/m2)
-                                                        !    Dimensions: (0:nlayers)
-      real(kind=jprb), intent(out) :: htrc(0:)          ! clear sky longwave heating rate (k/day)
-                                                        !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: totuflux(0:)      ! upward longwave flux (w/m2)
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: totdflux(0:)      ! downward longwave flux (w/m2)
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: fnet(0:)          ! net longwave flux (w/m2)
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: htr(0:)           ! longwave heating rate (k/day)
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: totuclfl(0:)      ! clear sky upward longwave flux (w/m2)
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: totdclfl(0:)      ! clear sky downward longwave flux (w/m2)
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: fnetc(0:)         ! clear sky net longwave flux (w/m2)
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: htrc(0:)          ! clear sky longwave heating rate (k/day)
+                                                      !    Dimensions: (0:nlayers)
 
 ! ----- Local -----
 ! Declarations for radiative transfer
-      real(kind=jprb) :: abscld(nlayers,nbndlw)
-      real(kind=jprb) :: atot(nlayers)
-      real(kind=jprb) :: atrans(nlayers)
-      real(kind=jprb) :: bbugas(nlayers)
-      real(kind=jprb) :: bbutot(nlayers)
-      real(kind=jprb) :: clrurad(0:nlayers)
-      real(kind=jprb) :: clrdrad(0:nlayers)
-      real(kind=jprb) :: efclfrac(nlayers,nbndlw)
-      real(kind=jprb) :: uflux(0:nlayers)
-      real(kind=jprb) :: dflux(0:nlayers)
-      real(kind=jprb) :: urad(0:nlayers)
-      real(kind=jprb) :: drad(0:nlayers)
-      real(kind=jprb) :: uclfl(0:nlayers)
-      real(kind=jprb) :: dclfl(0:nlayers)
-      real(kind=jprb) :: odcld(nlayers,nbndlw)
+      real(kind=rb) :: abscld(nlayers,nbndlw)
+      real(kind=rb) :: atot(nlayers)
+      real(kind=rb) :: atrans(nlayers)
+      real(kind=rb) :: bbugas(nlayers)
+      real(kind=rb) :: bbutot(nlayers)
+      real(kind=rb) :: clrurad(0:nlayers)
+      real(kind=rb) :: clrdrad(0:nlayers)
+      real(kind=rb) :: efclfrac(nlayers,nbndlw)
+      real(kind=rb) :: uflux(0:nlayers)
+      real(kind=rb) :: dflux(0:nlayers)
+      real(kind=rb) :: urad(0:nlayers)
+      real(kind=rb) :: drad(0:nlayers)
+      real(kind=rb) :: uclfl(0:nlayers)
+      real(kind=rb) :: dclfl(0:nlayers)
+      real(kind=rb) :: odcld(nlayers,nbndlw)
 
-      real(kind=jprb) :: secdiff(nbndlw)                 ! secant of diffusivity angle
-      real(kind=jprb) :: a0(nbndlw),a1(nbndlw),a2(nbndlw)! diffusivity angle adjustment coefficients
-      real(kind=jprb) :: wtdiff, rec_6
-      real(kind=jprb) :: transcld, radld, radclrd, plfrac, blay, dplankup, dplankdn
-      real(kind=jprb) :: odepth, odtot, odepth_rec, odtot_rec, gassrc, ttot
-      real(kind=jprb) :: tblind, tfactot, bbd, bbdtot, tfacgas, transc, tausfac
-      real(kind=jprb) :: rad0, reflect, radlu, radclru
+      real(kind=rb) :: secdiff(nbndlw)                 ! secant of diffusivity angle
+      real(kind=rb) :: a0(nbndlw),a1(nbndlw),a2(nbndlw)! diffusivity angle adjustment coefficients
+      real(kind=rb) :: wtdiff, rec_6
+      real(kind=rb) :: transcld, radld, radclrd, plfrac, blay, dplankup, dplankdn
+      real(kind=rb) :: odepth, odtot, odepth_rec, odtot_rec, gassrc, ttot
+      real(kind=rb) :: tblind, tfactot, bbd, bbdtot, tfacgas, transc, tausfac
+      real(kind=rb) :: rad0, reflect, radlu, radclru
 
-      integer(kind=jpim) :: icldlyr(nlayers)               ! flag for cloud in layer
-      integer(kind=jpim) :: ibnd, ib, iband, lay, lev, l ! loop indices
-      integer(kind=jpim) :: igc                          ! g-point interval counter
-      integer(kind=jpim) :: iclddn                       ! flag for cloud in down path
-      integer(kind=jpim) :: ittot, itgas, itr            ! lookup table indices
-      integer(kind=jpim) :: ipat(16,0:2)
+      integer(kind=im) :: icldlyr(nlayers)             ! flag for cloud in layer
+      integer(kind=im) :: ibnd, ib, iband, lay, lev, l ! loop indices
+      integer(kind=im) :: igc                          ! g-point interval counter
+      integer(kind=im) :: iclddn                       ! flag for cloud in down path
+      integer(kind=im) :: ittot, itgas, itr            ! lookup table indices
+      integer(kind=im) :: ipat(16,0:2)
 
 ! Declarations for cloud overlap adjustment
-      real(kind=jprb) :: faccld1(nlayers+1),faccld2(nlayers+1)
-      real(kind=jprb) :: facclr1(nlayers+1),facclr2(nlayers+1)
-      real(kind=jprb) :: faccmb1(nlayers+1),faccmb2(nlayers+1)
-      real(kind=jprb) :: faccld1d(0:nlayers),faccld2d(0:nlayers)
-      real(kind=jprb) :: facclr1d(0:nlayers),facclr2d(0:nlayers)
-      real(kind=jprb) :: faccmb1d(0:nlayers),faccmb2d(0:nlayers)
+      real(kind=rb) :: faccld1(nlayers+1),faccld2(nlayers+1)
+      real(kind=rb) :: facclr1(nlayers+1),facclr2(nlayers+1)
+      real(kind=rb) :: faccmb1(nlayers+1),faccmb2(nlayers+1)
+      real(kind=rb) :: faccld1d(0:nlayers),faccld2d(0:nlayers)
+      real(kind=rb) :: facclr1d(0:nlayers),facclr2d(0:nlayers)
+      real(kind=rb) :: faccmb1d(0:nlayers),faccmb2d(0:nlayers)
 
-      real(kind=jprb) :: fmax, fmin, rat1, rat2
-      real(kind=jprb) :: clrradd, cldradd, clrradu, cldradu, oldclr, oldcld
-      real(kind=jprb) :: rad, cldsrc, radmod
+      real(kind=rb) :: fmax, fmin, rat1, rat2
+      real(kind=rb) :: clrradd, cldradd, clrradu, cldradu, oldclr, oldcld
+      real(kind=rb) :: rad, cldsrc, radmod
 
-      integer(kind=jpim) :: istcld(nlayers+1),istcldd(0:nlayers)
+      integer(kind=im) :: istcld(nlayers+1),istcldd(0:nlayers)
 
 ! ------- Definitions -------
 ! input
@@ -218,63 +218,63 @@
 
 ! This secant and weight corresponds to the standard diffusivity 
 ! angle.  This initial value is redefined below for some bands.
-      data wtdiff /0.5_jprb/
-      data rec_6 /0.166667_jprb/
+      data wtdiff /0.5_rb/
+      data rec_6 /0.166667_rb/
 
 ! Reset diffusivity angle for Bands 2-3 and 5-9 to vary (between 1.50
 ! and 1.80) as a function of total column water vapor.  The function
 ! has been defined to minimize flux and cooling rate errors in these bands
 ! over a wide range of precipitable water values.
-      data a0 / 1.66_jprb,  1.55_jprb,  1.58_jprb,  1.66_jprb, &
-                1.54_jprb, 1.454_jprb,  1.89_jprb,  1.33_jprb, &
-               1.668_jprb,  1.66_jprb,  1.66_jprb,  1.66_jprb, &
-                1.66_jprb,  1.66_jprb,  1.66_jprb,  1.66_jprb /
-      data a1 / 0.00_jprb,  0.25_jprb,  0.22_jprb,  0.00_jprb, &
-                0.13_jprb, 0.446_jprb, -0.10_jprb,  0.40_jprb, &
-              -0.006_jprb,  0.00_jprb,  0.00_jprb,  0.00_jprb, &
-                0.00_jprb,  0.00_jprb,  0.00_jprb,  0.00_jprb /
-      data a2 / 0.00_jprb, -12.0_jprb, -11.7_jprb,  0.00_jprb, &
-               -0.72_jprb,-0.243_jprb,  0.19_jprb,-0.062_jprb, &
-               0.414_jprb,  0.00_jprb,  0.00_jprb,  0.00_jprb, &
-                0.00_jprb,  0.00_jprb,  0.00_jprb,  0.00_jprb /
+      data a0 / 1.66_rb,  1.55_rb,  1.58_rb,  1.66_rb, &
+                1.54_rb, 1.454_rb,  1.89_rb,  1.33_rb, &
+               1.668_rb,  1.66_rb,  1.66_rb,  1.66_rb, &
+                1.66_rb,  1.66_rb,  1.66_rb,  1.66_rb /
+      data a1 / 0.00_rb,  0.25_rb,  0.22_rb,  0.00_rb, &
+                0.13_rb, 0.446_rb, -0.10_rb,  0.40_rb, &
+              -0.006_rb,  0.00_rb,  0.00_rb,  0.00_rb, &
+                0.00_rb,  0.00_rb,  0.00_rb,  0.00_rb /
+      data a2 / 0.00_rb, -12.0_rb, -11.7_rb,  0.00_rb, &
+               -0.72_rb,-0.243_rb,  0.19_rb,-0.062_rb, &
+               0.414_rb,  0.00_rb,  0.00_rb,  0.00_rb, &
+                0.00_rb,  0.00_rb,  0.00_rb,  0.00_rb /
 
       do ibnd = 1,nbndlw
          if (ibnd.eq.1 .or. ibnd.eq.4 .or. ibnd.ge.10) then
-           secdiff(ibnd) = 1.66_jprb
+           secdiff(ibnd) = 1.66_rb
          else
            secdiff(ibnd) = a0(ibnd) + a1(ibnd)*exp(a2(ibnd)*pwvcm)
          endif
       enddo
-      if (pwvcm.lt.1.0) secdiff(6) = 1.80_jprb
-      if (pwvcm.gt.7.1) secdiff(7) = 1.50_jprb
+      if (pwvcm.lt.1.0_rb) secdiff(6) = 1.80_rb
+      if (pwvcm.gt.7.1_rb) secdiff(7) = 1.50_rb
 
       hvrrtx = '$Revision$'
 
-      urad(0) = 0.0_jprb
-      drad(0) = 0.0_jprb
-      totuflux(0) = 0.0_jprb
-      totdflux(0) = 0.0_jprb
-      clrurad(0) = 0.0_jprb
-      clrdrad(0) = 0.0_jprb
-      totuclfl(0) = 0.0_jprb
-      totdclfl(0) = 0.0_jprb
+      urad(0) = 0.0_rb
+      drad(0) = 0.0_rb
+      totuflux(0) = 0.0_rb
+      totdflux(0) = 0.0_rb
+      clrurad(0) = 0.0_rb
+      clrdrad(0) = 0.0_rb
+      totuclfl(0) = 0.0_rb
+      totdclfl(0) = 0.0_rb
 
       do lay = 1, nlayers
-         urad(lay) = 0.0_jprb
-         drad(lay) = 0.0_jprb
-         totuflux(lay) = 0.0_jprb
-         totdflux(lay) = 0.0_jprb
-         clrurad(lay) = 0.0_jprb
-         clrdrad(lay) = 0.0_jprb
-         totuclfl(lay) = 0.0_jprb
-         totdclfl(lay) = 0.0_jprb
+         urad(lay) = 0.0_rb
+         drad(lay) = 0.0_rb
+         totuflux(lay) = 0.0_rb
+         totdflux(lay) = 0.0_rb
+         clrurad(lay) = 0.0_rb
+         clrdrad(lay) = 0.0_rb
+         totuclfl(lay) = 0.0_rb
+         totdclfl(lay) = 0.0_rb
 
          do ib = 1, ncbands
-            if (cldfrac(lay) .ge. 1.e-6_jprb) then
+            if (cldfrac(lay) .ge. 1.e-6_rb) then
                odcld(lay,ib) = secdiff(ib) * taucloud(lay,ib)
                icldlyr(lay) = 1
             else
-               odcld(lay,ib) = 0.0_jprb
+               odcld(lay,ib) = 0.0_rb
                icldlyr(lay) = 0
             endif
          enddo
@@ -290,52 +290,52 @@
 ! Maximum/random cloud overlap
             istcld(lev+1) = 0
             if (lev .eq. nlayers) then
-               faccld1(lev+1) = 0._jprb
-               faccld2(lev+1) = 0._jprb
-               facclr1(lev+1) = 0._jprb
-               facclr2(lev+1) = 0._jprb
-               faccmb1(lev+1) = 0._jprb
-               faccmb2(lev+1) = 0._jprb
+               faccld1(lev+1) = 0._rb
+               faccld2(lev+1) = 0._rb
+               facclr1(lev+1) = 0._rb
+               facclr2(lev+1) = 0._rb
+               faccmb1(lev+1) = 0._rb
+               faccmb2(lev+1) = 0._rb
             elseif (cldfrac(lev+1) .ge. cldfrac(lev)) then
-               faccld1(lev+1) = 0._jprb
-               faccld2(lev+1) = 0._jprb
+               faccld1(lev+1) = 0._rb
+               faccld2(lev+1) = 0._rb
                if (istcld(lev) .eq. 1) then
-                  facclr1(lev+1) = 0._jprb
-                  facclr2(lev+1) = 0._jprb
-                  if (cldfrac(lev) .lt. 1._jprb) facclr2(lev+1) = &
-                     (cldfrac(lev+1)-cldfrac(lev))/(1._jprb-cldfrac(lev))
-                  facclr2(lev) = 0._jprb
-                  faccld2(lev) = 0._jprb
+                  facclr1(lev+1) = 0._rb
+                  facclr2(lev+1) = 0._rb
+                  if (cldfrac(lev) .lt. 1._rb) facclr2(lev+1) = &
+                     (cldfrac(lev+1)-cldfrac(lev))/(1._rb-cldfrac(lev))
+                  facclr2(lev) = 0._rb
+                  faccld2(lev) = 0._rb
                else
                   fmax = max(cldfrac(lev),cldfrac(lev-1))
                   if (cldfrac(lev+1) .gt. fmax) then
                      facclr1(lev+1) = rat2
-                     facclr2(lev+1) = (cldfrac(lev+1)-fmax)/(1._jprb-fmax)
+                     facclr2(lev+1) = (cldfrac(lev+1)-fmax)/(1._rb-fmax)
                   elseif (cldfrac(lev+1) .lt. fmax) then
                      facclr1(lev+1) = (cldfrac(lev+1)-cldfrac(lev))/ &
                         (cldfrac(lev-1)-cldfrac(lev))
-                     facclr2(lev+1) = 0._jprb
+                     facclr2(lev+1) = 0._rb
                   else
                      facclr1(lev+1) = rat2
-                     facclr2(lev+1) = 0._jprb
+                     facclr2(lev+1) = 0._rb
                   endif
                endif
-               if (facclr1(lev+1).gt.0._jprb .or. facclr2(lev+1).gt.0._jprb) then
-                  rat1 = 1._jprb
-                  rat2 = 0._jprb
+               if (facclr1(lev+1).gt.0._rb .or. facclr2(lev+1).gt.0._rb) then
+                  rat1 = 1._rb
+                  rat2 = 0._rb
                else
-                  rat1 = 0._jprb
-                  rat2 = 0._jprb
+                  rat1 = 0._rb
+                  rat2 = 0._rb
                endif
             else
-               facclr1(lev+1) = 0._jprb
-               facclr2(lev+1) = 0._jprb
+               facclr1(lev+1) = 0._rb
+               facclr2(lev+1) = 0._rb
                if (istcld(lev) .eq. 1) then
-                  faccld1(lev+1) = 0._jprb
+                  faccld1(lev+1) = 0._rb
                   faccld2(lev+1) = (cldfrac(lev)-cldfrac(lev+1))/cldfrac(lev)
 
-                  facclr2(lev) = 0._jprb
-                  faccld2(lev) = 0._jprb
+                  facclr2(lev) = 0._rb
+                  faccld2(lev) = 0._rb
                else
                   fmin = min(cldfrac(lev),cldfrac(lev-1))
                   if (cldfrac(lev+1) .le. fmin) then
@@ -343,19 +343,19 @@
                      faccld2(lev+1) = (fmin-cldfrac(lev+1))/fmin
                   else
                      faccld1(lev+1) = (cldfrac(lev)-cldfrac(lev+1))/(cldfrac(lev)-fmin)
-                     faccld2(lev+1) = 0._jprb
+                     faccld2(lev+1) = 0._rb
                   endif
                endif
-               if (faccld1(lev+1).gt.0._jprb .or. faccld2(lev+1).gt.0._jprb) then
-                  rat1 = 0._jprb
-                  rat2 = 1._jprb
+               if (faccld1(lev+1).gt.0._rb .or. faccld2(lev+1).gt.0._rb) then
+                  rat1 = 0._rb
+                  rat2 = 1._rb
                else
-                  rat1 = 0._jprb
-                  rat2 = 0._jprb
+                  rat1 = 0._rb
+                  rat2 = 0._rb
                endif
             endif
             faccmb1(lev+1) = facclr1(lev+1) * faccld2(lev) * cldfrac(lev-1) 
-            faccmb2(lev+1) = faccld1(lev+1) * facclr2(lev) * (1._jprb - cldfrac(lev-1)) 
+            faccmb2(lev+1) = faccld1(lev+1) * facclr2(lev) * (1._rb - cldfrac(lev-1)) 
          else
             istcld(lev+1) = 1
          endif
@@ -365,51 +365,51 @@
          if (icldlyr(lev).eq.1) then
             istcldd(lev-1) = 0
             if (lev .eq. 1) then
-               faccld1d(lev-1) = 0._jprb
-               faccld2d(lev-1) = 0._jprb
-               facclr1d(lev-1) = 0._jprb
-               facclr2d(lev-1) = 0._jprb
-               faccmb1d(lev-1) = 0._jprb
-               faccmb2d(lev-1) = 0._jprb
+               faccld1d(lev-1) = 0._rb
+               faccld2d(lev-1) = 0._rb
+               facclr1d(lev-1) = 0._rb
+               facclr2d(lev-1) = 0._rb
+               faccmb1d(lev-1) = 0._rb
+               faccmb2d(lev-1) = 0._rb
             elseif (cldfrac(lev-1) .ge. cldfrac(lev)) then
-               faccld1d(lev-1) = 0._jprb
-               faccld2d(lev-1) = 0._jprb
+               faccld1d(lev-1) = 0._rb
+               faccld2d(lev-1) = 0._rb
                if (istcldd(lev) .eq. 1) then
-                  facclr1d(lev-1) = 0._jprb
-                  facclr2d(lev-1) = 0._jprb
-                  if (cldfrac(lev) .lt. 1._jprb) facclr2d(lev-1) = &
-                     (cldfrac(lev-1)-cldfrac(lev))/(1._jprb-cldfrac(lev))
-                  facclr2d(lev) = 0._jprb
-                  faccld2d(lev) = 0._jprb
+                  facclr1d(lev-1) = 0._rb
+                  facclr2d(lev-1) = 0._rb
+                  if (cldfrac(lev) .lt. 1._rb) facclr2d(lev-1) = &
+                     (cldfrac(lev-1)-cldfrac(lev))/(1._rb-cldfrac(lev))
+                  facclr2d(lev) = 0._rb
+                  faccld2d(lev) = 0._rb
                else
                   fmax = max(cldfrac(lev),cldfrac(lev+1))
                   if (cldfrac(lev-1) .gt. fmax) then
                      facclr1d(lev-1) = rat2
-                     facclr2d(lev-1) = (cldfrac(lev-1)-fmax)/(1._jprb-fmax)
+                     facclr2d(lev-1) = (cldfrac(lev-1)-fmax)/(1._rb-fmax)
                   elseif (cldfrac(lev-1) .lt. fmax) then
                      facclr1d(lev-1) = (cldfrac(lev-1)-cldfrac(lev))/ &
                         (cldfrac(lev+1)-cldfrac(lev))
                      facclr2d(lev-1) = 0.
                   else
                      facclr1d(lev-1) = rat2
-                     facclr2d(lev-1) = 0._jprb
+                     facclr2d(lev-1) = 0._rb
                   endif
                endif
-               if (facclr1d(lev-1).gt.0._jprb .or. facclr2d(lev-1).gt.0._jprb)then
-                  rat1 = 1._jprb
-                  rat2 = 0._jprb
+               if (facclr1d(lev-1).gt.0._rb .or. facclr2d(lev-1).gt.0._rb)then
+                  rat1 = 1._rb
+                  rat2 = 0._rb
                else
-                  rat1 = 0._jprb
-                  rat2 = 0._jprb
+                  rat1 = 0._rb
+                  rat2 = 0._rb
                endif
             else
-               facclr1d(lev-1) = 0._jprb
-               facclr2d(lev-1) = 0._jprb
+               facclr1d(lev-1) = 0._rb
+               facclr2d(lev-1) = 0._rb
                if (istcldd(lev) .eq. 1) then
-                  faccld1d(lev-1) = 0._jprb
+                  faccld1d(lev-1) = 0._rb
                   faccld2d(lev-1) = (cldfrac(lev)-cldfrac(lev-1))/cldfrac(lev)
-                  facclr2d(lev) = 0._jprb
-                  faccld2d(lev) = 0._jprb
+                  facclr2d(lev) = 0._rb
+                  faccld2d(lev) = 0._rb
                else
                   fmin = min(cldfrac(lev),cldfrac(lev+1))
                   if (cldfrac(lev-1) .le. fmin) then
@@ -417,19 +417,19 @@
                      faccld2d(lev-1) = (fmin-cldfrac(lev-1))/fmin
                   else
                      faccld1d(lev-1) = (cldfrac(lev)-cldfrac(lev-1))/(cldfrac(lev)-fmin)
-                     faccld2d(lev-1) = 0._jprb
+                     faccld2d(lev-1) = 0._rb
                   endif
                endif
-               if (faccld1d(lev-1).gt.0._jprb .or. faccld2d(lev-1).gt.0._jprb)then
-                  rat1 = 0._jprb
-                  rat2 = 1._jprb
+               if (faccld1d(lev-1).gt.0._rb .or. faccld2d(lev-1).gt.0._rb)then
+                  rat1 = 0._rb
+                  rat2 = 1._rb
                else
-                  rat1 = 0._jprb
-                  rat2 = 0._jprb
+                  rat1 = 0._rb
+                  rat2 = 0._rb
                endif
             endif
             faccmb1d(lev-1) = facclr1d(lev-1) * faccld2d(lev) * cldfrac(lev+1) 
-            faccmb2d(lev-1) = faccld1d(lev-1) * facclr2d(lev) * (1._jprb - cldfrac(lev+1))
+            faccmb2d(lev-1) = faccld1d(lev-1) * facclr2d(lev) * (1._rb - cldfrac(lev+1))
          else
             istcldd(lev-1) = 1
          endif
@@ -453,8 +453,8 @@
  1000    continue
 
 ! Radiative transfer starts here.
-         radld = 0._jprb
-         radclrd = 0._jprb
+         radld = 0._rb
+         radclrd = 0._rb
          iclddn = 0
 
 ! Downward radiative transfer loop.  
@@ -466,53 +466,53 @@
                dplankdn = planklev(lev-1,iband) - blay
                odepth = secdiff(iband) * taut(lev,igc)
 
-               if (odepth .lt. 0.0_jprb) odepth = 0.0_jprb
+               if (odepth .lt. 0.0_rb) odepth = 0.0_rb
 ! Cloudy layer
                if (icldlyr(lev).eq.1) then
                   iclddn = 1
                   odtot = odepth + odcld(lev,ib)
-                  if (odtot .lt. 0.06_jprb) then
-                     atrans(lev) = odepth - 0.5_jprb*odepth*odepth
+                  if (odtot .lt. 0.06_rb) then
+                     atrans(lev) = odepth - 0.5_rb*odepth*odepth
                      odepth_rec = rec_6*odepth
                      gassrc = plfrac*(blay+dplankdn*odepth_rec)*atrans(lev)
 
-                     atot(lev) =  odtot - 0.5_jprb*odtot*odtot
+                     atot(lev) =  odtot - 0.5_rb*odtot*odtot
                      odtot_rec = rec_6*odtot
                      bbdtot =  plfrac * (blay+dplankdn*odtot_rec)
                      bbd = plfrac*(blay+dplankdn*odepth_rec)
                   
                      bbugas(lev) =  plfrac * (blay+dplankup*odepth_rec)
                      bbutot(lev) =  plfrac * (blay+dplankup*odtot_rec)
-                  elseif (odepth .le. 0.06_jprb) then
-                     atrans(lev) = odepth - 0.5_jprb*odepth*odepth
+                  elseif (odepth .le. 0.06_rb) then
+                     atrans(lev) = odepth - 0.5_rb*odepth*odepth
                      odepth_rec = rec_6*odepth
                      gassrc = plfrac*(blay+dplankdn*odepth_rec)*atrans(lev)
 
                      odtot = odepth + odcld(lev,ib)
                      tblind = odtot/(bpade+odtot)
-                     ittot = tblint*tblind + 0.5_jprb
+                     ittot = tblint*tblind + 0.5_rb
                      tfactot = tfn_tbl(ittot)
                      bbdtot = plfrac * (blay + tfactot*dplankdn)
                      bbd = plfrac*(blay+dplankdn*odepth_rec)
-                     atot(lev) = 1._jprb - exp_tbl(ittot)
+                     atot(lev) = 1._rb - exp_tbl(ittot)
 
                      bbugas(lev) = plfrac * (blay + dplankup*odepth_rec)
                      bbutot(lev) = plfrac * (blay + tfactot * dplankup)
                   else
                      tblind = odepth/(bpade+odepth)
-                     itgas = tblint*tblind+0.5_jprb
+                     itgas = tblint*tblind+0.5_rb
                      odepth = tau_tbl(itgas)
-                     atrans(lev) = 1._jprb - exp_tbl(itgas)
+                     atrans(lev) = 1._rb - exp_tbl(itgas)
                      tfacgas = tfn_tbl(itgas)
                      gassrc = atrans(lev) * plfrac * (blay + tfacgas*dplankdn)
 
                      odtot = odepth + odcld(lev,ib)
                      tblind = odtot/(bpade+odtot)
-                     ittot = tblint*tblind + 0.5_jprb
+                     ittot = tblint*tblind + 0.5_rb
                      tfactot = tfn_tbl(ittot)
                      bbdtot = plfrac * (blay + tfactot*dplankdn)
                      bbd = plfrac*(blay+tfacgas*dplankdn)
-                     atot(lev) = 1._jprb - exp_tbl(ittot)
+                     atot(lev) = 1._rb - exp_tbl(ittot)
 
                      bbugas(lev) = plfrac * (blay + tfacgas * dplankup)
                      bbutot(lev) = plfrac * (blay + tfactot * dplankup)
@@ -523,12 +523,12 @@
                      clrradd = radld - cldradd
                      oldcld = cldradd
                      oldclr = clrradd
-                     rad = 0._jprb
+                     rad = 0._rb
                   endif
-                  ttot = 1._jprb - atot(lev)
+                  ttot = 1._rb - atot(lev)
                   cldsrc = bbdtot * atot(lev)
                   cldradd = cldradd * ttot + cldfrac(lev) * cldsrc
-                  clrradd = clrradd * (1._jprb-atrans(lev)) + (1._jprb - cldfrac(lev)) * gassrc
+                  clrradd = clrradd * (1._rb-atrans(lev)) + (1._rb - cldfrac(lev)) * gassrc
                   radld = cldradd + clrradd
                   drad(lev-1) = drad(lev-1) + radld
 
@@ -545,16 +545,16 @@
                   clrradd = clrradd - rad
 ! Clear layer
                else
-                  if (odepth .le. 0.06_jprb) then
-                     atrans(lev) = odepth-0.5_jprb*odepth*odepth
+                  if (odepth .le. 0.06_rb) then
+                     atrans(lev) = odepth-0.5_rb*odepth*odepth
                      odepth = rec_6*odepth
                      bbd = plfrac*(blay+dplankdn*odepth)
                      bbugas(lev) = plfrac*(blay+dplankup*odepth)
                   else
                      tblind = odepth/(bpade+odepth)
-                     itr = tblint*tblind+0.5_jprb
+                     itr = tblint*tblind+0.5_rb
                      transc = exp_tbl(itr)
-                     atrans(lev) = 1._jprb-transc
+                     atrans(lev) = 1._rb-transc
                      tausfac = tfn_tbl(itr)
                      bbd = plfrac*(blay+tausfac*dplankdn)
                      bbugas(lev) = plfrac * (blay + tausfac * dplankup)
@@ -582,7 +582,7 @@
 
          rad0 = fracs(1,igc) * plankbnd(iband)
 !  Add in reflection of surface downward radiance.
-         reflect = 1._jprb - semiss(iband)
+         reflect = 1._rb - semiss(iband)
          radlu = rad0 + reflect * radld
          radclru = rad0 + reflect * radclrd
 
@@ -600,17 +600,17 @@
                   clrradu = radlu - cldradu
                   oldcld = cldradu
                   oldclr = clrradu
-                  rad = 0._jprb
+                  rad = 0._rb
                endif
-               ttot = 1._jprb - atot(lev)
+               ttot = 1._rb - atot(lev)
                cldsrc = bbutot(lev) * atot(lev)
                cldradu = cldradu * ttot + cldfrac(lev) * cldsrc
-               clrradu = clrradu * (1.0_jprb-atrans(lev)) + (1._jprb - cldfrac(lev)) * gassrc
+               clrradu = clrradu * (1.0_rb-atrans(lev)) + (1._rb - cldfrac(lev)) * gassrc
 ! Total sky radiance
                radlu = cldradu + clrradu
                urad(lev) = urad(lev) + radlu
                radmod = rad * &
-                   (facclr1(lev+1)*(1.0_jprb-atrans(lev))+ &
+                   (facclr1(lev+1)*(1.0_rb-atrans(lev))+ &
                    faccld1(lev+1) *  ttot) - &
                    faccmb1(lev+1) * gassrc + &
                    faccmb2(lev+1) * cldsrc
@@ -647,14 +647,14 @@
          do lev = nlayers, 0, -1
             uflux(lev) = urad(lev)*wtdiff
             dflux(lev) = drad(lev)*wtdiff
-            urad(lev) = 0.0_jprb
-            drad(lev) = 0.0_jprb
+            urad(lev) = 0.0_rb
+            drad(lev) = 0.0_rb
             totuflux(lev) = totuflux(lev) + uflux(lev) * delwave(iband)
             totdflux(lev) = totdflux(lev) + dflux(lev) * delwave(iband)
             uclfl(lev) = clrurad(lev)*wtdiff
             dclfl(lev) = clrdrad(lev)*wtdiff
-            clrurad(lev) = 0.0_jprb
-            clrdrad(lev) = 0.0_jprb
+            clrurad(lev) = 0.0_rb
+            clrdrad(lev) = 0.0_rb
             totuclfl(lev) = totuclfl(lev) + uclfl(lev) * delwave(iband)
             totdclfl(lev) = totdclfl(lev) + dclfl(lev) * delwave(iband)
          enddo
@@ -687,8 +687,8 @@
       enddo
 
 ! Set heating rate to zero in top layer
-      htr(nlayers) = 0.0_jprb
-      htrc(nlayers) = 0.0_jprb
+      htr(nlayers) = 0.0_rb
+      htrc(nlayers) = 0.0_rb
 
       end subroutine rtrnmr
 
