@@ -11,7 +11,7 @@ NOTE: ** CVS rtags can't accept "." in strings, substitute "_"
 
 August 29, 2008:
 
-        Release_4_6
+        Release_4_7
 
         Revised cloud property input to require in-cloud averaged cloud optical
         depth or in-cloud averaged cloud ice and liquid water paths in both the

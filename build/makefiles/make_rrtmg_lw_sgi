@@ -8,7 +8,7 @@ SHELL  = /bin/sh
 ################################
 
 PLATFORM = sgi
-VERSION = v4.6
+VERSION = v4.7
 
 ##################################
 # Options for the FORTRAN compiler

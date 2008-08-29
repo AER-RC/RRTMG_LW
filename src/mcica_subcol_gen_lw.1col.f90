@@ -55,7 +55,7 @@
       integer(kind=im), intent(in) :: icld            ! clear/cloud, cloud overlap flag
       integer(kind=im), intent(in) :: ims             ! mcica statistical loop index; also
                                                       ! value for changing mcica permute seed
-      integer(kind=im), intent(in) :: irng            ! flag for random number generator
+      integer(kind=im), intent(inout) :: irng         ! flag for random number generator
                                                       !  0 = kissvec
                                                       !  1 = Mersenne Twister
 
@@ -106,7 +106,7 @@
       integer(kind=im), parameter :: nsubclw = ngptlw ! number of sub-columns (g-point intervals)
       integer(kind=im) :: permuteseed                 ! if the cloud generator is called multiple times, 
                                                       ! permute the seed between each call.    
-      integer(kind=im) :: km, im, nm                  ! loop indices
+      integer(kind=im) :: ilev                        ! loop index
 
       real(kind=rb) :: pmid(nlayers)                  ! layer pressures (Pa) 
 !      real(kind=rb) :: pdel(nlayers)                 ! layer pressure thickness (Pa) 
@@ -142,9 +142,9 @@
 !         = (g m-2 * m s-2) / (kg m-1 s-2 * 1000.)
 !         =  kg/kg
 
-!      do km = 1, nlayers
-!         qi(km) = (ciwp(km) * grav) / (pdel(km) * 1000._rb)
-!         ql(km) = (clwp(km) * grav) / (pdel(km) * 1000._rb)
+!      do ilev = 1, nlayers
+!         qi(ilev) = (ciwp(ilev) * grav) / (pdel(ilev) * 1000._rb)
+!         ql(ilev) = (clwp(ilev) * grav) / (pdel(ilev) * 1000._rb)
 !      enddo
 
 !  Generate the stochastic subcolumns of cloud optical properties for the longwave;
