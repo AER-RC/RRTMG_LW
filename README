@@ -84,8 +84,8 @@ DOCUMENTATION:
    on using and running RRTMG_LW:
 
    README                    : Basic code package information (this file)
-   README.release_notes      : Code archive update information
-   rrtmg_lw_instructions     : Input instructions for files INPUT_RRTM, IN_CLD_RRTM 
+   release_notes.txt         : Code archive update information
+   rrtmg_lw_instructions.txt : Input instructions for files INPUT_RRTM, IN_CLD_RRTM 
                                and IN_AER_RRTM
 
 

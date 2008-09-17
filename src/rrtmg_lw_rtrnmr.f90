@@ -243,10 +243,10 @@
            secdiff(ibnd) = 1.66_rb
          else
            secdiff(ibnd) = a0(ibnd) + a1(ibnd)*exp(a2(ibnd)*pwvcm)
+           if (secdiff(ibnd) .gt. 1.80_rb) secdiff(ibnd) = 1.80_rb
+           if (secdiff(ibnd) .lt. 1.50_rb) secdiff(ibnd) = 1.50_rb
          endif
       enddo
-      if (pwvcm.lt.1.0_rb) secdiff(6) = 1.80_rb
-      if (pwvcm.gt.7.1_rb) secdiff(7) = 1.50_rb
 
       hvrrtx = '$Revision$'
 

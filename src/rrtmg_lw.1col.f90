@@ -102,7 +102,8 @@
 !    1) Input cloud fraction and cloud optical depth directly (inflglw = 0)
 !    2) Input cloud fraction and cloud physical properties (inflglw = 1 or 2);  
 !       cloud optical properties are calculated by cldprop or cldprmc based
-!       on input settings of iceflglw and liqflglw
+!       on input settings of iceflglw and liqflglw.  Ice particle size provided
+!       must be appropriately defined for the ice parameterization selected. 
 !
 ! One method of aerosol property input is possible:
 !     Aerosol properties can be input in only one way (controlled by input
@@ -256,8 +257,17 @@
                                               !   (lw scattering not yet available)
       real(kind=rb) :: ciwp(mxlay)            ! in-cloud ice water path
       real(kind=rb) :: clwp(mxlay)            ! in-cloud liquid water path
-      real(kind=rb) :: rei(mxlay)             ! cloud ice particle effective radius (microns)
-      real(kind=rb) :: dge(mxlay)             ! cloud ice particle generalized effective size (microns)
+      real(kind=rb) :: rei(mxlay)             ! cloud ice particle effective size (microns)
+                                              ! specific definition of rei depends on setting of iceflag:
+                                              ! iceflag = 0: ice effective radius, r_ec, (Ebert and Curry, 1992),
+                                              !              r_ec must be >= 10.0 microns
+                                              ! iceflag = 1: ice effective radius, r_ec, (Ebert and Curry, 1992),
+                                              !              r_ec range is limited to 13.0 to 130.0 microns
+                                              ! iceflag = 2: ice effective radius, r_k, (Key, Streamer Ref. Manual, 1996)
+                                              !              r_k range is limited to 5.0 to 131.0 microns
+                                              ! iceflag = 3: generalized effective size, dge, (Fu, 1996),
+                                              !              dge range is limited to 5.0 to 140.0 microns
+                                              !              [dge = 1.0315 * r_ec]
       real(kind=rb) :: rel(mxlay)             ! cloud liquid particle effective radius (microns)
 
       real(kind=rb) :: taucloud(mxlay,nbndlw) ! in-cloud optical depth; delta scaled
@@ -274,7 +284,6 @@
       real(kind=rb) :: clwpmc(ngptlw,mxlay)   ! in-cloud liquid water path [mcica]
       real(kind=rb) :: relqmc(mxlay)          ! liquid particle effective radius (microns)
       real(kind=rb) :: reicmc(mxlay)          ! ice particle effective radius (microns)
-      real(kind=rb) :: dgesmc(mxlay)          ! ice particle generalized effective size (microns)
       real(kind=rb) :: taucmc(ngptlw,mxlay)   ! in-cloud optical depth [mcica]
 !      real(kind=rb) :: ssacmc(ngptlw,mxlay)  ! in-cloud single scattering albedo [mcica]
                                               ! for future expansion 
@@ -418,12 +427,6 @@
                           ciwpmc, clwpmc, reicmc, relqmc, taucmc)
             endif
 
-! For iceflag=3 option, set 
-            if (iceflag.eq.3) then 
-               dge(:) = rei(:)
-               dgesmc(:) = reicmc(:)
-            endif
-
 !  For cloudy atmosphere, use cldprop to set cloud optical properties based on
 !  input cloud physical properties.  Select method based on choices described
 !  in cldprop.  Cloud fraction, water path, liquid droplet and ice particle
@@ -435,10 +438,10 @@
 
             if (imca.eq.0) then
                call cldprop(nlayers, inflag, iceflag, liqflag, cldfrac, tauc, &
-                            ciwp, clwp, rei, dge, rel, ncbands, taucloud)
+                            ciwp, clwp, rei, rel, ncbands, taucloud)
             else
                call cldprmc(nlayers, inflag, iceflag, liqflag, cldfmc, &
-                            ciwpmc, clwpmc, reicmc, dgesmc, relqmc, ncbands, taucmc)
+                            ciwpmc, clwpmc, reicmc, relqmc, ncbands, taucmc)
             endif
 
 ! Calculate information needed by the radiative transfer routine
@@ -746,7 +749,7 @@
       real(kind=rb), intent(out) :: ciwp(mxlay)           ! in-cloud ice water path
       real(kind=rb), intent(out) :: clwp(mxlay)           ! in-cloud liquid water path
       real(kind=rb), intent(out) :: rel(mxlay)            ! cloud liquid particle effective radius (microns)
-      real(kind=rb), intent(out) :: rei(mxlay)            ! cloud ice particle effective radius (microns)
+      real(kind=rb), intent(out) :: rei(mxlay)            ! cloud ice particle effective size (microns)
       real(kind=rb), intent(out) :: tauaer_out(mxlay,nbndlw)  ! aerosol optical depth
 !      real(kind=rb), intent(out) :: ssaaer_out(mxlay,nbndlw)  ! aerosol single scattering albedo
                                                                !   for future expansion

@@ -136,7 +136,8 @@
 !    1) Input cloud fraction and cloud optical depth directly (inflglw = 0)
 !    2) Input cloud fraction and cloud physical properties (inflglw = 1 or 2);  
 !       cloud optical properties are calculated by cldprop or cldprmc based
-!       on input settings of iceflglw and liqflglw
+!       on input settings of iceflglw and liqflglw.  Ice particle size provided
+!       must be appropriately defined for the ice parameterization selected. 
 !
 ! One method of aerosol property input is possible:
 !     Aerosol properties can be input in only one way (controlled by input 
@@ -226,8 +227,18 @@
                                                       !    Dimensions: (ngptlw,ncol,nlay)
       real(kind=rb), intent(in) :: clwpmcl(:,:,:)     ! In-cloud liquid water path (g/m2)
                                                       !    Dimensions: (ngptlw,ncol,nlay)
-      real(kind=rb), intent(in) :: reicmcl(:,:)       ! Cloud ice effective radius (microns)
+      real(kind=rb), intent(in) :: reicmcl(:,:)       ! Cloud ice particle effective size (microns)
                                                       !    Dimensions: (ncol,nlay)
+                                                      ! specific definition of reicmcl depends on setting of iceflglw:
+                                                      ! iceflglw = 0: ice effective radius, r_ec, (Ebert and Curry, 1992),
+                                                      !               r_ec must be >= 10.0 microns
+                                                      ! iceflglw = 1: ice effective radius, r_ec, (Ebert and Curry, 1992),
+                                                      !               r_ec range is limited to 13.0 to 130.0 microns
+                                                      ! iceflglw = 2: ice effective radius, r_k, (Key, Streamer Ref. Manual, 1996)
+                                                      !               r_k range is limited to 5.0 to 131.0 microns
+                                                      ! iceflglw = 3: generalized effective size, dge, (Fu, 1996),
+                                                      !               dge range is limited to 5.0 to 140.0 microns
+                                                      !               [dge = 1.0315 * r_ec]
       real(kind=rb), intent(in) :: relqmcl(:,:)       ! Cloud water drop effective radius (microns)
                                                       !    Dimensions: (ncol,nlay)
       real(kind=rb), intent(in) :: taucmcl(:,:,:)     ! In-cloud optical depth
@@ -357,8 +368,7 @@
       real(kind=rb) :: ciwpmc(ngptlw,nlay+1)  ! in-cloud ice water path [mcica]
       real(kind=rb) :: clwpmc(ngptlw,nlay+1)  ! in-cloud liquid water path [mcica]
       real(kind=rb) :: relqmc(nlay+1)         ! liquid particle effective radius (microns)
-      real(kind=rb) :: reicmc(nlay+1)         ! ice particle effective radius (microns)
-      real(kind=rb) :: dgesmc(nlay+1)         ! ice particle generalized effective size (microns)
+      real(kind=rb) :: reicmc(nlay+1)         ! ice particle effective size (microns)
       real(kind=rb) :: taucmc(ngptlw,nlay+1)  ! in-cloud optical depth [mcica]
 !      real(kind=rb) :: ssacmc(ngptlw,nlay+1) ! in-cloud single scattering albedo [mcica]
                                               !   for future expansion 
@@ -427,7 +437,7 @@
               cldfmcl, taucmcl, ciwpmcl, clwpmcl, reicmcl, relqmcl, tauaer, &
               nlayers, pavel, pz, tavel, tz, tbound, semiss, coldry, &
               wkl, wbrodl, wx, pwvcm, inflag, iceflag, liqflag, &
-              cldfmc, taucmc, ciwpmc, clwpmc, reicmc, dgesmc, relqmc, taua)
+              cldfmc, taucmc, ciwpmc, clwpmc, reicmc, relqmc, taua)
 
 !  For cloudy atmosphere, use cldprop to set cloud optical properties based on
 !  input cloud physical properties.  Select method based on choices described
@@ -436,7 +446,7 @@
 !  optical depth are transferred to rrtmg_lw arrays in cldprop.  
 
          call cldprmc(nlayers, inflag, iceflag, liqflag, cldfmc, ciwpmc, &
-                      clwpmc, reicmc, dgesmc, relqmc, ncbands, taucmc)
+                      clwpmc, reicmc, relqmc, ncbands, taucmc)
 
 ! Calculate information needed by the radiative transfer routine
 ! that is specific to this atmosphere, especially some of the 
@@ -522,7 +532,7 @@
               cldfmcl, taucmcl, ciwpmcl, clwpmcl, reicmcl, relqmcl, tauaer, &
               nlayers, pavel, pz, tavel, tz, tbound, semiss, coldry, &
               wkl, wbrodl, wx, pwvcm, inflag, iceflag, liqflag, &
-              cldfmc, taucmc, ciwpmc, clwpmc, reicmc, dgesmc, relqmc, taua)
+              cldfmc, taucmc, ciwpmc, clwpmc, reicmc, relqmc, taua)
 !***************************************************************************
 !
 !  Input atmospheric profile from GCM, and prepare it for use in RRTMG_LW.
@@ -589,7 +599,7 @@
                                                       !    Dimensions: (ngptlw,ncol,nlay)
       real(kind=rb), intent(in) :: relqmcl(:,:)       ! Cloud water drop effective radius (microns)
                                                       !    Dimensions: (ncol,nlay)
-      real(kind=rb), intent(in) :: reicmcl(:,:)       ! Cloud ice effective radius (microns)
+      real(kind=rb), intent(in) :: reicmcl(:,:)       ! Cloud ice effective size (microns)
                                                       !    Dimensions: (ncol,nlay)
       real(kind=rb), intent(in) :: taucmcl(:,:,:)     ! In-cloud optical depth
                                                       !    Dimensions: (ngptlw,ncol,nlay)
@@ -634,9 +644,7 @@
                                                       !    Dimensions: (ngptlw,nlay)
       real(kind=rb), intent(out) :: relqmc(:)         ! liquid particle effective radius (microns)
                                                       !    Dimensions: (nlay)
-      real(kind=rb), intent(out) :: reicmc(:)         ! ice particle effective radius (microns)
-                                                      !    Dimensions: (nlay)
-      real(kind=rb), intent(out) :: dgesmc(:)         ! ice partcle generalized effective size (microns)
+      real(kind=rb), intent(out) :: reicmc(:)         ! ice particle effective size (microns)
                                                       !    Dimensions: (nlay)
       real(kind=rb), intent(out) :: taucmc(:,:)       ! in-cloud optical depth [mcica]
                                                       !    Dimensions: (ngptlw,nlay)
@@ -684,7 +692,6 @@
       ciwpmc(:,:) = 0.0_rb
       clwpmc(:,:) = 0.0_rb
       reicmc(:) = 0.0_rb
-      dgesmc(:) = 0.0_rb
       relqmc(:) = 0.0_rb
       taua(:,:) = 0.0_rb
       amttl = 0.0_rb
@@ -817,8 +824,7 @@
          liqflag = liqflglw
 
 ! Move incoming GCM cloud arrays to RRTMG cloud arrays.
-! For GCM input, incoming reice is in effective radius; for Fu parameterization (iceflag = 3)
-! convert effective radius to generalized effective size using method of Mitchell, JAS, 2002:
+! For GCM input, incoming reicmcl is defined based on selected ice parameterization (inflglw)
 
          do l = 1, nlayers
             do ig = 1, ngptlw
@@ -828,9 +834,6 @@
                clwpmc(ig,l) = clwpmcl(ig,iplon,l)
             enddo
             reicmc(l) = reicmcl(iplon,l)
-            if (iceflag .eq. 3) then
-               dgesmc(l) = 1.5396_rb * reicmcl(iplon,l)
-            endif
             relqmc(l) = relqmcl(iplon,l)
          enddo
 
@@ -841,7 +844,6 @@
 !         ciwpmc(:,nlayers) = 0.0_rb
 !         clwpmc(:,nlayers) = 0.0_rb
 !         reicmc(nlayers) = 0.0_rb
-!         dgesmc(nlayers) = 0.0_rb
 !         relqmc(nlayers) = 0.0_rb
 !         taua(nlayers,:) = 0.0_rb
 

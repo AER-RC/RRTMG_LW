@@ -29,7 +29,7 @@
 
 ! ------------------------------------------------------------------------------
       subroutine cldprop(nlayers, inflag, iceflag, liqflag, cldfrac, tauc, &
-                         ciwp, clwp, rei, dge, rel, ncbands, taucloud)
+                         ciwp, clwp, rei, rel, ncbands, taucloud)
 ! ------------------------------------------------------------------------------
 
 ! Purpose:  Compute the cloud optical depth(s) for each cloudy layer.
@@ -47,10 +47,18 @@
                                                       !    Dimensions: (nlayers)
       real(kind=rb), intent(in) :: clwp(:)            ! cloud liquid water path
                                                       !    Dimensions: (nlayers)
-      real(kind=rb), intent(in) :: rei(:)             ! cloud ice particle effective radius (microns)
+      real(kind=rb), intent(in) :: rei(:)             ! cloud ice particle effective size (microns)
                                                       !    Dimensions: (nlayers)
-      real(kind=rb), intent(in) :: dge(:)             ! cloud ice particle generalized effective size (microns)
-                                                      !    Dimensions: (nlayers)
+                                                      ! specific definition of rei depends on setting of iceflag:
+                                                      ! iceflag = 0: ice effective radius, r_ec, (Ebert and Curry, 1992),
+                                                      !              r_ec must be >= 10.0 microns
+                                                      ! iceflag = 1: ice effective radius, r_ec, (Ebert and Curry, 1992),
+                                                      !              r_ec range is limited to 13.0 to 130.0 microns
+                                                      ! iceflag = 2: ice effective radius, r_k, (Key, Streamer Ref. Manual, 1996)
+                                                      !              r_k range is limited to 5.0 to 131.0 microns
+                                                      ! iceflag = 3: generalized effective size, dge, (Fu, 1996),
+                                                      !              dge range is limited to 5.0 to 140.0 microns
+                                                      !              [dge = 1.0315 * r_ec]
       real(kind=rb), intent(in) :: rel(:)             ! cloud liquid particle effective radius (microns)
                                                       !    Dimensions: (nlayers)
       real(kind=rb), intent(in) :: tauc(:,:)          ! cloud optical depth
@@ -75,8 +83,7 @@
       real(kind=rb) :: abscoliq(nbndlw)               ! liquid absorption coefficients
       real(kind=rb) :: cwp                            ! cloud water path
       real(kind=rb) :: radliq                         ! cloud liquid droplet radius (microns)
-      real(kind=rb) :: radice                         ! cloud ice effective radius (microns)
-      real(kind=rb) :: dgeice                         ! cloud ice generalized effective size (microns)
+      real(kind=rb) :: radice                         ! cloud ice effective size (microns)
       real(kind=rb) :: factor                         ! 
       real(kind=rb) :: fint                           ! 
       real(kind=rb) :: tauctot(nlayers)               ! band integrated cloud optical depth
@@ -196,15 +203,10 @@
                   enddo
                   icepat = 1
 
-! For iceflag=2 option, combine with iceflag=0 option to handle out of bounds 
-! particle sizes.
-! Use iceflag=2 option for ice particle effective radii from 5.0 and 131.0 microns
-! and use iceflag=0 option for ice particles greater than 131.0 microns.
-! *** NOTE: Transition between two methods has not been smoothed. 
+! For iceflag=2 option, ice particle effective radius is limited to 5.0 to 131.0 microns
 
                elseif (iceflag .eq. 2) then
-                  if (radice .lt. 5.0_rb) stop 'ICE RADIUS OUT OF BOUNDS'
-                  if (radice .ge. 5.0_rb .and. radice .le. 131._rb) then
+                  if (radice .lt. 5.0_rb .or. radice .gt. 131.0_rb) stop 'ICE RADIUS OUT OF BOUNDS'
                      ncbands = 16
                      factor = (radice - 2._rb)/3._rb
                      index = int(factor)
@@ -216,26 +218,13 @@
                             (absice2(index+1,ib) - (absice2(index,ib)))
                      enddo
                      icepat = 2
-                  elseif (radice .gt. 131._rb) then
-                     do ib = 1, ncbands
-                       abscoice(ib) = absice0(1) + absice0(2)/radice
-                       icepat = 0
-                     enddo
-                  endif
 
-! For iceflag=3 option, combine with iceflag=0 option to handle large particle sizes.
-! Use iceflag=3 option for ice particle effective radii from 3.2 and 91.0 microns
-! (generalized effective size, dge, from 5 to 140 microns), and use iceflag=0 option
-! for ice particle effective radii greater than 91.0 microns (dge = 140 microns).
-! *** NOTE: Fu parameterization requires particle size in generalized effective size.
-! *** NOTE: Transition between two methods has not been smoothed. 
+! For iceflag=3 option, ice particle generalized effective size is limited to 5.0 to 140.0 microns
 
                elseif (iceflag .eq. 3) then
-                  dgeice = dge(lay)
-                  if (dgeice .lt. 5.0_rb) stop 'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
-                  if (dgeice .ge. 5.0_rb .and. dgeice .le. 140._rb) then
+                  if (radice .lt. 5.0_rb .or. radice .gt. 140.0_rb) stop 'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
                      ncbands = 16
-                     factor = (dgeice - 2._rb)/3._rb
+                     factor = (radice - 2._rb)/3._rb
                      index = int(factor)
                      if (index .eq. 46) index = 45
                      fint = factor - float(index)
@@ -245,12 +234,6 @@
                           (absice3(index+1,ib) - (absice3(index,ib)))
                      enddo
                      icepat = 2
-                  elseif (dgeice .gt. 140._rb) then
-                     do ib = 1, ncbands
-                       abscoice(ib) = absice0(1) + absice0(2)/radice
-                       icepat = 0
-                     enddo
-                  endif
    
                endif
                   
