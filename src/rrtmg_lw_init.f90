@@ -7,7 +7,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2008, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2009, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -53,6 +53,8 @@
 
       real(kind=rb) :: wtsum, wtsm(mg)        !
       real(kind=rb) :: tfn                    !
+
+      real(kind=rb), parameter :: expeps = 1.e-20_rb   ! Smallest value for exponential table
 
 ! ------- Definitions -------
 !     Arrays for 10000-point look-up tables:
@@ -103,7 +105,7 @@
       tau_tbl(0) = 0.0_rb
       tau_tbl(ntbl) = 1.e10_rb
       exp_tbl(0) = 1.0_rb
-      exp_tbl(ntbl) = 0.0_rb
+      exp_tbl(ntbl) = expeps
       tfn_tbl(0) = 0.0_rb
       tfn_tbl(ntbl) = 1.0_rb
       bpade = 1.0_rb / pade
@@ -111,6 +113,7 @@
          tfn = float(itr) / float(ntbl)
          tau_tbl(itr) = bpade * tfn / (1._rb - tfn)
          exp_tbl(itr) = exp(-tau_tbl(itr))
+         if (exp_tbl(itr) .le. expeps) exp_tbl(itr) = expeps
          if (tau_tbl(itr) .lt. 0.06_rb) then
             tfn_tbl(itr) = tau_tbl(itr)/6._rb
          else
@@ -383,7 +386,7 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng1
       use rrlw_kg01, only: fracrefao, fracrefbo, kao, kbo, kao_mn2, kbo_mn2, &
                            selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, kb, ka_mn2, kb_mn2, &
+                           fracrefa, fracrefb, absa, ka, absb, kb, ka_mn2, kb_mn2, &
                            selfref, forref
 
 ! ------- Local -------
@@ -482,7 +485,7 @@
 
       use parrrtm, only : mg, nbndlw, ngptlw, ng2
       use rrlw_kg02, only: fracrefao, fracrefbo, kao, kbo, selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, kb, selfref, forref
+                           fracrefa, fracrefb, absa, ka, absb, kb, selfref, forref
 
 ! ------- Local -------
       integer(kind=im) :: jt, jp, igc, ipr, iprsm 
@@ -566,7 +569,7 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng3
       use rrlw_kg03, only: fracrefao, fracrefbo, kao, kbo, kao_mn2o, kbo_mn2o, &
                            selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, kb, ka_mn2o, kb_mn2o, &
+                           fracrefa, fracrefb, absa, ka, absb, kb, ka_mn2o, kb_mn2o, &
                            selfref, forref
 
 ! ------- Local -------
@@ -694,7 +697,7 @@
 
       use parrrtm, only : mg, nbndlw, ngptlw, ng4
       use rrlw_kg04, only: fracrefao, fracrefbo, kao, kbo, selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, kb, selfref, forref
+                           fracrefa, fracrefb, absa, ka, absb, kb, selfref, forref
 
 ! ------- Local -------
       integer(kind=im) :: jn, jt, jp, igc, ipr, iprsm 
@@ -795,7 +798,7 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng5
       use rrlw_kg05, only: fracrefao, fracrefbo, kao, kbo, kao_mo3, ccl4o, &
                            selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, kb, ka_mo3, ccl4, &
+                           fracrefa, fracrefb, absa, ka, absb, kb, ka_mo3, ccl4, &
                            selfref, forref
 
 ! ------- Local -------
@@ -921,7 +924,7 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng6
       use rrlw_kg06, only: fracrefao, kao, kao_mco2, cfc11adjo, cfc12o, &
                            selfrefo, forrefo, &
-                           fracrefa, ka, ka_mco2, cfc11adj, cfc12, &
+                           fracrefa, absa, ka, ka_mco2, cfc11adj, cfc12, &
                            selfref, forref
 
 ! ------- Local -------
@@ -1010,7 +1013,7 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng7
       use rrlw_kg07, only: fracrefao, fracrefbo, kao, kbo, kao_mco2, kbo_mco2, &
                            selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, kb, ka_mco2, kb_mco2, &
+                           fracrefa, fracrefb, absa, ka, absb, kb, ka_mco2, kb_mco2, &
                            selfref, forref
 
 ! ------- Local -------
@@ -1135,8 +1138,8 @@
       use rrlw_kg08, only: fracrefao, fracrefbo, kao, kao_mco2, kao_mn2o, &
                            kao_mo3, kbo, kbo_mco2, kbo_mn2o, selfrefo, forrefo, &
                            cfc12o, cfc22adjo, &
-                           fracrefa, fracrefb, ka, ka_mco2, ka_mn2o, &
-                           ka_mo3, kb, kb_mco2, kb_mn2o, selfref, forref, &
+                           fracrefa, fracrefb, absa, ka, ka_mco2, ka_mn2o, &
+                           ka_mo3, absb, kb, kb_mco2, kb_mn2o, selfref, forref, &
                            cfc12, cfc22adj
 
 ! ------- Local -------
@@ -1253,8 +1256,8 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng9
       use rrlw_kg09, only: fracrefao, fracrefbo, kao, kao_mn2o, &
                            kbo, kbo_mn2o, selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, ka_mn2o, &
-                           kb, kb_mn2o, selfref, forref
+                           fracrefa, fracrefb, absa, ka, ka_mn2o, &
+                           absb, kb, kb_mn2o, selfref, forref
 
 ! ------- Local -------
       integer(kind=im) :: jn, jt, jp, igc, ipr, iprsm 
@@ -1377,7 +1380,7 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng10
       use rrlw_kg10, only: fracrefao, fracrefbo, kao, kbo, &
                            selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, kb, &
+                           fracrefa, fracrefb, absa, ka, absb, kb, &
                            selfref, forref
 
 ! ------- Local -------
@@ -1466,8 +1469,8 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng11
       use rrlw_kg11, only: fracrefao, fracrefbo, kao, kao_mo2, &
                            kbo, kbo_mo2, selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, ka_mo2, &
-                           kb, kb_mo2, selfref, forref
+                           fracrefa, fracrefb, absa, ka, ka_mo2, &
+                           absb, kb, kb_mo2, selfref, forref
 
 ! ------- Local -------
       integer(kind=im) :: jt, jp, igc, ipr, iprsm 
@@ -1566,7 +1569,7 @@
 
       use parrrtm, only : mg, nbndlw, ngptlw, ng12
       use rrlw_kg12, only: fracrefao, kao, selfrefo, forrefo, &
-                           fracrefa, ka, selfref, forref
+                           fracrefa, absa, ka, selfref, forref
 
 ! ------- Local -------
       integer(kind=im) :: jn, jt, jp, igc, ipr, iprsm 
@@ -1639,7 +1642,7 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng13
       use rrlw_kg13, only: fracrefao, fracrefbo, kao, kao_mco2, kao_mco, &
                            kbo_mo3, selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, ka_mco2, ka_mco, &
+                           fracrefa, fracrefb, absa, ka, ka_mco2, ka_mco, &
                            kb_mo3, selfref, forref
 
 ! ------- Local -------
@@ -1752,7 +1755,7 @@
       use parrrtm, only : mg, nbndlw, ngptlw, ng14
       use rrlw_kg14, only: fracrefao, fracrefbo, kao, kbo, &
                            selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, kb, &
+                           fracrefa, fracrefb, absa, ka, absb, kb, &
                            selfref, forref
 
 ! ------- Local -------
@@ -1839,7 +1842,7 @@
 
       use parrrtm, only : mg, nbndlw, ngptlw, ng15
       use rrlw_kg15, only: fracrefao, kao, kao_mn2, selfrefo, forrefo, &
-                           fracrefa, ka, ka_mn2, selfref, forref
+                           fracrefa, absa, ka, ka_mn2, selfref, forref
 
 ! ------- Local -------
       integer(kind=im) :: jn, jt, jp, igc, ipr, iprsm 
@@ -1925,7 +1928,7 @@
 
       use parrrtm, only : mg, nbndlw, ngptlw, ng16
       use rrlw_kg16, only: fracrefao, fracrefbo, kao, kbo, selfrefo, forrefo, &
-                           fracrefa, fracrefb, ka, kb, selfref, forref
+                           fracrefa, fracrefb, absa, ka, absb, kb, selfref, forref
 
 ! ------- Local -------
       integer(kind=im) :: jn, jt, jp, igc, ipr, iprsm 

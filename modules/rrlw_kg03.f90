@@ -28,7 +28,7 @@
 
       integer(kind=im), parameter :: no3  = 16
 
-      real(kind=rb) :: fracrefao(no3,10) ,fracrefbo(no3,5)
+      real(kind=rb) :: fracrefao(no3,9) ,fracrefbo(no3,5)
       real(kind=rb) :: kao(9,5,13,no3)
       real(kind=rb) :: kbo(5,5,13:59,no3)
       real(kind=rb) :: kao_mn2o(9,19,no3), kbo_mn2o(5,19,no3)
@@ -61,7 +61,7 @@
 
       integer(kind=im), parameter :: ng3  = 16
 
-      real(kind=rb) :: fracrefa(ng3,10) ,fracrefb(ng3,5)
+      real(kind=rb) :: fracrefa(ng3,9) ,fracrefb(ng3,5)
       real(kind=rb) :: ka(9,5,13,ng3)  ,absa(585,ng3)
       real(kind=rb) :: kb(5,5,13:59,ng3),absb(1175,ng3)
       real(kind=rb) :: ka_mn2o(9,19,ng3), kb_mn2o(5,19,ng3)

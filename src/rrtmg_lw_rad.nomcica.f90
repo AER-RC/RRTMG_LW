@@ -8,7 +8,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2008, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2009, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -165,6 +165,8 @@
 ! ------- Declarations -------
 
 ! ----- Input -----
+! Note: All volume mixing ratios are in dimensionless units of mole fraction obtained
+! by scaling mass mixing ratio (g/g) with the appropriate molecular weights (g/mol) 
       integer(kind=im), intent(in) :: ncol            ! Number of horizontal columns
       integer(kind=im), intent(in) :: nlay            ! Number of model layers
       integer(kind=im), intent(inout) :: icld         ! Cloud overlap method
@@ -542,6 +544,8 @@
 ! ------- Declarations -------
 
 ! ----- Input -----
+! Note: All volume mixing ratios are in dimensionless units of mole fraction obtained
+! by scaling mass mixing ratio (g/g) with the appropriate molecular weights (g/mol) 
       integer(kind=im), intent(in) :: iplon           ! column loop index
       integer(kind=im), intent(in) :: nlay            ! Number of model layers
       integer(kind=im), intent(in) :: icld            ! clear/cloud and cloud overlap flag

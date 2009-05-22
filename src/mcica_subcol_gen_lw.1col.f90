@@ -8,7 +8,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2006-2008, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2006-2009, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -282,7 +282,7 @@
 !      real(kind=rb), dimension(nlayers) :: alpha=0.0_rb ! overlap parameter  
 
 ! Constants (min value for cloud fraction and cloud water and ice)
-      real(kind=rb), parameter :: cldmin = 1.0e-80_rb ! min cloud fraction
+      real(kind=rb), parameter :: cldmin = 1.0e-20_rb ! min cloud fraction
 !      real(kind=rb), parameter :: qmin   = 1.0e-10_rb   ! min cloud water and cloud ice (not used)
 
 ! Variables related to random number and seed 

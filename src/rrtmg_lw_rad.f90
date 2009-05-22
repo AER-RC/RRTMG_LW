@@ -8,7 +8,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2008, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2009, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -131,11 +131,11 @@
 ! Two methods of cloud property input are possible:
 !     Cloud properties can be input in one of two ways (controlled by input 
 !     flags inflglw, iceflglw, and liqflglw; see text file rrtmg_lw_instructions
-!     and subroutine rrtmg_lw_cldprop.f90 for further details):
+!     and subroutine rrtmg_lw_cldprmc.f90 for further details):
 !
 !    1) Input cloud fraction and cloud optical depth directly (inflglw = 0)
 !    2) Input cloud fraction and cloud physical properties (inflglw = 1 or 2);  
-!       cloud optical properties are calculated by cldprop or cldprmc based
+!       cloud optical properties are calculated by cldprmc or cldprmc based
 !       on input settings of iceflglw and liqflglw.  Ice particle size provided
 !       must be appropriately defined for the ice parameterization selected. 
 !
@@ -177,6 +177,8 @@
 ! ------- Declarations -------
 
 ! ----- Input -----
+! Note: All volume mixing ratios are in dimensionless units of mole fraction obtained
+! by scaling mass mixing ratio (g/g) with the appropriate molecular weights (g/mol) 
       integer(kind=im), intent(in) :: ncol            ! Number of horizontal columns
       integer(kind=im), intent(in) :: nlay            ! Number of model layers
       integer(kind=im), intent(inout) :: icld         ! Cloud overlap method
@@ -439,11 +441,11 @@
               wkl, wbrodl, wx, pwvcm, inflag, iceflag, liqflag, &
               cldfmc, taucmc, ciwpmc, clwpmc, reicmc, relqmc, taua)
 
-!  For cloudy atmosphere, use cldprop to set cloud optical properties based on
+!  For cloudy atmosphere, use cldprmc to set cloud optical properties based on
 !  input cloud physical properties.  Select method based on choices described
-!  in cldprop.  Cloud fraction, water path, liquid droplet and ice particle
-!  effective radius must be passed into cldprop.  Cloud fraction and cloud
-!  optical depth are transferred to rrtmg_lw arrays in cldprop.  
+!  in cldprmc.  Cloud fraction, water path, liquid droplet and ice particle
+!  effective radius must be passed into cldprmc.  Cloud fraction and cloud
+!  optical depth are transferred to rrtmg_lw arrays in cldprmc.  
 
          call cldprmc(nlayers, inflag, iceflag, liqflag, cldfmc, ciwpmc, &
                       clwpmc, reicmc, relqmc, ncbands, taucmc)
@@ -549,6 +551,8 @@
 ! ------- Declarations -------
 
 ! ----- Input -----
+! Note: All volume mixing ratios are in dimensionless units of mole fraction obtained
+! by scaling mass mixing ratio (g/g) with the appropriate molecular weights (g/mol) 
       integer(kind=im), intent(in) :: iplon           ! column loop index
       integer(kind=im), intent(in) :: nlay            ! Number of model layers
       integer(kind=im), intent(in) :: icld            ! clear/cloud and cloud overlap flag
@@ -631,7 +635,7 @@
       real(kind=rb), intent(out) :: semiss(:)         ! lw surface emissivity
                                                       !    Dimensions: (nbndlw)
 
-! Atmosphere/clouds - cldprop
+! Atmosphere/clouds - cldprmc
       integer(kind=im), intent(out) :: inflag         ! flag for cloud property method
       integer(kind=im), intent(out) :: iceflag        ! flag for ice cloud properties
       integer(kind=im), intent(out) :: liqflag        ! flag for liquid cloud properties

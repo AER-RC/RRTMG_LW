@@ -7,7 +7,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2008, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2009, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -18,7 +18,7 @@
 ! --------- Modules ----------
 
       use parkind, only : im => kind_im, rb => kind_rb
-      use parrrtm, only : ngptlw
+      use parrrtm, only : ngptlw, nbndlw
       use rrlw_cld, only: abscld1, absliq0, absliq1, &
                           absice0, absice1, absice2, absice3
       use rrlw_wvn, only: ngb
@@ -75,6 +75,7 @@
       integer(kind=im) :: ib                          ! spectral band index
       integer(kind=im) :: ig                          ! g-point interval index
       integer(kind=im) :: index 
+      integer(kind=im) :: icb(nbndlw)
 
       real(kind=rb) :: abscoice(ngptlw)               ! ice absorption coefficients
       real(kind=rb) :: abscoliq(ngptlw)               ! liquid absorption coefficients
@@ -84,7 +85,7 @@
       real(kind=rb) :: fint                           ! 
       real(kind=rb) :: radliq                         ! cloud liquid droplet radius (microns)
       real(kind=rb), parameter :: eps = 1.e-6_rb      ! epsilon
-      real(kind=rb), parameter :: cldmin = 1.e-80_rb  ! minimum value for cloud quantities
+      real(kind=rb), parameter :: cldmin = 1.e-20_rb  ! minimum value for cloud quantities
 
 ! ------- Definitions -------
 
@@ -141,6 +142,8 @@
 !                     Linear interpolation is used to get the absorption 
 !                     coefficients for the input effective radius.
 
+      data icb /1,2,3,3,3,4,4,4,5, 5, 5, 5, 5, 5, 5, 5/
+
       hvrclc = '$Revision$'
 
       ncbands = 1
@@ -186,7 +189,7 @@
                   if (radice .lt. 13.0_rb .or. radice .gt. 130._rb) stop &
                       'ICE RADIUS OUT OF BOUNDS'
                   ncbands = 5
-                  ib = ngb(ig)
+                  ib = icb(ngb(ig))
                   abscoice(ig) = absice1(1,ib) + absice1(2,ib)/radice
 
 ! For iceflag=2 option, ice particle effective radius is limited to 5.0 to 131.0 microns
@@ -228,12 +231,12 @@
 
                elseif (liqflag .eq. 1) then
                   radliq = relqmc(lay)
-                  if (radliq .lt. 1.5_rb .or. radliq .gt. 60._rb) stop &
+                  if (radliq .lt. 2.5_rb .or. radliq .gt. 60._rb) stop &
                        'LIQUID EFFECTIVE RADIUS OUT OF BOUNDS'
-                  index = radliq - 1.5_rb
-                  if (index .eq. 58) index = 57
+                  index = int(radliq - 1.5_rb)
                   if (index .eq. 0) index = 1
-                  fint = radliq - 1.5_rb - index
+                  if (index .eq. 58) index = 57
+                  fint = radliq - 1.5_rb - float(index)
                   ib = ngb(ig)
                   abscoliq(ig) = &
                         absliq1(index,ib) + fint * &

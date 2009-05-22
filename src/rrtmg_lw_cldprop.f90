@@ -7,7 +7,7 @@
 
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2008, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2009, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -75,9 +75,9 @@
       integer(kind=im) :: lay                         ! Layer index
       integer(kind=im) :: ib                          ! spectral band index
       integer(kind=im) :: index 
-      integer(kind=im) :: icepat
-      integer(kind=im) :: liqpat
-      integer(kind=im) :: ipat(16,0:2)
+      integer(kind=im) :: iceind
+      integer(kind=im) :: liqind
+      integer(kind=im) :: icb(nbndlw,0:2)
 
       real(kind=rb) :: abscoice(nbndlw)               ! ice absorption coefficients
       real(kind=rb) :: abscoliq(nbndlw)               ! liquid absorption coefficients
@@ -88,7 +88,7 @@
       real(kind=rb) :: fint                           ! 
       real(kind=rb) :: tauctot(nlayers)               ! band integrated cloud optical depth
       real(kind=rb), parameter :: eps = 1.e-6_rb      ! epsilon
-      real(kind=rb), parameter :: cldmin = 1.e-80_rb  ! minimum value for cloud quantities
+      real(kind=rb), parameter :: cldmin = 1.e-20_rb  ! minimum value for cloud quantities
 
 ! ------- Definitions -------
 
@@ -145,9 +145,9 @@
 !                     Linear interpolation is used to get the absorption 
 !                     coefficients for the input effective radius.
 
-      data ipat /1,1,1,1,1,1,1,1,1, 1, 1, 1, 1, 1, 1, 1, &
-                 1,2,3,3,3,4,4,4,5, 5, 5, 5, 5, 5, 5, 5, &
-                 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16/
+      data icb /1,1,1,1,1,1,1,1,1, 1, 1, 1, 1, 1, 1, 1, &
+                1,2,3,3,3,4,4,4,5, 5, 5, 5, 5, 5, 5, 5, &
+                1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16/
 
       hvrcld = '$Revision$'
 
@@ -187,12 +187,12 @@
 ! Calculation of absorption coefficients due to ice clouds.
                if (ciwp(lay) .eq. 0.0_rb) then
                   abscoice(1) = 0.0_rb
-                  icepat = 0
+                  iceind = 0
 
                elseif (iceflag .eq. 0) then
                   if (radice .lt. 10.0_rb) stop 'ICE RADIUS TOO SMALL'
                   abscoice(1) = absice0(1) + absice0(2)/radice
-                  icepat = 0
+                  iceind = 0
 
                elseif (iceflag .eq. 1) then
                   if (radice .lt. 13.0_rb .or. radice .gt. 130._rb) stop &
@@ -201,7 +201,7 @@
                   do ib = 1, ncbands
                      abscoice(ib) = absice1(1,ib) + absice1(2,ib)/radice
                   enddo
-                  icepat = 1
+                  iceind = 1
 
 ! For iceflag=2 option, ice particle effective radius is limited to 5.0 to 131.0 microns
 
@@ -217,7 +217,7 @@
                             absice2(index,ib) + fint * &
                             (absice2(index+1,ib) - (absice2(index,ib)))
                      enddo
-                     icepat = 2
+                     iceind = 2
 
 ! For iceflag=3 option, ice particle generalized effective size is limited to 5.0 to 140.0 microns
 
@@ -233,41 +233,41 @@
                           absice3(index,ib) + fint * &
                           (absice3(index+1,ib) - (absice3(index,ib)))
                      enddo
-                     icepat = 2
+                     iceind = 2
    
                endif
                   
 ! Calculation of absorption coefficients due to water clouds.
                if (clwp(lay) .eq. 0.0_rb) then
                   abscoliq(1) = 0.0_rb
-                  liqpat = 0
-                  if (icepat .eq. 1) icepat = 2
+                  liqind = 0
+                  if (iceind .eq. 1) iceind = 2
 
                elseif (liqflag .eq. 0) then
                   abscoliq(1) = absliq0
-                  liqpat = 0
-                  if (icepat .eq. 1) icepat = 2
+                  liqind = 0
+                  if (iceind .eq. 1) iceind = 2
 
                elseif (liqflag .eq. 1) then
                   radliq = rel(lay)
-                  if (radliq .lt. 1.5_rb .or. radliq .gt. 60._rb) stop &
+                  if (radliq .lt. 2.5_rb .or. radliq .gt. 60._rb) stop &
                        'LIQUID EFFECTIVE RADIUS OUT OF BOUNDS'
-                  index = radliq - 1.5_rb
-                  if (index .eq. 58) index = 57
+                  index = int(radliq - 1.5_rb)
                   if (index .eq. 0) index = 1
-                  fint = radliq - 1.5_rb - index
+                  if (index .eq. 58) index = 57
+                  fint = radliq - 1.5_rb - float(index)
                   ncbands = 16
                   do ib = 1, ncbands
                      abscoliq(ib) = &
                          absliq1(index,ib) + fint * &
                          (absliq1(index+1,ib) - (absliq1(index,ib)))
                   enddo
-                  liqpat = 2
+                  liqind = 2
                endif
 
                do ib = 1, ncbands
-                  taucloud(lay,ib) = ciwp(lay) * abscoice(ipat(ib,icepat)) + &
-                                     clwp(lay) * abscoliq(ipat(ib,liqpat))
+                  taucloud(lay,ib) = ciwp(lay) * abscoice(icb(ib,iceind)) + &
+                                     clwp(lay) * abscoliq(icb(ib,liqind))
                enddo
             endif
          endif

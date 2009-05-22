@@ -2,6 +2,17 @@ C     path:      $Source$
 C     author:    $Author$
 C     revision:  $Revision$
 C     created:   $Date$
+!------------------------------------------------------------------------
+!
+!  --------------------------------------------------------------------------
+! |                                                                          |
+! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  This software may be used, copied, or redistributed as long as it is    |
+! |  not sold and this copyright notice is reproduced on each copy made.     |
+! |  This model is provided as is without any express or implied warranties. |
+! |                       (http://www.rtweb.aer.com/)                        |
+! |                                                                          |
+!  --------------------------------------------------------------------------
  
 
 
@@ -69,18 +80,26 @@ C     created:   $Date$
 		    for each of the 16 bands.
  
 	  IMCA   (0,1) flag for McICA (Monte Carlo Independent Column Approximation)
+                       for statistical representation of sub-grid cloud fraction 
+                       and cloud overlap
                   = 0  standard forward calculation; do not use McICA
                   = 1  use McICA (will perform statistical sample of 200 forward
 		       calculations and output average flux and heating rates)
 
-	  ICLD   (0,1,2) flag for clouds
+	  ICLD   (0,1,2,3) flag for clouds
                   = 0  no cloudy layers in atmosphere
                   = 1  one or more cloudy layers present in atmosphere.  Cloud layers
 		       are treated using a RANDOM overlap assmption.
-                       (requires the presence of file IN_CLD_RRTM)
+                       (requires the presence of file IN_CLD_RRTM for column model)
+                       (available for IMCA = 0 or 1)
                   = 2  one or more cloudy layers present in atmosphere.  Cloud layers
 		       are treated using a MAXIMUM/RANDOM overlap assmption.
-                       (requires the presence of file IN_CLD_RRTM)
+                       (requires the presence of file IN_CLD_RRTM for column model)
+                       (available for IMCA = 0 or 1)
+                  = 3  one or more cloudy layers present in atmosphere.  Cloud layers
+		       are treated using a MAXIMUM overlap assmption.
+                       (requires the presence of file IN_CLD_RRTM for column model)
+                       (available only for IMCA = 1)
 		  
 
  
@@ -742,16 +761,25 @@ Band    Wavenumber                   1050 - 96 mb      96 - 0.01 mb    Halocarbo
             FRACICE    (INFLAG = 2) fraction of the layer's cloud water path in the form
                        of ice particles  
 
-            EFFRADICE  (INFLAG = 2) Size description of ice particles
+            EFFRADICE  (INFLAG = 2 and ICEFLAG = 1) Effective radius of spherical
+                       ice crystals with equivalent projected area to hexagonal ice particles
+                       following Ebert and Curry (1992).
+                       Valid sizes are 13.0 - 130.0 microns. 
 		
-		       ICEFLAG = 2 ice particle effective radius (microns) 
+		       (INFLAG = 2 and ICEFLAG = 2) Effective radius of spherical
+                       ice crystals, re (see STREAMER manual for definition of this parameter)
+                       Valid sizes are 5.0 - 131.0 microns. 
 
-		       ICEFLAG = 3 generalized effective size (microns)
+		       (INFLAG = 2 and ICEFLAG = 3) Generalized effective size of hexagonal
+                       ice crystals, dge (see Q. Fu, 1996, for definition of this parameter)
+                       Valid sizes are 5.0 - 140.0 microns. 
 
-			NOTE: The size descriptions for the two iceflag options are NOT
-			equivalent.  See the particular references for the appropriate definition.
+          	       NOTE: The size descriptions for effective radius and generalized effective
+                       size are NOT equivalent.  See the particular references for the appropriate 
+		       definition.
 
-            EFFRADLIQ  (INFLAG = 2 and LIQFLAG = 1) liquid droplet effective radius (microns) 
+            EFFRADLIQ  (INFLAG = 2 and LIQFLAG = 1) Liquid droplet effective radius, re (microns)
+                       Valid sizes are 2.5 - 60.0 microns. 
 
 
 
