@@ -9,6 +9,23 @@ RRTMG_LW Release Notes
 NOTE: ** CVS rtags can't accept "." in strings, substitute "_"
 
 
+October 20, 2009:
+
+        Release_4_81
+
+        Installed code fix to module rrtmg_lw_taumol.f90 to revise definition
+        and use of the key species ratio parameter (eta) in some spectral bands.
+        Results are changed in profiles with low water vapor and low temperature.
+        Downward surface fluxes are typically increased by this change by about 
+        0.1 W m-2, with downward flux in some layers increased by as much as
+        0.5 W m-2 in some profiles.  Upward flux changes are smaller.  Heating 
+        rate changes are generally negligible.  There are no changes in flux or 
+        heating rate in profiles with moderate to high water vapor such as 
+        mid-latitude summer or tropical. 
+
+        Publicly released on AER RT web site in October 2009.
+
+
 May 22, 2009:
 
         Release_4_8
