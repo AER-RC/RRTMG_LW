@@ -17,7 +17,7 @@ KGSRC = dat
 ################################
 
 PLATFORM = sun
-VERSION = v4.81
+VERSION = v4.82
 
 ##############################################################
 # Set location of netCDF libraries

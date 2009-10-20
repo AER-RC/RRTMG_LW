@@ -945,7 +945,7 @@
                     fac111 * absa(ind1+10,ig))
             endif
 
-            taug(lay,ngs3+ig) = tau_major + tau_major1 + &
+            taug(lay,ngs3+ig) = tau_major + tau_major1 &
                  + tauself + taufor
             fracs(lay,ngs3+ig) = fracrefa(ig,jpl) + fpl * &
                  (fracrefa(ig,jpl+1)-fracrefa(ig,jpl))

@@ -11,7 +11,7 @@ NOTE: ** CVS rtags can't accept "." in strings, substitute "_"
 
 October 20, 2009:
 
-        Release_4_81
+        Release_4_82
 
         Installed code fix to module rrtmg_lw_taumol.f90 to revise definition
         and use of the key species ratio parameter (eta) in some spectral bands.
