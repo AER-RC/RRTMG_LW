@@ -33,12 +33,14 @@
                         cldfrac, taucloud, planklay, planklev, plankbnd, &
                         pwvcm, fracs, taut, & 
                         totuflux, totdflux, fnet, htr, &
-                        totuclfl, totdclfl, fnetc, htrc ) 
+                        totuclfl, totdclfl, fnetc, htrc, &
+                        idrv, dplankbnd_dt, dtotuflux_dt, dtotuclfl_dt )
 !-----------------------------------------------------------------------------
 !
 !  Original version:   E. J. Mlawer, et al. RRTM_V3.0
 !  Revision for GCMs:  Michael J. Iacono; October, 2002
 !  Revision for F90:  Michael J. Iacono; June, 2006
+!  Revision for dFdT option: M. J. Iacono and E. J. Mlawer, November 2009
 !
 !  This program calculates the upward fluxes, downward fluxes, and
 !  heating rates for an arbitrary clear or cloudy atmosphere.  The input
@@ -51,6 +53,10 @@
 !  use of the emissivity angle for the flux integration can cause errors of 
 !  1 to 4 W/m2 within cloudy layers.  
 !  Clouds are treated with a maximum-random cloud overlap method.
+!  This subroutine also provides the optional capability to calculate
+!  the derivative of upward flux respect to surface temperature using
+!  the pre-tabulated derivative of the Planck function with respect to 
+!  temperature integrated over each spectral band.
 !***************************************************************************
 
 ! ------- Declarations -------
@@ -84,6 +90,11 @@
                                                       !    Dimensions: (nlayers)
       real(kind=rb), intent(in) :: taucloud(:,:)      ! layer cloud optical depth
                                                       !    Dimensions: (nlayers,nbndlw)
+      integer(kind=im), intent(in) :: idrv            ! flag for calculation of dF/dt from 
+                                                      ! Planck derivative [0=off, 1=on]
+      real(kind=rb), intent(in) :: dplankbnd_dt(:)    ! derivative of Planck function wrt temp
+                                                      !    Dimensions: (nbndlw)
+
 ! ----- Output -----
       real(kind=rb), intent(out) :: totuflux(0:)      ! upward longwave flux (w/m2)
                                                       !    Dimensions: (0:nlayers)
@@ -100,6 +111,12 @@
       real(kind=rb), intent(out) :: fnetc(0:)         ! clear sky net longwave flux (w/m2)
                                                       !    Dimensions: (0:nlayers)
       real(kind=rb), intent(out) :: htrc(0:)          ! clear sky longwave heating rate (k/day)
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: dtotuflux_dt(0:)  ! change in upward longwave flux (w/m2/k)
+                                                      ! with respect to surface temperature
+                                                      !    Dimensions: (0:nlayers)
+      real(kind=rb), intent(out) :: dtotuclfl_dt(0:)  ! change in upward longwave flux (w/m2/k)
+                                                      ! with respect to surface temperature
                                                       !    Dimensions: (0:nlayers)
 
 ! ----- Local -----
@@ -127,6 +144,12 @@
       real(kind=rb) :: odepth, odtot, odepth_rec, odtot_rec, gassrc, ttot
       real(kind=rb) :: tblind, tfactot, bbd, bbdtot, tfacgas, transc, tausfac
       real(kind=rb) :: rad0, reflect, radlu, radclru
+
+      real(kind=rb) :: duflux_dt(0:nlayers)
+      real(kind=rb) :: duclfl_dt(0:nlayers)
+      real(kind=rb) :: d_urad_dt(0:nlayers)
+      real(kind=rb) :: d_clrurad_dt(0:nlayers)
+      real(kind=rb) :: d_rad0_dt, d_radlu_dt, d_radclru_dt
 
       integer(kind=im) :: icldlyr(nlayers)             ! flag for cloud in layer
       integer(kind=im) :: ibnd, ib, iband, lay, lev, l ! loop indices
@@ -197,6 +220,10 @@
 !    radclrd                      ! spectrally summed clear sky downward radiance 
 !    drad                         ! downward radiance by layer
 !    clrdrad                      ! clear sky downward radiance by layer
+!    d_radlu_dt                   ! spectrally summed upward radiance 
+!    d_radclru_dt                 ! spectrally summed clear sky upward radiance 
+!    d_urad_dt                    ! upward radiance by layer
+!    d_clrurad_dt                 ! clear sky upward radiance by layer
 
 ! output
 !    totuflux                     ! upward longwave flux (w/m2)
@@ -207,6 +234,10 @@
 !    totdclfl                     ! clear sky downward longwave flux (w/m2)
 !    fnetc                        ! clear sky net longwave flux (w/m2)
 !    htrc                         ! clear sky longwave heating rate (k/day)
+!    dtotuflux_dt                 ! change in upward longwave flux (w/m2/k)
+!                                 ! with respect to surface temperature
+!    dtotuclfl_dt                 ! change in clear sky upward longwave flux (w/m2/k)
+!                                 ! with respect to surface temperature
 
 
 ! These arrays indicate the spectral 'region' (used in the 
@@ -258,6 +289,12 @@
       clrdrad(0) = 0.0_rb
       totuclfl(0) = 0.0_rb
       totdclfl(0) = 0.0_rb
+      if (idrv .eq. 1) then
+         d_urad_dt(0) = 0.0_rb
+         d_clrurad_dt(0) = 0.0_rb
+         dtotuflux_dt(0) = 0.0_rb
+         dtotuclfl_dt(0) = 0.0_rb
+      endif
 
       do lay = 1, nlayers
          urad(lay) = 0.0_rb
@@ -268,6 +305,12 @@
          clrdrad(lay) = 0.0_rb
          totuclfl(lay) = 0.0_rb
          totdclfl(lay) = 0.0_rb
+         if (idrv .eq. 1) then
+            d_urad_dt(lay) = 0.0_rb
+            d_clrurad_dt(lay) = 0.0_rb
+            dtotuflux_dt(lay) = 0.0_rb
+            dtotuclfl_dt(lay) = 0.0_rb
+         endif
 
          do ib = 1, ncbands
             if (cldfrac(lay) .ge. 1.e-6_rb) then
@@ -579,8 +622,14 @@
 !  and reflection from the surface to the upward radiative transfer.
 !  Note: Spectral and Lambertian reflection are identical for the
 !  diffusivity angle flux integration used here.
+!  Note: The emissivity is applied to plankbnd and dplankbnd_dt when 
+!  they are defined in subroutine setcoef. 
 
          rad0 = fracs(1,igc) * plankbnd(iband)
+         if (idrv .eq. 1) then
+            d_rad0_dt = fracs(1,igc) * dplankbnd_dt(iband)
+         endif
+
 !  Add in reflection of surface downward radiance.
          reflect = 1._rb - semiss(iband)
          radlu = rad0 + reflect * radld
@@ -590,6 +639,12 @@
 
          urad(0) = urad(0) + radlu
          clrurad(0) = clrurad(0) + radclru
+         if (idrv .eq. 1) then
+            d_radlu_dt = d_rad0_dt
+            d_urad_dt(0) = d_urad_dt(0) + d_radlu_dt
+            d_radclru_dt = d_rad0_dt
+            d_clrurad_dt(0) = d_clrurad_dt(0) + d_radclru_dt
+         endif
 
          do lev = 1, nlayers
 ! Cloudy layer
@@ -619,10 +674,19 @@
                rad = -radmod + facclr2(lev+1)*oldclr - faccld2(lev+1)*oldcld
                cldradu = cldradu + rad
                clrradu = clrradu - rad
+               if (idrv .eq. 1) then
+                  d_radlu_dt = d_radlu_dt * cldfrac(lev) * (1.0_rb - atot(lev)) + &
+                         d_radlu_dt * (1.0_rb - cldfrac(lev)) * (1.0_rb - atrans(lev))
+                  d_urad_dt(lev) = d_urad_dt(lev) + d_radlu_dt
+               endif
 ! Clear layer
             else
                radlu = radlu + (bbugas(lev)-radlu)*atrans(lev)
                urad(lev) = urad(lev) + radlu
+               if (idrv .eq. 1) then
+                  d_radlu_dt = d_radlu_dt * (1.0_rb - atrans(lev))
+                  d_urad_dt(lev) = d_urad_dt(lev) + d_radlu_dt
+               endif
             endif
 !  Set clear sky stream to total sky stream as long as all layers
 !  are clear (iclddn=0).  Streams must be calculated separately at 
@@ -634,6 +698,15 @@
                else
                   radclru = radlu
                   clrurad(lev) = urad(lev)
+               endif
+               if (idrv .eq. 1) then
+                  if (iclddn.eq.1) then
+                     d_radclru_dt = d_radclru_dt * (1.0_rb - atrans(lev))
+                     d_clrurad_dt(lev) = d_clrurad_dt(lev) + d_radclru_dt
+                  else
+                     d_radclru_dt = d_radlu_dt
+                     d_clrurad_dt(lev) = d_urad_dt(lev)
+                  endif
                endif
          enddo
 
@@ -658,6 +731,19 @@
             totuclfl(lev) = totuclfl(lev) + uclfl(lev) * delwave(iband)
             totdclfl(lev) = totdclfl(lev) + dclfl(lev) * delwave(iband)
          enddo
+
+! Calculate total change in upward flux wrt surface temperature
+         if (idrv .eq. 1) then
+            do lev = nlayers, 0, -1
+               duflux_dt(lev) = d_urad_dt(lev) * wtdiff
+               d_urad_dt(lev) = 0.0_rb
+               dtotuflux_dt(lev) = dtotuflux_dt(lev) + duflux_dt(lev) * delwave(iband) * fluxfac
+
+               duclfl_dt(lev) = d_clrurad_dt(lev) * wtdiff
+               d_clrurad_dt(lev) = 0.0_rb
+               dtotuclfl_dt(lev) = dtotuclfl_dt(lev) + duclfl_dt(lev) * delwave(iband) * fluxfac
+            enddo
+         endif
 
 ! End spectral band loop
       enddo

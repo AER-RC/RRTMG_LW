@@ -76,6 +76,19 @@ fraction and cloud overlap.  If the McICA option is selected to model a cloudy
 profile in column mode, then the model will run stochastically, and the output 
 fluxes and heating rates will be an average over 200 samples. 
 
+The model includes an optional feature to provide simultaneously with a 
+normal forward calculation the change in upward flux with respect to surface
+temperature for each model level.  This new option is controlled by a new 
+input flag, idrv.  Setting this flag to one will output dF/dT for total sky 
+and clear sky in GCM mode in new output arrays duflx_dt and duflxc_dt. These 
+can be utilized to approximate the change in upward flux for a change in 
+surface temperature only at time intervals between full radiation calls.  
+In single column mode, setting idrv to 1 requires the extra input of a dT 
+change in surface temperature relative to the input surface temperature, and 
+the provided dT will be applied to the flux derivative to output a modified 
+upward flux profile for that dT change in surface temperature. The default 
+idrv setting of 0 provides the original forward radiative transfer calculation.  
+
 
 *************************
 RRTMG_LW : Column Version
@@ -166,6 +179,7 @@ SAMPLE INPUT/OUTPUT:
                                are present
    OUTPUT_RRTM               : Main output file for atmospheric fluxes and heating rates
    input_rrtm.MLS-clr        : Sample 51 layer mid-latitude summer standard atmosphere
+                               for clear sky
    input_rrtm.MLS-cld-imca0  : Sample 51 layer mid-latitude summer standard atmosphere
                                with cloud flag turned on (without McICA)
    input_rrtm.MLS-cld-imca1  : Sample 51 layer mid-latitude summer standard atmosphere
@@ -174,6 +188,9 @@ SAMPLE INPUT/OUTPUT:
                                with aersol flag set
    input_rrtm.MLS-clr-xsec   : Sample 51 layer mid-latitude summer standard atmosphere
                                with cross-section input (CFCs, etc.)
+   input_rrtm.MLS-clr-idrv1  : Sample 51 layer mid-latitude summer standard atmosphere
+                               with derivative option set to provide modified upward
+                               fluxes for the provided change in surface temperature
    input_rrtm.MLW-clr        : Sample 51 layer mid-latitude winter standard atmosphere
    input_rrtm.SAW-clr        : Sample 51 layer sub-arctic winter standard atmosphere
    input_rrtm.TROP-clr       : Sample 51 layer tropical standard atmosphere

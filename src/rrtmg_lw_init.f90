@@ -18,7 +18,7 @@
 ! ------- Modules -------
       use parkind, only : im => kind_im, rb => kind_rb
       use rrlw_wvn
-      use rrtmg_lw_setcoef, only: lwatmref, lwavplank
+      use rrtmg_lw_setcoef, only: lwatmref, lwavplank, lwavplankderiv
 
       implicit none
 
@@ -76,6 +76,7 @@
       call lwcldpr                ! cloud optical properties
       call lwatmref               ! reference MLS profile
       call lwavplank              ! Planck function 
+      call lwavplankderiv         ! Planck function derivative wrt temp
       call lw_kgb01               ! molecular absorption coefficients
       call lw_kgb02
       call lw_kgb03

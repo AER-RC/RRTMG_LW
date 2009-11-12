@@ -6,7 +6,7 @@ C     created:   $Date$
 !
 !  --------------------------------------------------------------------------
 ! |                                                                          |
-! |  Copyright 2002-2007, Atmospheric & Environmental Research, Inc. (AER).  |
+! |  Copyright 2002-2009, Atmospheric & Environmental Research, Inc. (AER).  |
 ! |  This software may be used, copied, or redistributed as long as it is    |
 ! |  not sold and this copyright notice is reproduced on each copy made.     |
 ! |  This model is provided as is without any express or implied warranties. |
@@ -49,11 +49,11 @@ C     created:   $Date$
 
  RECORD 1.2
  
-      IAER,    IATM,  IXSECT, NUMANGS,   IOUT,   IMCA, ICLD
+      IAER,    IATM,  IXSECT, NUMANGS,   IOUT,  IDRV,  IMCA, ICLD
  
-        20,      50,      70,   84-85,  88-90,     94,   95   
+        20,      50,      70,   84-85,  88-90,    92,    94,   95   
  
-   18x, I2, 29X, I1, 19X, I1, 13X, I2, 2X, I3, 3X, I1,   I1
+   18x, I2, 29X, I1, 19X, I1, 13X, I2, 2X, I3, 1X,I1,1X, I1,   I1
  
  
 	  IAER   (0,10)   flag for aerosols
@@ -79,6 +79,17 @@ C     created:   $Date$
 		    for the full longwave spectrum (10-3250 cm-1), and one 
 		    for each of the 16 bands.
  
+	  IDRV   (0,1) flag for applying optional adjustment to the upward flux at
+                       each layer based on the derivative of the Planck function 
+                       with respect to temperature for the change in surface 
+                       temperature (DTBOUND) provided on record 1.4.1 relative to
+                       the surface temperature (TBOUND) provided on record 1.4
+                  = 0  standard forward calculation; do not apply derivative 
+                       adjustment (default)
+                  = 1  adjust upward flux at each layer based on derivative of 
+                       the Planck function to account for the change in surface
+		       temperature defined by DTBOUND
+
 	  IMCA   (0,1) flag for McICA (Monte Carlo Independent Column Approximation)
                        for statistical representation of sub-grid cloud fraction 
                        and cloud overlap
@@ -134,6 +145,23 @@ C     created:   $Date$
  
  
  
+
+ RECORD 1.4.1     (only needed if IDRV .EQ. 1)
+  
+       DTBOUND,
+ 
+          1-10,
+ 
+         E10.3 
+ 
+ 
+       DTBOUND    change in surface temperature relative to TBOUND used to adjust
+                  upward flux at each layer based on the derivative of the Planck
+                  function with respect to surface temperature.
+
+ 
+ 
+
  *****************************************************************************
  ******  these records applicable only if RRTATM not selected (IATM=0)  ******
 

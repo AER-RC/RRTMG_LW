@@ -78,14 +78,15 @@
 !------------------------------------------------------------------
 
       subroutine rrtmg_lw &
-            (ncol    ,nlay    ,icld    , &
+            (ncol    ,nlay    ,icld    ,idrv    , &
              play    ,plev    ,tlay    ,tlev    ,tsfc    , & 
              h2ovmr  ,o3vmr   ,co2vmr  ,ch4vmr  ,n2ovmr  ,o2vmr , &
              cfc11vmr,cfc12vmr,cfc22vmr,ccl4vmr ,emis    , &
              inflglw ,iceflglw,liqflglw,cldfmcl , &
              taucmcl ,ciwpmcl ,clwpmcl ,reicmcl ,relqmcl , &
              tauaer  , &
-             uflx    ,dflx    ,hr      ,uflxc   ,dflxc,  hrc)
+             uflx    ,dflx    ,hr      ,uflxc   ,dflxc,  hrc, &
+             duflx_dt,duflxc_dt )
 
 ! -------- Description --------
 
@@ -148,6 +149,18 @@
 !       RRTMG_LW currently treats only aerosol absorption;
 !       scattering capability is not presently available.
 !
+! The optional calculation of the change in upward flux as a function of surface 
+! temperature is available (controlled by input flag idrv).  This can be utilized 
+! to approximate adjustments to the upward flux profile caused only by a change in 
+! surface temperature between full radiation calls.  This feature uses the pre-
+! calculated derivative of the Planck function with respect to surface temperature. 
+!
+!    1) Normal forward calculation for the input profile (idrv=0)
+!    2) Normal forward calculation with optional calculation of the change
+!       in upward flux as a function of surface temperature for clear sky
+!       and total sky flux.  Flux partial derivatives are provided in arrays
+!       duflx_dt and duflxc_dt for total and clear sky.  (idrv=1)
+!
 !
 ! ------- Modifications -------
 !
@@ -167,6 +180,8 @@
 !     Aug 2007: M. J. Iacono, AER, Inc.
 !-- Modified to add longwave aerosol absorption.
 !     Apr 2008: M. J. Iacono, AER, Inc.
+!-- Added capability to calculate derivative of upward flux wrt surface temperature. 
+!     Nov 2009: M. J. Iacono, E. J. Mlawer, AER, Inc.
 
 ! --------- Modules ----------
 
@@ -186,6 +201,13 @@
                                                       !    1: Random
                                                       !    2: Maximum/random
                                                       !    3: Maximum
+      integer(kind=im), intent(in) :: idrv            ! Flag for calculation of dFdT, the change
+                                                      !    in upward flux as a function of 
+                                                      !    surface temperature [0=off, 1=on]
+                                                      !    0: Normal forward calculation
+                                                      !    1: Normal forward calculation with
+                                                      !       duflx_dt and duflxc_dt output
+
       real(kind=rb), intent(in) :: play(:,:)          ! Layer pressures (hPa, mb)
                                                       !    Dimensions: (ncol,nlay)
       real(kind=rb), intent(in) :: plev(:,:)          ! Interface pressures (hPa, mb)
@@ -280,6 +302,16 @@
       real(kind=rb), intent(out) :: hrc(:,:)          ! Clear sky longwave radiative heating rate (K/d)
                                                       !    Dimensions: (ncol,nlay)
 
+! ----- Optional Output -----
+      real(kind=rb), intent(out), optional :: duflx_dt(:,:)     
+                                                      ! change in upward longwave flux (w/m2/K)
+                                                      ! with respect to surface temperature
+                                                      !    Dimensions: (ncol,nlay)
+      real(kind=rb), intent(out), optional :: duflxc_dt(:,:)    
+                                                      ! change in clear sky upward longwave flux (w/m2/K)
+                                                      ! with respect to surface temperature
+                                                      !    Dimensions: (ncol,nlay)
+
 ! ----- Local -----
 
 ! Control
@@ -326,6 +358,7 @@
       real(kind=rb) :: planklay(nlay+1,nbndlw)! 
       real(kind=rb) :: planklev(0:nlay+1,nbndlw)! 
       real(kind=rb) :: plankbnd(nbndlw)       ! 
+      real(kind=rb) :: dplankbnd_dt(nbndlw)   ! 
 
       real(kind=rb) :: colh2o(nlay+1)         ! column amount (h2o)
       real(kind=rb) :: colco2(nlay+1)         ! column amount (co2)
@@ -388,6 +421,10 @@
       real(kind=rb) :: totdclfl(0:nlay+1)     ! clear sky downward longwave flux (w/m2)
       real(kind=rb) :: fnetc(0:nlay+1)        ! clear sky net longwave flux (w/m2)
       real(kind=rb) :: htrc(0:nlay+1)         ! clear sky longwave heating rate (k/day)
+      real(kind=rb) :: dtotuflux_dt(0:nlay+1) ! change in upward longwave flux (w/m2/k)
+                                              ! with respect to surface temperature
+      real(kind=rb) :: dtotuclfl_dt(0:nlay+1) ! change in clear sky upward longwave flux (w/m2/k)
+                                              ! with respect to surface temperature
 
 !
 ! Initializations
@@ -458,6 +495,7 @@
          call setcoef(nlayers, istart, pavel, tavel, tz, tbound, semiss, &
                       coldry, wkl, wbrodl, &
                       laytrop, jp, jt, jt1, planklay, planklev, plankbnd, &
+                      idrv, dplankbnd_dt, &
                       colh2o, colco2, colo3, coln2o, colco, colch4, colo2, &
                       colbrd, fac00, fac01, fac10, fac11, &
                       rat_h2oco2, rat_h2oco2_1, rat_h2oo3, rat_h2oo3_1, &
@@ -506,7 +544,8 @@
                      cldfmc, taucmc, planklay, planklev, plankbnd, &
                      pwvcm, fracs, taut, &
                      totuflux, totdflux, fnet, htr, &
-                     totuclfl, totdclfl, fnetc, htrc )
+                     totuclfl, totdclfl, fnetc, htrc, &
+                     idrv, dplankbnd_dt, dtotuflux_dt, dtotuclfl_dt )
 
 !  Transfer up and down fluxes and heating rate to output arrays.
 !  Vertical indexing goes from bottom to top; reverse here for GCM if necessary.
@@ -522,6 +561,16 @@
             hrc(iplon,k+1) = htrc(k)
          enddo
 
+!  If idrv=1 option is active, transfer upward flux derivatives to output arrays.
+         
+         if (idrv .eq. 1) then 
+            do k = 0, nlayers
+               duflx_dt(iplon,k+1) = dtotuflux_dt(k)
+               duflxc_dt(iplon,k+1) = dtotuclfl_dt(k)
+            enddo
+         endif
+
+! End longitude/column loop
       enddo
 
       end subroutine rrtmg_lw

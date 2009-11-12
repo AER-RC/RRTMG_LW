@@ -114,6 +114,18 @@
 !       RRTMG_LW currently treats only aerosol absorption;
 !       scattering capability is not presently available.
 !
+! The optional calculation of the change in upward flux as a function of surface 
+! temperature is available (controlled by input flag idrv).  This can be utilized 
+! to approximate adjustments to the upward flux profile caused only by a change in 
+! surface temperature between full radiation calls.  This feature uses the pre-
+! calculated derivative of the Planck function with respect to surface temperature. 
+!
+!    1) Normal forward calculation for the input profile (idrv=0)
+!    2) Normal forward calculation with optional calculation of the change
+!       in upward flux as a function of surface temperature for clear sky
+!       and total sky flux.  Flux partial derivatives are provided in arrays
+!       dtotuflux_dt and dtotuclfl_dt for total and clear sky.  (idrv=1)
+!
 !
 ! ------- Modifications -------
 !
@@ -131,6 +143,8 @@
 !     Feb 2007: M. J. Iacono, AER, Inc.
 !-- Added aerosol absorption capability.
 !     Mar 2008: M. J. Iacono, AER, Inc.
+!-- Added capability to adjust upward flux for a change only in surface temperature. 
+!     Nov 2009: M. J. Iacono, E. J. Mlawer, AER, Inc.
 
 ! --------- Modules ----------
 
@@ -173,6 +187,10 @@
       integer(kind=im) :: nmca                ! number of mcica samples (mcica mode)
       integer(kind=im) :: irng                ! flag for random number generator
                                               ! [0=kissvec, 1=mersenne twister (default)]
+      integer(kind=im) :: idrv                ! flag for calculation of dFdT, the change
+                                              ! in upward flux as a function of surface 
+                                              ! temperature [0=off, 1=on]
+      integer(kind=im) :: lev, l              ! level indices
       integer(kind=im), parameter :: ncol = 1 ! total number of columns
       character page 
 
@@ -182,6 +200,7 @@
       real(kind=rb) :: pz(0:mxlay)            ! level (interface) pressures (hPa, mb)
       real(kind=rb) :: tz(0:mxlay)            ! level (interface) temperatures (K)
       real(kind=rb) :: tbound                 ! surface temperature (K)
+      real(kind=rb) :: dtbound                ! change in surface temperature for idrv=1 (K)
       real(kind=rb) :: coldry(mxlay)          ! dry air column density (mol/cm2)
       real(kind=rb) :: wbrodl(mxlay)          ! broadening gas column density (mol/cm2)
       real(kind=rb) :: wkl(mxmol,mxlay)       ! molecular amounts (mol/cm-2)
@@ -208,6 +227,7 @@
       real(kind=rb) :: planklay(mxlay,nbndlw)   ! 
       real(kind=rb) :: planklev(0:mxlay,nbndlw) ! 
       real(kind=rb) :: plankbnd(nbndlw)       ! 
+      real(kind=rb) :: dplankbnd_dt(nbndlw)   ! 
 
       real(kind=rb) :: colh2o(mxlay)          ! column amount (h2o)
       real(kind=rb) :: colco2(mxlay)          ! column amount (co2)
@@ -292,6 +312,11 @@
                                               ! for future expansion 
 
                                               !   (lw scattering not yet available)
+
+      real(kind=rb) :: dtotuflux_dt(0:mxlay)  ! change in upward longwave flux (w/m2/k)
+                                              ! with respect to surface temperature
+      real(kind=rb) :: dtotuclfl_dt(0:mxlay)  ! change in clear sky upward longwave flux (w/m2/k)
+                                              ! with respect to surface temperature
 
 ! Parameters
       real(kind=rb), parameter :: cpdair = 1.004e3_rb  ! Specific heat capacity of dry air
@@ -392,9 +417,9 @@
       do iplon = 1, ncol
 
 ! Input atmospheric profile from INPUT_RRTM.
-         call readprof(ird, nlayers, iout, imca, icld, iaer, &
+         call readprof(ird, nlayers, iout, imca, icld, iaer, idrv, &
                        pavel, tavel, pz, tz, tbound, semiss, &
-                       coldry, wkl, wbrodl, wx, pwvcm, &
+                       dtbound, coldry, wkl, wbrodl, wx, pwvcm, &
                        inflag, iceflag, liqflag, cldfrac, &
                        tauc, ciwp, clwp, rei, rel, tauaer)
 
@@ -452,6 +477,7 @@
             call setcoef(nlayers, istart, pavel, tavel, tz, tbound, semiss, &
                          coldry, wkl, wbrodl, &
                          laytrop, jp, jt, jt1, planklay, planklev, plankbnd, &
+                         idrv, dplankbnd_dt, &
                          colh2o, colco2, colo3, coln2o, colco, colch4, colo2, &
                          colbrd, fac00, fac01, fac10, fac11, &
                          rat_h2oco2, rat_h2oco2_1, rat_h2oo3, rat_h2oo3_1, &
@@ -501,20 +527,53 @@
                             cldfrac, taucloud, planklay, planklev, plankbnd, &
                             pwvcm, fracs, taut, &
                             totuflux, totdflux, fnet, htr, &
-                            totuclfl, totdclfl, fnetc, htrc ) 
+                            totuclfl, totdclfl, fnetc, htrc, &
+                            idrv, dplankbnd_dt, dtotuflux_dt, dtotuclfl_dt )
                else
                   call rtrnmr(nlayers, istart, iend, iout, pz, semiss, ncbands, &
                               cldfrac, taucloud, planklay, planklev, plankbnd, &
                               pwvcm, fracs, taut, &
                               totuflux, totdflux, fnet, htr, &
-                              totuclfl, totdclfl, fnetc, htrc ) 
+                              totuclfl, totdclfl, fnetc, htrc, &
+                              idrv, dplankbnd_dt, dtotuflux_dt, dtotuclfl_dt )
                endif
             elseif (imca .eq. 1) then
                call rtrnmc(nlayers, istart, iend, iout, pz, semiss, ncbands, &
                            cldfmc, taucmc, planklay, planklev, plankbnd, &
                            pwvcm, fracs, taut, &
                            totuflux, totdflux, fnet, htr, &
-                           totuclfl, totdclfl, fnetc, htrc )
+                           totuclfl, totdclfl, fnetc, htrc, &
+                           idrv, dplankbnd_dt, dtotuflux_dt, dtotuclfl_dt )
+            endif
+
+! If requested (idrv=1), adjust upward fluxes and heating rate for the input 
+! change in surface temperature (dtbound) based on the calculated change in 
+! upward flux as a function of surface temperature for each layer.  Downward
+! fluxes are unchanged by this adjustment. 
+
+            if (idrv .eq. 1) then
+! Adjust fluxes at surface
+               totuflux(0) = totuflux(0) + dtotuflux_dt(0) * dtbound
+               fnet(0) = totuflux(0) - totdflux(0)
+               totuclfl(0) = totuclfl(0) + dtotuclfl_dt(0) * dtbound
+               fnetc(0) = totuclfl(0) - totdclfl(0)
+
+! Adjust fluxes at model levels
+               do lev = 1, nlayers
+                  totuflux(lev) = totuflux(lev) + dtotuflux_dt(lev) * dtbound
+                  fnet(lev) = totuflux(lev) - totdflux(lev)
+                  totuclfl(lev) = totuclfl(lev) + dtotuclfl_dt(lev) * dtbound
+                  fnetc(lev) = totuclfl(lev) - totdclfl(lev)
+                  l = lev - 1
+
+! Re-calculate heating rates at model layers
+                  htr(l)=heatfac*(fnet(l)-fnet(lev))/(pz(l)-pz(lev)) 
+                  htrc(l)=heatfac*(fnetc(l)-fnetc(lev))/(pz(l)-pz(lev)) 
+               enddo
+
+! Set heating rate to zero in top layer
+               htr(nlayers) = 0.0_rb
+               htrc(nlayers) = 0.0_rb
             endif
 
 ! Process output.
@@ -661,9 +720,9 @@
 
 !************************************************************************
       subroutine readprof(ird_in, nlayers_out, iout_out, imca, icld_out, &
-          iaer_out, pavel_out, tavel_out, pz_out, tz_out, tbound_out, &
-          semiss_out, coldry_out, wkl_out, wbrodl_out, wx_out, pwvcm_out, &
-          inflag_out, iceflag_out, liqflag_out, cldfrac_out, &
+          iaer_out, idrv, pavel_out, tavel_out, pz_out, tz_out, tbound_out, &
+          semiss_out, dtbound_out, coldry_out, wkl_out, wbrodl_out, wx_out, &
+          pwvcm_out, inflag_out, iceflag_out, liqflag_out, cldfrac_out, &
           tauc, ciwp, clwp, rei, rel, tauaer_out)
 !************************************************************************
 
@@ -723,12 +782,16 @@
       integer(kind=im), intent(out) :: imca               ! McICA on/off flag (1 = use McICA)
       integer(kind=im), intent(out) :: iout_out           ! output option flag
       integer(kind=im), intent(out) :: iaer_out           ! aerosol option flag
+      integer(kind=im), intent(out) :: idrv               ! Planck derivative option on/off flag 
+                                                          ! (1 = provide upward flux adjustment
+                                                          ! for change in surface temperature
 
       real(kind=rb), intent(out) :: pavel_out(mxlay)      ! layer pressures (mb) 
       real(kind=rb), intent(out) :: tavel_out(mxlay)      ! layer temperatures (K)
       real(kind=rb), intent(out) :: pz_out(0:mxlay)       ! level (interface) pressures (hPa, mb)
       real(kind=rb), intent(out) :: tz_out(0:mxlay)       ! level (interface) temperatures (K)
       real(kind=rb), intent(out) :: tbound_out            ! surface temperature (K)
+      real(kind=rb), intent(out) :: dtbound_out           ! surface temperature change for idrv=1 (K)
       real(kind=rb), intent(out) :: coldry_out(mxlay)     ! dry air column density (mol/cm2)
       real(kind=rb), intent(out) :: wbrodl_out(mxlay)     ! broadening gas column density (mol/cm2)
       real(kind=rb), intent(out) :: wkl_out(mxmol,mxlay)  ! molecular amounts (mol/cm2)
@@ -764,6 +827,7 @@
       real(kind=rb) :: summol                             ! sum over non-water molecules
       real(kind=rb) :: wvsh                               ! water vapor vertical total specific humitidy
       real(kind=rb) :: pwvcm                              ! precipitable water vapor (cm)
+      real(kind=rb) :: dtbound                            ! change in surface temperature for idrv=1 (K)
 
 !
 
@@ -807,7 +871,7 @@
       if (ctest .eq. cprcnt) goto 8900 
       if (ctest .ne. cdollar) goto 1000
 
-      read (ird,9011) iaer, iatm, ixsect, numangs, iout, imca, icld
+      read (ird,9011) iaer, iatm, ixsect, numangs, iout, idrv, imca, icld
 
 !  If numangs set to -1, reset to default rt code for
 !  backwards compatibility with original rrtm
@@ -821,6 +885,11 @@
 
 !  Read in surface information.
       read (ird,9012) tbound,iemiss,ireflect,semis(1:nbndlw)
+
+!  Read in change in surface temperature for upward flux derivative adjustment 
+      if (idrv .eq. 1) then
+         read (ird,9012) dtbound
+      endif
 
       do iband = 1, nbndlw
          semiss(iband) = 1.0_rb
@@ -927,6 +996,7 @@
       icld_out = icld
       iaer_out = iaer
       tbound_out = tbound
+      dtbound_out = dtbound
       pwvcm_out = pwvcm
       inflag_out = inflag
       iceflag_out = iceflag
@@ -995,7 +1065,7 @@
  9000 continue
 
  9010 format (a1)
- 9011 format (18x,i2,29x,i1,19x,i1,13x,i2,2x,i3,3x,i1,i1)
+ 9011 format (18x,i2,29x,i1,19x,i1,13x,i2,2x,i3,1x,i1,1x,i1,i1)
  9012 format (e10.3,1x,i1,2x,i1,16e5.3)
  9013 format (1x,i1,i3,i5)                                     
  9300 format (i5)

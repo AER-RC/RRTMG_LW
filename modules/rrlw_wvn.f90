@@ -33,6 +33,14 @@
 !totplk16:  real   : Integrated Planck value for band 16 (2600-3250 cm-1)
 !                    Used for calculation in band 16 only if 
 !                    individual band output requested
+!totplnkderiv: real: Integrated Planck function derivative with respect
+!                    to temperature for each band; (band 16
+!                    includes total from 2600 cm-1 to infinity)
+!                    Used for calculation across total spectrum
+!totplk16deriv:real: Integrated Planck function derivative with respect
+!                    to temperature for band 16 (2600-3250 cm-1)
+!                    Used for calculation in band 16 only if 
+!                    individual band output requested
 !
 ! ngc    :  integer: The number of new g-intervals in each band
 ! ngs    :  integer: The cumulative sum of new g-intervals for each band
@@ -59,6 +67,9 @@
 
       real(kind=rb) :: totplnk(181,nbndlw)
       real(kind=rb) :: totplk16(181)
+
+      real(kind=rb) :: totplnkderiv(181,nbndlw)
+      real(kind=rb) :: totplk16deriv(181)
 
       integer(kind=im) :: ngc(nbndlw)
       integer(kind=im) :: ngs(nbndlw)
