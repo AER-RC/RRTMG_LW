@@ -887,6 +887,7 @@
       read (ird,9012) tbound,iemiss,ireflect,semis(1:nbndlw)
 
 !  Read in change in surface temperature for upward flux derivative adjustment 
+      dtbound = 0.0_rb
       if (idrv .eq. 1) then
          read (ird,9012) dtbound
       endif

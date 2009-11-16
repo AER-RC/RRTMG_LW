@@ -9,9 +9,9 @@ RRTMG_LW Release Notes
 NOTE: ** CVS rtags can't accept "." in strings, substitute "_"
 
 
-November 12, 2009:
+November 16, 2009:
 
-        Release_4_83
+        Release_4_84
 
         An optional feature was added to the model to provide the vertical 
         profile of the change in upward flux with respect to surface temperature.

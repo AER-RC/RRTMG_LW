@@ -17,7 +17,7 @@ KGSRC = dat
 ################################
 
 PLATFORM = linux_pgi
-VERSION = v4.83
+VERSION = v4.84
 
 ##############################################################
 # Set location of netCDF libraries
