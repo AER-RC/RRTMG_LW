@@ -294,11 +294,11 @@
       real(kind=rb), intent(out), optional :: duflx_dt(:,:)     
                                                       ! change in upward longwave flux (w/m2/k)
                                                       ! with respect to surface temperature
-                                                      !    Dimensions: (ncol,nlay)
+                                                      !    Dimensions: (ncol,nlay+1)
       real(kind=rb), intent(out), optional :: duflxc_dt(:,:)    
                                                       ! change in clear sky upward longwave flux (w/m2/k)
                                                       ! with respect to surface temperature
-                                                      !    Dimensions: (ncol,nlay)
+                                                      !    Dimensions: (ncol,nlay+1)
 
 ! ----- Local -----
 

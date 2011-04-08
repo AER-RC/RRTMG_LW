@@ -157,14 +157,14 @@
       elseif (indbound .gt. 180) then
          indbound = 180
       endif
-      tbndfrac = tbound - 159._rb - float(indbound)
+      tbndfrac = tbound - 159._rb - real(indbound)
       indlev0 = tz(0) - 159._rb
       if (indlev0 .lt. 1) then
          indlev0 = 1
       elseif (indlev0 .gt. 180) then
          indlev0 = 180
       endif
-      t0frac = tz(0) - 159._rb - float(indlev0)
+      t0frac = tz(0) - 159._rb - real(indlev0)
       laytrop = 0
 
 ! Begin layer loop 
@@ -177,14 +177,14 @@
          elseif (indlay .gt. 180) then
             indlay = 180
          endif
-         tlayfrac = tavel(lay) - 159._rb - float(indlay)
+         tlayfrac = tavel(lay) - 159._rb - real(indlay)
          indlev = tz(lay) - 159._rb
          if (indlev .lt. 1) then
             indlev = 1
          elseif (indlev .gt. 180) then
             indlev = 180
          endif
-         tlevfrac = tz(lay) - 159._rb - float(indlev)
+         tlevfrac = tz(lay) - 159._rb - real(indlev)
 
 ! Begin spectral band loop 
          do iband = 1, 15
@@ -277,14 +277,14 @@
          elseif (jt(lay) .gt. 4) then
             jt(lay) = 4
          endif
-         ft = ((tavel(lay)-tref(jp(lay)))/15._rb) - float(jt(lay)-3)
+         ft = ((tavel(lay)-tref(jp(lay)))/15._rb) - real(jt(lay)-3)
          jt1(lay) = int(3._rb + (tavel(lay)-tref(jp1))/15._rb)
          if (jt1(lay) .lt. 1) then
             jt1(lay) = 1
          elseif (jt1(lay) .gt. 4) then
             jt1(lay) = 4
          endif
-         ft1 = ((tavel(lay)-tref(jp1))/15._rb) - float(jt1(lay)-3)
+         ft1 = ((tavel(lay)-tref(jp1))/15._rb) - real(jt1(lay)-3)
          water = wkl(1,lay)/coldry(lay)
          scalefac = pavel(lay) * stpfac / tavel(lay)
 
@@ -296,14 +296,14 @@
          forfac(lay) = scalefac / (1.+water)
          factor = (332.0_rb-tavel(lay))/36.0_rb
          indfor(lay) = min(2, max(1, int(factor)))
-         forfrac(lay) = factor - float(indfor(lay))
+         forfrac(lay) = factor - real(indfor(lay))
 
 !  Set up factors needed to separately include the water vapor
 !  self-continuum in the calculation of absorption coefficient.
          selffac(lay) = water * forfac(lay)
          factor = (tavel(lay)-188.0_rb)/7.2_rb
          indself(lay) = min(9, max(1, int(factor)-7))
-         selffrac(lay) = factor - float(indself(lay) + 7)
+         selffrac(lay) = factor - real(indself(lay) + 7)
 
 !  Set up factors needed to separately include the minor gases
 !  in the calculation of absorption coefficient
@@ -312,7 +312,7 @@
              *(wbroad(lay)/(coldry(lay)+wkl(1,lay)))
          factor = (tavel(lay)-180.8_rb)/7.2_rb
          indminor(lay) = min(18, max(1, int(factor)))
-         minorfrac(lay) = factor - float(indminor(lay))
+         minorfrac(lay) = factor - real(indminor(lay))
 
 !  Setup reference ratio to be used in calculation of binary
 !  species parameter in lower atmosphere.
@@ -366,7 +366,7 @@
              * (wbroad(lay)/(coldry(lay)+wkl(1,lay)))
          factor = (tavel(lay)-180.8_rb)/7.2_rb
          indminor(lay) = min(18, max(1, int(factor)))
-         minorfrac(lay) = factor - float(indminor(lay))
+         minorfrac(lay) = factor - real(indminor(lay))
 
 !  Setup reference ratio to be used in calculation of binary
 !  species parameter in upper atmosphere.

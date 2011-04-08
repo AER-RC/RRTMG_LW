@@ -17,7 +17,7 @@ KGSRC = nc
 ################################
 
 PLATFORM = OS_X_ibm_xl
-VERSION = v4.84
+VERSION = v4.85
 
 ##############################################################
 # Set location of netCDF libraries

@@ -9,6 +9,22 @@ RRTMG_LW Release Notes
 NOTE: ** CVS rtags can't accept "." in strings, substitute "_"
 
 
+April 8, 2011:
+
+        Release_4_85
+
+        A minor fix was made to rrtmg_lw_taumol.f90 to the code introduced in 
+        v4.82 to correct 'specparm' to read 'specparm1' at line 1513 in band 7.
+        This change has no impact in moderate to high moisture profiles such as 
+        mid-latitude summer and tropical. The largest impact will occur in cold, 
+        dry profiles such as mid-latitude winter, or sub-arctic winter. In these 
+        profiles, the impact is generally less than 0.05 Wm-2 in flux and less 
+        than 0.06 Kd-1 in heating rate. Other minor changes were made to improve 
+        code compatibility with g95 compilers that have no effect on output. 
+
+        Internal release only. 
+
+
 November 16, 2009:
 
         Release_4_84

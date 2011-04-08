@@ -111,7 +111,7 @@
       tfn_tbl(ntbl) = 1.0_rb
       bpade = 1.0_rb / pade
       do itr = 1, ntbl-1
-         tfn = float(itr) / float(ntbl)
+         tfn = real(itr) / real(ntbl)
          tau_tbl(itr) = bpade * tfn / (1._rb - tfn)
          exp_tbl(itr) = exp(-tau_tbl(itr))
          if (exp_tbl(itr) .le. expeps) exp_tbl(itr) = expeps
