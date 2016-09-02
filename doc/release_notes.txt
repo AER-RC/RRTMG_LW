@@ -9,6 +9,35 @@ RRTMG_LW Release Notes
 NOTE: ** CVS rtags can't accept "." in strings, substitute "_"
 
 
+September 2, 2016:
+
+        Release_4_90
+
+        All source code modules were modified to replace the original copyright
+        statement with a new BSD 3-clause software license (at the request
+        of ECMWF).  Additional minor changes include:
+        - Changed declaration of variable cinp in subroutine readprof in file
+        rrtmg_lw.1col.f90 from implicit real to character*3. 
+        - Fixed integer kind type problem in file rrtmg_lw_read_nc.f90 by 
+        replacing all numeral "1" arguments to nf90_get_var to "1_im" to 
+        prevent errors on some compilers. 
+        - Added fix to original two-layer memory cloud overlap method in source
+        file rrtmg_lw_rtrnmr.f90. This replaces the previous formulations for
+        variables faccmb1, faccmb2, faccmb1d, and faccmb2d.
+
+        Internal release only. 
+
+
+April 21, 2015:
+
+        Release_4_86
+
+        This branch from the main trunk was developed to add the capability
+        to include absorption of multiple HFCs for GEOS-5. 
+
+        External release to GSFC only. 
+
+
 April 8, 2011:
 
         Release_4_85
