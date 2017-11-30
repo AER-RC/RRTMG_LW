@@ -763,8 +763,8 @@
       implicit integer(i-n), real (a-h,o-z)
 
 ! ------- Parameters -------
-      parameter (mxlay = 203)
-      parameter (mxmol = 38)
+      parameter (mxlay = 603)
+      parameter (mxmol = 39)
       parameter (nbndlw = 16)
       parameter (maxinpx = mxmol)
       parameter (maxxsec = 4)
@@ -1108,7 +1108,7 @@
       implicit integer(i-n), real (a-h,o-z)
 
 ! ------- Parameters -------
-      parameter (mxlay=203)
+      parameter (mxlay=603)
       parameter (nbndlw = 16)
 
       common /profile/   nlayers,pavel(mxlay),tavel(mxlay),pz(0:mxlay),tz(0:mxlay)
@@ -1169,7 +1169,7 @@
       implicit integer(i-n), real(a-h,o-z)
 
 ! ------- Parameters -------
-      parameter (mxlay = 203)
+      parameter (mxlay = 603)
       parameter (nbndlw  = 16)
 !      parameter (mg = 16)
 !      parameter (mxstr = 16)
@@ -1247,7 +1247,7 @@
       implicit integer(i-n), real (a-h,o-z)
 
 ! ------- Parameters -------
-      parameter (maxinpx=38)
+      parameter (maxinpx=39)
       parameter (maxxsec=4)
 
       common /xsecctrl/ nxmol,ixindx(maxinpx)

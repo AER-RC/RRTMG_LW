@@ -28,12 +28,12 @@
 ! ngsNN  :  integer: cumulative number of g-intervals per band
 !------------------------------------------------------------------
 
-      integer(kind=im), parameter :: mxlay  = 203
+      integer(kind=im), parameter :: mxlay  = 603
       integer(kind=im), parameter :: mg     = 16
       integer(kind=im), parameter :: nbndlw = 16
       integer(kind=im), parameter :: maxxsec= 4
-      integer(kind=im), parameter :: mxmol  = 38
-      integer(kind=im), parameter :: maxinpx= 38
+      integer(kind=im), parameter :: mxmol  = 39
+      integer(kind=im), parameter :: maxinpx= 39
       integer(kind=im), parameter :: nmol   = 7
 ! Use for 140 g-point model 
       integer(kind=im), parameter :: ngptlw = 140
