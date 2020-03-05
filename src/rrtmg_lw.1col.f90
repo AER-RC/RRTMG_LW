@@ -172,7 +172,7 @@
       use rrlw_con, only: fluxfac, heatfac, oneminus, pi
       use rrlw_wvn, only: ng, ngb, nspa, nspb, wavenum1, wavenum2, delwave
       use rrlw_vsn
-      use mcica_subcol_gen_lw, only: mcica_subcol_lw
+      use mcica_subcol_gen_lw, only: get_alpha, mcica_subcol_lw
       use rrtmg_lw_cldprop, only: cldprop
       use rrtmg_lw_cldprmc, only: cldprmc
       use rrtmg_lw_init, only: rrtmg_lw_ini
@@ -216,6 +216,7 @@
 ! Atmosphere
       real(kind=rb) :: pavel(mxlay)           ! layer pressures (mb) 
       real(kind=rb) :: tavel(mxlay)           ! layer temperatures (K)
+      real(kind=rb) :: dz(mxlay)              ! layer thickness (m)
       real(kind=rb) :: pz(0:mxlay)            ! level (interface) pressures (hPa, mb)
       real(kind=rb) :: tz(0:mxlay)            ! level (interface) temperatures (K)
       real(kind=rb) :: tbound                 ! surface temperature (K)
@@ -336,6 +337,11 @@
                                               ! with respect to surface temperature
       real(kind=rb) :: dtotuclfl_dt(0:mxlay)  ! change in clear sky upward longwave flux (w/m2/k)
                                               ! with respect to surface temperature
+      real(kind=rb) :: alpha(mxlay)           ! vertical cloud fraction correlation parameter
+      real(kind=rb) :: decorr_con             ! cloud fraction decorrelation length, constant (meters)
+      integer(kind=im) :: juldat              ! Julian date (day of year)
+      integer(kind=im) :: idcor               ! Decorrelation length type
+      real(kind=rb) :: lat                    ! latitude (degrees)
 
 ! Parameters
       real(kind=rb), parameter :: cpdair = 1.004e3_rb  ! Specific heat capacity of dry air
@@ -414,8 +420,10 @@
 !  (read by subroutine readprof from input file INPUT_RRTM):  
 ! icld = 0, clear only
 ! icld = 1, with clouds using random cloud overlap
-! icld = 2, with clouds using maximum/random cloud overlap
+! icld = 2, with clouds using maximum_random cloud overlap
 ! icld = 3, with clouds using maximum cloud overlap (McICA only)
+! icld = 4, with clouds using exponential cloud overlap (McICA only)
+! icld = 5, with clouds using exponential_random cloud overlap (McICA only)
 
 ! Call model and data initialization, compute lookup tables, perform
 ! reduction of g-points from 256 to 140 for input absorption
@@ -437,10 +445,11 @@
 
 ! Input atmospheric profile from INPUT_RRTM.
          call readprof(ird, nlayers, iout, imca, icld, iaer, idrv, &
-                       pavel, tavel, pz, tz, tbound, semiss, &
+                       pavel, tavel, pz, tz, tbound, dz, semiss, &
                        dtbound, coldry, wkl, wbrodl, wx, pwvcm, &
                        inflag, iceflag, liqflag, cldfrac, &
-                       tauc, ciwp, clwp, rei, rel, tauaer)
+                       tauc, ciwp, clwp, rei, rel, tauaer, &
+                       decorr_con, juldat, idcor, lat)
 
          istart = 1
          iend = 16
@@ -466,9 +475,14 @@
 ! band output (iout=99) option is selected. 
 
             if (imca.eq.1) then
+               alpha(:) = 0.0_rb
+               if (icld .eq. 4 .or. icld .eq. 5) then 
+                  call get_alpha(iplon, nlayers, icld, idcor, decorr_con, &
+                                 dz, lat, juldat, cldfrac, alpha)
+               endif
                call mcica_subcol_lw(iplon, nlayers, icld, ims, irng, pavel, &
-                          cldfrac, ciwp, clwp, rei, rel, tauc, cldfmc, &
-                          ciwpmc, clwpmc, reicmc, relqmc, taucmc)
+                          cldfrac, ciwp, clwp, rei, rel, tauc, alpha, &
+                          cldfmc, ciwpmc, clwpmc, reicmc, relqmc, taucmc)
             endif
 
 !  For cloudy atmosphere, use cldprop to set cloud optical properties based on
@@ -739,10 +753,11 @@
 
 !************************************************************************
       subroutine readprof(ird_in, nlayers_out, iout_out, imca, icld_out, &
-          iaer_out, idrv, pavel_out, tavel_out, pz_out, tz_out, tbound_out, &
+          iaer_out, idrv, pavel_out, tavel_out, pz_out, tz_out, tbound_out, dz_out, &
           semiss_out, dtbound_out, coldry_out, wkl_out, wbrodl_out, wx_out, &
           pwvcm_out, inflag_out, iceflag_out, liqflag_out, cldfrac_out, &
-          tauc, ciwp, clwp, rei, rel, tauaer_out)
+          tauc, ciwp, clwp, rei, rel, tauaer_out, &
+          decorr_con_out, juldat_out, idcor_out, lat_out)
 !************************************************************************
 
 ! --------- Modules ----------
@@ -785,6 +800,7 @@
       common /xsec/     wx(maxxsec,mxlay)
       common /pathx/    ixmax,nxmol0,ixindx0(maxinpx),wx0(maxinpx,mxlay)    
       common /xrrtatm/  ixsect
+      common /c_drive/  ref_lat
 
       common /cloudin/   inflag,clddat1(mxlay),clddat2(mxlay), &
                          iceflag,liqflag,clddat3(mxlay),clddat4(mxlay)
@@ -808,6 +824,7 @@
 
       real(kind=rb), intent(out) :: pavel_out(mxlay)      ! layer pressures (mb) 
       real(kind=rb), intent(out) :: tavel_out(mxlay)      ! layer temperatures (K)
+      real(kind=rb), intent(out) :: dz_out(mxlay)         ! layer thickness (m)
       real(kind=rb), intent(out) :: pz_out(0:mxlay)       ! level (interface) pressures (hPa, mb)
       real(kind=rb), intent(out) :: tz_out(0:mxlay)       ! level (interface) temperatures (K)
       real(kind=rb), intent(out) :: tbound_out            ! surface temperature (K)
@@ -818,6 +835,10 @@
       real(kind=rb), intent(out) :: wx_out(maxxsec,mxlay) ! cross-section amounts (mol/cm2)
       real(kind=rb), intent(out) :: pwvcm_out             ! precipitable water vapor (cm)
       real(kind=rb), intent(out) :: semiss_out(nbndlw)    ! lw surface emissivity
+      real(kind=rb), intent(out) :: decorr_con_out        ! cloud fraction decorrelation length, constant (meters)
+      real(kind=rb), intent(out) :: lat_out               ! latitude 
+      integer(kind=im), intent(out) :: juldat_out         ! Julian date (day of year)
+      integer(kind=im), intent(out) :: idcor_out          ! Decorrelation length type
 
       integer(kind=im), intent(out) :: inflag_out         ! cloud property option flag
       integer(kind=im), intent(out) :: iceflag_out        ! ice cloud property flag
@@ -848,6 +869,14 @@
       real(kind=rb) :: wvsh                               ! water vapor vertical total specific humitidy
       real(kind=rb) :: pwvcm                              ! precipitable water vapor (cm)
       real(kind=rb) :: dtbound                            ! change in surface temperature for idrv=1 (K)
+
+! Local inputs for EXP or ER cloud overlap
+      integer(kind=im) :: idcor                           ! decorrelation length type 
+                                                          !  0 = constant
+                                                          !  1 = latitude and day of year dependent
+      real(kind=rb) :: decorr_con                         ! cloud fraction decorrelation length, constant (meters)
+      integer(kind=im) :: juldat                          ! Julian date (day of year)
+      real(kind=rb) :: lat                                ! latitude (degrees)
 
 !
 
@@ -912,6 +941,18 @@
          read (ird,9012) dtbound
       endif
 
+!  Read in extra records for EXP or ER cloud overlap
+      if (icld .eq. 4 .or. icld .eq. 5) then
+         read (ird,9014) idcor
+         if (idcor .eq. 0) then 
+            read (ird,9015) decorr_con
+         endif
+         if (idcor .eq. 1) then 
+            read (ird,9016) juldat, lat
+            if (iatm .eq. 1) lat = ref_lat
+         endif
+      endif
+
       do iband = 1, nbndlw
          semiss(iband) = 1.0_rb
          if (iemiss .eq. 1 .and. semis(1) .ne. 0._rb) then
@@ -950,6 +991,10 @@
                if (nxmol0 .gt. 7) read (ird,form3(iformx)) (wx0(m,l),m=8,nxmol0)
             enddo
          endif
+! calculate approximate layer thickness
+         do l = 1,nlayers
+            dz(l) = altz(l) - altz(l-1)
+         enddo
       else
          ipu = 7
          ipr = 66
@@ -1028,6 +1073,8 @@
       do l = 1, nlayers
          pavel_out(l) = pavel(l)
          tavel_out(l) = tavel(l)
+! convert layer thickness from km to m
+         dz_out(l) = dz(l) * 1000._rb
          pz_out(l) = pz(l)
          tz_out(l) = tz(l)
          coldry_out(l) = coldry(l)
@@ -1043,6 +1090,10 @@
       do n = 1, nbndlw
          semiss_out(n) = semiss(n)
       enddo
+      decorr_con_out = decorr_con
+      juldat_out = juldat
+      idcor_out = idcor
+      lat_out = lat
 
       do l = 1, nlayers
          if (inflag.eq.0) then
@@ -1089,6 +1140,9 @@
  9011 format (18x,i2,29x,i1,19x,i1,13x,i2,2x,i3,1x,i1,1x,i1,i1)
  9012 format (e10.3,1x,i1,2x,i1,16e5.3)
  9013 format (1x,i1,i3,i5)                                     
+ 9014 format (8x,i2)
+ 9015 format (f10.3)
+ 9016 format (5x,i5,f10.3)
  9300 format (i5)
  9301 format (1x,i1)
 
