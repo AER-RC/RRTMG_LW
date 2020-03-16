@@ -7,30 +7,6 @@ This model can also utilize McICA, the Monte-Carlo Independent Column Approximat
 
 The model includes an optional feature to provide simultaneously with a normal forward calculation the change in upward flux with respect to surface temperature for each model level. This option is controlled by the input flag, `idrv`. Setting this flag to 1 will output dF/dT for total sky and clear sky in GCM mode in new output arrays `duflx_dt` and `duflxc_dt`. These can be utilized to approximate the change in upward flux for a change in surface temperature only at time intervals between full radiation calls. In single column mode, setting idrv to 1 requires the extra input of a dT change in surface temperature relative to the input surface temperature, and the provided dT will be applied to the flux derivative to output a modified upward flux profile for that dT change in surface temperature. The default `idrv` setting of 0 provides the original forward radiative transfer calculation.  
 
-
-## Maintenance and Contact Info
-Atmospheric and Environmental Research, 
-131 Hartwell Avenue, Lexington, MA 02421
-
-Original version:   E. J. Mlawer, et al. (AER)
-Revision for GCMs:  Michael J. Iacono (AER)
-
-Contact:   Michael J. Iacono   (E-mail: miacono@aer.com)
-
-## References 
-
-* [AER Radiative Transfer Models Documentation](https://www.rtweb.aer.com)
-* **RRTMG_LW, RRTM_LW**
-    * Iacono, M.J., J.S. Delamere, E.J. Mlawer, M.W. Shephard, S.A. Clough, and W.D. Collins, Radiative forcing by long-lived greenhouse gases: Calculations with the AER radiative transfer models, *J. Geophys. Res.*, 113, D13103, doi:10.1029/2008JD009944, 2008.
-    * Clough, S.A., M.W. Shephard, E.J. Mlawer, J.S. Delamere, M.J. Iacono, K. Cady-Pereira, S. Boukabara, and P.D. Brown, Atmospheric radiative transfer modeling: a summary of the AER codes, *J. Quant., Spectrosc. Radiat. Transfer*, 91, 233-244, 2005.
-    * Iacono, M.J., J.S. Delamere, E.J. Mlawer, and S.A. Clough, Evaluation of upper tropospheric water vapor in the NCAR Community Climate Model (CCM3) using modeled and observed HIRS radiances. *J. Geophys. Res.*, 108(D2), 4037, doi:10.1029/2002JD002539, 2003.
-    * Iacono, M.J., E.J. Mlawer, S.A. Clough, and J.-J. Morcrette, Impact of an improved longwave radiation model, RRTM, on the energy budget and thermodynamic properties of the NCAR Community Climate Model, CCM3, *J. Geophys. Res.*, 105, 14873-14890, 2000.
-    * Mlawer, E.J., S.J. Taubman, P.D. Brown, M.J. Iacono, and S.A. Clough:  Radiative transfer for inhomogeneous atmospheres: RRTM, a validated correlated-k model for the longwave.  *J. Geophys. Res.*, 102, 16663-16682, 1997.
-* **McICA**
-    * Pincus, R., H. W. Barker, and J.-J. Morcrette, A fast, flexible, approximation technique for computing radiative transfer in inhomogeneous cloud fields, *J. Geophys. Res.*, 108(D13), 4376, doi:10.1029/2002JD003322, 2003.
-*  **Latitude-Varying Decorrelation Length**
-    *  Oreopoulos, L., D. Lee, Y.C. Sud, and M.J. Suarez, Radiative impacts of cloud heterogeneity and overlap in an atmospheric General Circulation Model, *Atmos. Chem. Phys.*, 12, 9097-9111, doi:10.5194/acp-12-9097-2012, 2012.
-
 ## RRTMG_LW : Column Version
 
 ### DOCUMENTATION
@@ -170,15 +146,38 @@ The following module files (in the `modules` directory) must be used to run RRTM
 | `rrlw_vsn.f90` | version number information |
 | `rrlw_wvn.f90` | spectral band and g-interval array information |
 
-INPUT DATA:
+### INPUT DATA:
 The following file (in the `data` directory) is the optional netCDF file containing absorption coefficient and other input data for the model. The file is used if source file `rrtmg_lw_read_nc.f90` is used in place of `rrtmg_lw_k_g.f90` (only one or the other is required). 
 
 | Filename | Description |
 | :--- | :--- |
 | `rrtmg_lw.nc` | Optional netCDF input data file |
 
-NOTES ON RUNNING THE GCM (SUBROUTINE) VERSION OF THE CODE:
+### NOTES ON RUNNING THE GCM (SUBROUTINE) VERSION OF THE CODE:
 
 1) The module `rrtmg_lw_init.f90` is the initialization routine that has to be called only once.  The call to this subroutine should be moved to the initialization section of the host model if RRTMG\_LW is called by a GCM or SCM. 
 2) The number of model layers and the number of columns to be looped over should be passed into RRTMG\_LW through the subroutine call along with the other model profile arrays.  
 3) To utilize McICA, the sub-column generator (`mcica_subcol_gen_lw.f90`) must be implemented in the GCM so that it is called just before RRTMG\_LW. The cloud overlap method is selected using the input flag, icld. If either exponential (`ICLD`=4) or exponential-random (`ICLD`=5) cloud overlap is selected, then the subroutine `get_alpha` must be called prior to calling `mcica_subcol_lw` to define the vertical correlation parameter, `alpha`, needed for those overlap methods. Also for those methods, use the input flag `idcor` to select the use of either a constant or latitude-varying decorrelation length. If McICA is utilized, this will run only a single statistical sample per model grid box. There are two options for the random number generator used with McICA, which is selected with the variable irnd in `mcica_subcol_gen_lw.f90`. When using McICA, then the main module is `rrtmg_lw_rad.f90`. If McICA is not used, then the main module is `rrtmg_lw_rad.nomcica.f90` and the cloud overlap method is selected by setting flag `icld`. 
+
+## Maintenance and Contact Info
+Atmospheric and Environmental Research, 
+131 Hartwell Avenue, Lexington, MA 02421
+
+Original version:   E. J. Mlawer, et al. (AER)
+Revision for GCMs:  Michael J. Iacono (AER)
+
+Contact:   Michael J. Iacono   (E-mail: miacono@aer.com)
+
+## References 
+
+* [AER Radiative Transfer Models Documentation](https://www.rtweb.aer.com)
+* **RRTMG_LW, RRTM_LW**
+    * Iacono, M.J., J.S. Delamere, E.J. Mlawer, M.W. Shephard, S.A. Clough, and W.D. Collins, Radiative forcing by long-lived greenhouse gases: Calculations with the AER radiative transfer models, *J. Geophys. Res.*, 113, D13103, doi:10.1029/2008JD009944, 2008.
+    * Clough, S.A., M.W. Shephard, E.J. Mlawer, J.S. Delamere, M.J. Iacono, K. Cady-Pereira, S. Boukabara, and P.D. Brown, Atmospheric radiative transfer modeling: a summary of the AER codes, *J. Quant., Spectrosc. Radiat. Transfer*, 91, 233-244, 2005.
+    * Iacono, M.J., J.S. Delamere, E.J. Mlawer, and S.A. Clough, Evaluation of upper tropospheric water vapor in the NCAR Community Climate Model (CCM3) using modeled and observed HIRS radiances. *J. Geophys. Res.*, 108(D2), 4037, doi:10.1029/2002JD002539, 2003.
+    * Iacono, M.J., E.J. Mlawer, S.A. Clough, and J.-J. Morcrette, Impact of an improved longwave radiation model, RRTM, on the energy budget and thermodynamic properties of the NCAR Community Climate Model, CCM3, *J. Geophys. Res.*, 105, 14873-14890, 2000.
+    * Mlawer, E.J., S.J. Taubman, P.D. Brown, M.J. Iacono, and S.A. Clough:  Radiative transfer for inhomogeneous atmospheres: RRTM, a validated correlated-k model for the longwave.  *J. Geophys. Res.*, 102, 16663-16682, 1997.
+* **McICA**
+    * Pincus, R., H. W. Barker, and J.-J. Morcrette, A fast, flexible, approximation technique for computing radiative transfer in inhomogeneous cloud fields, *J. Geophys. Res.*, 108(D13), 4376, doi:10.1029/2002JD003322, 2003.
+*  **Latitude-Varying Decorrelation Length**
+    *  Oreopoulos, L., D. Lee, Y.C. Sud, and M.J. Suarez, Radiative impacts of cloud heterogeneity and overlap in an atmospheric General Circulation Model, *Atmos. Chem. Phys.*, 12, 9097-9111, doi:10.5194/acp-12-9097-2012, 2012.
