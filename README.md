@@ -1,10 +1,14 @@
-!     path:      $Source$
-!     author:    $Author: mike $
-!     revision:  $Revision: 11744 $
-!     created:   $Date: 2009-11-12 15:52:26 -0500 (Thu, 12 Nov 2009) $
-! ---------------------------------------------------------------------
+# RRTMG_LW: Longwave Radiative Transfer Model for GCMs
+This package contains the source code and sample makefiles necessary to run the latest version of RRTMG\_LW, a correlated k-distribution longwave radiative transfer model developed at AER for application to GCMs. This version of RRTMG\_LW has been modified from the standard RRTM\_LW distributed by AER to enhance its performance for use within general circulation models. This code has also been modified to utilize updated FORTRAN coding features. Two modes of operation are possible: 1) RRTMG_LW can be run as a column model using the input files and source modules described below, or 2) it can be implemented as a subroutine into an atmospheric general circulation model or single column model. 
 
- RRTMG_LW: Longwave Radiative Transfer Model for GCMs
+The version of RRTMG\_LW provided here has been modified from the standard RRTM\_LW to enhance performance with little effect on the accuracy. The total number of g-points used has been reduced from 256 to 140. Fluxes are accurate to within 0.5 W/m2 and cooling rate within 0.1 K/day relative to the standard RRTM\_LW, which is itself accurate to within 1 W/m2 of the data-validated line-by-line radiative transfer model, LBLRTM. Required absorption coefficient input data can be read in either from data stored within the code or from an external netCDF file as selected in the makefile. 
+
+This model can also utilize McICA, the Monte-Carlo Independent Column Approximation, to represent sub-grid scale cloud variability such as cloud fraction and cloud overlap. If the McICA option is selected to model a cloudy profile in column mode, then the model will run stochastically, and the output fluxes and heating rates will be an average over 200 samples. In GCM mode, the code will calcualte a single column per profile, and the statistical basis is provided by the spatial and temporal dimensions of the 3-D calculations. Several cloud overlap methods are available for partial cloudiness including maximum-random, exponential, and exponential-random. 
+
+The model includes an optional feature to provide simultaneously with a normal forward calculation the change in upward flux with respect to surface temperature for each model level. This option is controlled by the input flag, `idrv`. Setting this flag to 1 will output dF/dT for total sky and clear sky in GCM mode in new output arrays `duflx_dt` and `duflxc_dt`. These can be utilized to approximate the change in upward flux for a change in surface temperature only at time intervals between full radiation calls. In single column mode, setting idrv to 1 requires the extra input of a dT change in surface temperature relative to the input surface temperature, and the provided dT will be applied to the flux derivative to output a modified upward flux profile for that dT change in surface temperature. The default `idrv` setting of 0 provides the original forward radiative transfer calculation.  
+
+
+## Maintenance and Contact Info
  Atmospheric and Environmental Research, 
  131 Hartwell Avenue, Lexington, MA 02421
 
@@ -13,92 +17,20 @@
 
  Contact:   Michael J. Iacono   (E-mail: miacono@aer.com)
 
- Web Sites: https://github.com/AER-RC/RRTMG_LW
-            https://www.rtweb.aer.com
+## References 
 
- References (RRTMG_LW/RRTM_LW): 
-             Iacono, M.J., J.S. Delamere, E.J. Mlawer, M.W. Shephard,
-             S.A. Clough, and W.D. Collins, Radiative forcing by long-
-             lived greenhouse gases: Calculations with the AER radiative
-             transfer models, J. Geophys. Res., 113, D13103, doi:
-             10.1029/2008JD009944, 2008.
+* [AER Radiative Transfer Models Documentation](https://www.rtweb.aer.com)
+* **RRTMG_LW, RRTM_LW**
+    * Iacono, M.J., J.S. Delamere, E.J. Mlawer, M.W. Shephard, S.A. Clough, and W.D. Collins, Radiative forcing by long-lived greenhouse gases: Calculations with the AER radiative transfer models, *J. Geophys. Res.*, 113, D13103, doi:10.1029/2008JD009944, 2008.
+    * Clough, S.A., M.W. Shephard, E.J. Mlawer, J.S. Delamere, M.J. Iacono, K. Cady-Pereira, S. Boukabara, and P.D. Brown, Atmospheric radiative transfer modeling: a summary of the AER codes, *J. Quant., Spectrosc. Radiat. Transfer*, 91, 233-244, 2005.
+    * Iacono, M.J., J.S. Delamere, E.J. Mlawer, and S.A. Clough, Evaluation of upper tropospheric water vapor in the NCAR Community Climate Model (CCM3) using modeled and observed HIRS radiances. *J. Geophys. Res.*, 108(D2), 4037, doi:10.1029/2002JD002539, 2003.
+    * Iacono, M.J., E.J. Mlawer, S.A. Clough, and J.-J. Morcrette, Impact of an improved longwave radiation model, RRTM, on the energy budget and thermodynamic properties of the NCAR Community Climate Model, CCM3, *J. Geophys. Res.*, 105, 14873-14890, 2000.
+    * Mlawer, E.J., S.J. Taubman, P.D. Brown, M.J. Iacono, and S.A. Clough:  Radiative transfer for inhomogeneous atmospheres: RRTM, a validated correlated-k model for the longwave.  *J. Geophys. Res.*, 102, 16663-16682, 1997.
+* **McICA**
+    * Pincus, R., H. W. Barker, and J.-J. Morcrette, A fast, flexible, approximation technique for computing radiative transfer in inhomogeneous cloud fields, *J. Geophys. Res.*, 108(D13), 4376, doi:10.1029/2002JD003322, 2003.
+*  **Latitude-Varying Decorrelation Length**
+    *  Oreopoulos, L., D. Lee, Y.C. Sud, and M.J. Suarez, Radiative impacts of cloud heterogeneity and overlap in an atmospheric General Circulation Model, *Atmos. Chem. Phys.*, 12, 9097-9111, doi:10.5194/acp-12-9097-2012, 2012.
 
-             Clough, S.A., M.W. Shephard, E.J. Mlawer, J.S. Delamere, 
-             M.J. Iacono, K. Cady-Pereira, S. Boukabara, and P.D. Brown,
-             Atmospheric radiative transfer modeling: a summary of the
-             AER codes, J. Quant., Spectrosc. Radiat. Transfer, 91, 
-             233-244, 2005.
-  
-             Iacono, M.J., J.S. Delamere, E.J. Mlawer, and S.A. Clough,
-             Evaluation of upper tropospheric water vapor in the NCAR
-             Community Climate Model (CCM3) using modeled and observed
-             HIRS radiances. J. Geophys. Res., 108(D2), 4037, doi:10.1029/
-             2002JD002539, 2003.
-
-             Iacono, M.J., E.J. Mlawer, S.A. Clough, and J.-J. Morcrette,
-             Impact of an improved longwave radiation model, RRTM, on the
-             energy budget and thermodynamic properties of the NCAR Community
-             Climate Model, CCM3, J. Geophys. Res., 105, 14873-14890, 2000.
-
-             Mlawer, E.J., S.J. Taubman, P.D. Brown, M.J. Iacono, and S.A.
-             Clough:  Radiative transfer for inhomogeneous atmospheres: RRTM,
-             a validated correlated-k model for the longwave.  J. Geophys.
-             Res., 102, 16663-16682, 1997.
-
- Reference (McICA):
-             Pincus, R., H. W. Barker, and J.-J. Morcrette, A fast, flexible,
-             approximation technique for computing radiative transfer in
-             inhomogeneous cloud fields, J. Geophys. Res., 108(D13), 4376,
-             doi:10.1029/2002JD003322, 2003.
-
- Reference (Latitude-Varying Decorrelation Length):
-             Oreopoulos, L., D. Lee, Y.C. Sud, and M.J. Suarez, Radiative
-             impacts of cloud heterogeneity and overlap in an atmospheric
-             General Circulation Model, Atmos. Chem. Phys., 12, 9097-9111,
-             doi:10.5194/acp-12-9097-2012, 2012.
-******************************************************************************
-
-This package contains the source code and sample makefiles necessary to run the
-latest version of RRTMG_LW, a correlated k-distribution longwave radiative transfer 
-model developed at AER for application to GCMs. This version of RRTMG_LW has
-been modified from the standard RRTM_LW distributed by AER to enhance its 
-performance for use within general circulation models. This code has also been
-modified to utilize updated FORTRAN coding features. Two modes of operation 
-are possible: 1) RRTMG_LW can be run as a column model using the input files 
-and source modules described below, or 2) it can be implemented as a subroutine 
-into an atmospheric general circulation model or single column model. 
-
-The version of RRTMG_LW provided here has been modified from the standard 
-RRTM_LW to enhance performance with little effect on the accuracy. The total 
-number of g-points used has been reduced from 256 to 140. Fluxes are accurate
-to within 0.5 W/m2 and cooling rate within 0.1 K/day relative to the standard
-RRTM_LW, which is itself accurate to within 1 W/m2 of the data-validated 
-line-by-line radiative transfer model, LBLRTM. Required absorption coefficient
-input data can be read in either from data stored within the code or from an
-external netCDF file as selected in the makefile. 
-
-This model can also utilize McICA, the Monte-Carlo Independent Column 
-Approximation, to represent sub-grid scale cloud variability such as cloud 
-fraction and cloud overlap. If the McICA option is selected to model a cloudy 
-profile in column mode, then the model will run stochastically, and the output 
-fluxes and heating rates will be an average over 200 samples. In GCM mode, 
-the code will calcualte a single column per profile, and the statistical basis
-is provided by the spatial and temporal dimensions of the 3-D calculations. 
-Several cloud overlap methods are available for partial cloudiness including
-maximum-random, exponential, and exponential-random. 
-
-The model includes an optional feature to provide simultaneously with a 
-normal forward calculation the change in upward flux with respect to surface
-temperature for each model level. This option is controlled by the input 
-flag, idrv. Setting this flag to 1 will output dF/dT for total sky and
-clear sky in GCM mode in new output arrays duflx_dt and duflxc_dt. These 
-can be utilized to approximate the change in upward flux for a change in 
-surface temperature only at time intervals between full radiation calls.  
-In single column mode, setting idrv to 1 requires the extra input of a dT 
-change in surface temperature relative to the input surface temperature, and 
-the provided dT will be applied to the flux derivative to output a modified 
-upward flux profile for that dT change in surface temperature. The default 
-idrv setting of 0 provides the original forward radiative transfer calculation.  
 
 
 *************************
