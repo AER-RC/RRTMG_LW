@@ -42,128 +42,96 @@ The following text files (in the `doc` directory), along with this `README` prov
 | `rrtmg_lw_instructions.txt` | Input instructions for files INPUT_RRTM, IN_CLD_RRTM and IN_AER_RRTM |
 
 ### SOURCE CODE
-The following source files (in the `src` directory) must be used to run RRTMG\_LW in stand-alone mode as a column model (the utility files are stored separately in the /aer_rt_utils directory):
+The following source files (in the `src` directory) must be used to run RRTMG\_LW in stand-alone mode as a column model (the utility files are stored separately in the `aer_rt_utils` directory):
 
 | Filename | Description |
 | :--- | :--- |
-| rrtmg_lw.1col.f90 | RRTMG_LW main module |
-| rrtmg_lw_cldprop.f90 | Calculation of cloud optical properties |
-| rrtmg_lw_cldprmc.f90 | Calculation of cloud optical properties (McICA) |
-| rrtmg_lw_init.f90 | RRTMG_LW initialization routine; reduces g-intervals from 256 to 140 |
-| rrtmg_lw_k_g.f90 | Absorption coefficient data file |
-| rrtmg_lw_read_nc.f90 | Optional absorption coefficient data netCDF input |
-| rrtmg_lw_rtrn.f90 | Calculation of clear and cloudy radiative transfer using random cloud overlap |
-| rrtmg_lw_rtrnmr.f90 | Calculation of clear and cloudy radiative transfer using maximum-random cloud overlap |
-| rrtmg_lw_rtrnmc.f90 | Calculation of clear and cloudy radiative transfer using McICA (with user-selectable overlap method) |
-| rrtmg_lw_setcoef.f90 | Set up routine |
-| rrtmg_lw_taumol.f90 | Calculation of optical depths and Planck fractions for each spectral band |
-| mcica_random_numbers.f90 | Random number generator for McICA |
-| mcica_subcol_gen_lw.1col.f90 | Sub-column generator for McICA |
-| rrtatm.f | Process user-defined input data files |
-| extra.f | Process input data files |
-| util_**.f | Utilities (available for multiple platforms) |
+| `rrtmg_lw.1col.f90` | RRTMG_LW main module |
+| `rrtmg_lw_cldprop.f90` | Calculation of cloud optical properties |
+| `rrtmg_lw_cldprmc.f90` | Calculation of cloud optical properties (McICA) |
+| `rrtmg_lw_init.f90` | RRTMG_LW initialization routine; reduces g-intervals from 256 to 140 |
+| `rrtmg_lw_k_g.f90` | Absorption coefficient data file |
+| `rrtmg_lw_read_nc.f90` | Optional absorption coefficient data netCDF input |
+| `rrtmg_lw_rtrn.f90` | Calculation of clear and cloudy radiative transfer using random cloud overlap |
+| `rrtmg_lw_rtrnmr.f90` | Calculation of clear and cloudy radiative transfer using maximum-random cloud overlap |
+| `rrtmg_lw_rtrnmc.f90` | Calculation of clear and cloudy radiative transfer using McICA (with user-selectable overlap method) |
+| `rrtmg_lw_setcoef.f90` | Set up routine |
+| `rrtmg_lw_taumol.f90` | Calculation of optical depths and Planck fractions for each spectral band |
+| `mcica_random_numbers.f90` | Random number generator for McICA |
+| `mcica_subcol_gen_lw.1col.f90` | Sub-column generator for McICA |
+| `rrtatm.f` | Process user-defined input data files |
+| `extra.f` | Process input data files |
+| `util_**.f` | Utilities (available for multiple platforms) |
 
-The following module files (in the /modules directory) must be used to run 
-RRTMG_LW in stand-alone mode as a column model (these must be compiled before the
-source code files):
+The following module files (in the `modules` directory) must be used to run RRTMG\_LW in stand-alone mode as a column model (these must be compiled before the source code files):
 
 | Filename | Description |
 | :--- | :--- |
-| parkind.f90 | real and integer kind type parameters |
-| parrrtm.f90 | main configuration parameters |
-| rrlw_cld.f90 | cloud property coefficients |
-| rrlw_con.f90 | constants |
-| rrlw_kg**.f90 | absorption coefficient arrays for 16 spectral bands |
-| rrlw_ncpar.f90 | parameters for netCDF input data option |
-| rrlw_ref.f90 | reference atmosphere data arrays |
-| rrlw_tbl.f90 | exponential look up table arrays |
-| rrlw_vsn.f90 | version number information |
-| rrlw_wvn.f90 | spectral band and g-interval array information |
+| `parkind.f90` | real and integer kind type parameters |
+| `parrrtm.f90` | main configuration parameters |
+| `rrlw_cld.f90` | cloud property coefficients |
+| `rrlw_con.f90` | constants |
+| `rrlw_kg**.f90` | absorption coefficient arrays for 16 spectral bands |
+| `rrlw_ncpar.f90` | parameters for netCDF input data option |
+| `rrlw_ref.f90` | reference atmosphere data arrays |
+| `rrlw_tbl.f90` | exponential look up table arrays |
+| `rrlw_vsn.f90` | version number information |
+| `rrlw_wvn.f90` | spectral band and g-interval array information |
 
-### INPUT DATA:
-   The following file (in the /data directory) is the optional netCDF input file 
-   containing absorption coefficient and other input data for the model.
-   The file is used if keyword KGSRC is set for netCDF input in the makefile. 
+### INPUT DATA
+The following file (in the `data` directory) is the optional netCDF input file containing absorption coefficient and other input data for the model. The file is used if keyword `KGSRC` is set for netCDF input in the makefile. 
 
 | Filename | Description |
 | :--- | :--- |
-   rrtmg_lw.nc               : Optional netCDF input data file
+| rrtmg_lw.nc | Optional netCDF input data file |
 
-### MAKEFILES:
-   The following files (in the /build/makefiles directory) can be used to compile
-   RRTMG_LW in stand-alone mode as a column model on various platforms.  Link 
-   one of these into the /build directory to compile. 
+### MAKEFILES
+The following files (in the `build/makefiles` directory) can be used to compile RRTMG\_LW in stand-alone mode as a column model on various platforms.  Link one of these into the `build` directory to compile. 
 
 | Filename | Description |
 | :--- | :--- |
-   make_rrtmg_lw_sgi         : Sample makefile for SGI
-   make_rrtmg_lw_sun         : Sample makefile for SUN
-   make_rrtmg_lw_linux_pgi   : Sample makefile for LINUX (PGI compiler)
-   make_rrtmg_lw_aix_xlf90   : Sample makefile for AIX (XLF90 compiler)
-   make_rrtmg_lw_OS_X_g95    : Sample makefile for OS_X (G95 compiler)
-   make_rrtmg_lw_OS_X_ibm_xl : Sample makefile for OS_X (IBM XL compiler)
+| make_rrtmg_lw_sgi | Sample makefile for SGI |
+| make_rrtmg_lw_sun | Sample makefile for SUN |
+| make_rrtmg_lw_linux_pgi | Sample makefile for LINUX (PGI compiler) |
+| make_rrtmg_lw_aix_xlf90 | Sample makefile for AIX (XLF90 compiler) |
+| make_rrtmg_lw_OS_X_g95 | Sample makefile for OS_X (G95 compiler) |
+| make_rrtmg_lw_OS_X_ibm_xl | Sample makefile for OS_X (IBM XL compiler) |
 
-### SAMPLE INPUT/OUTPUT: 
-   Several sample input and output files are included in the /runs_std_atm directory.
-   Note that user-defined profiles may be used for as many as 200 layers.
+### SAMPLE INPUT/OUTPUT
+Several sample input and output files are included in the `run_examples_std_atm` directory. Note that user-defined profiles may be used for as many as 200 layers.
 
 | Filename | Description |
 | :--- | :--- |
-   INPUT_RRTM                : Required input file for (clear sky) atmospheric 
-                               specification 
-   IN_CLD_RRTM               : Required input file for cloud specification if clouds
-                               are present
-   IN_AER_RRTM               : Required input file for aerosol specification if aerosols
-                               are present
-   OUTPUT_RRTM               : Main output file for atmospheric fluxes and heating rates
-   input_rrtm_ICRCCM_sonde   : Sample radiosonde-style input profile for clear sky
-   input_rrtm.MLS-clr        : Sample 51 layer mid-latitude summer standard atmosphere
-                               for clear sky
-   input_rrtm.MLS-cld-imca0-icld2
-                             : Sample 51 layer mid-latitude summer standard atmosphere
-                               with cloud flag turned on and maximum-random cloud 
-                               overlap selected (without McICA)
-   input_rrtm.MLS-cld-imca1-icld2
-                             : Sample 51 layer mid-latitude summer standard atmosphere
-                               with cloud flag turned on and maximum-random cloud 
-                               overlap selected (with McICA)
-   input_rrtm.MLS-cld-imca1-icld4-idcor0
-                             : Sample 51 layer mid-latitude summer standard atmosphere
-                               with cloud flag turned on and exponential cloud overlap
-                               and constant decorrelation length selected (with McICA)
-   input_rrtm.MLS-cld-imca1-icld5-idcor0
-                             : Sample 51 layer mid-latitude summer standard atmosphere
-                               with cloud flag turned on and exponential-random cloud overlap
-                               and constant decorrelation length selected (with McICA)
-   input_rrtm.MLS-cld-imca1-icld5-idcor1
-                             : Sample 51 layer mid-latitude summer standard atmosphere
-                               with cloud flag turned on and exponential-random cloud overlap
-                               and varying decorrelation length selected (with McICA)
-   input_rrtm.MLS-clr-aer12  : Sample 51 layer mid-latitude summer standard atmosphere
-                               with aersol flag set
-   input_rrtm.MLS-clr-xsec   : Sample 51 layer mid-latitude summer standard atmosphere
-                               with cross-section input (CFCs, etc.)
-   input_rrtm.MLS-clr-idrv1  : Sample 51 layer mid-latitude summer standard atmosphere
-                               with derivative option set to provide modified upward
-                               fluxes for the provided change in surface temperature
-   input_rrtm.MLW-clr        : Sample 51 layer mid-latitude winter standard atmosphere
-   input_rrtm.SAW-clr        : Sample 51 layer sub-arctic winter standard atmosphere
-   input_rrtm.TROP-clr       : Sample 51 layer tropical standard atmosphere
-   in_cld_rrtm-cld5          : Sample cloud input file
-   in_cld_rrtm-cld7          : Sample cloud input file
-   in_aer_rrtm-aer12         : Sample aerosol input file
-   script.run_std_atm        : UNIX script for running the full suite of example cases,
-                               which will put the output into similarly named files
-                               prefixed with output_rrtm*
+| INPUT_RRTM | Required input file for (clear sky) atmospheric specification |
+| IN_CLD_RRTM | Required input file for cloud specification if clouds are present |
+| IN_AER_RRTM | Required input file for aerosol specification if aerosols are present |
+| OUTPUT_RRTM | Main output file for atmospheric fluxes and heating rates |
+| input_rrtm_ICRCCM_sonde | Sample radiosonde-style input profile for clear sky |
+| input_rrtm.MLS-clr | Sample 51 layer mid-latitude summer standard atmosphere for clear sky |
+| input_rrtm.MLS-cld-imca0-icld2 | Sample 51 layer mid-latitude summer standard atmosphere with cloud flag turned on and maximum-random cloud overlap selected (without McICA) |
+| input_rrtm.MLS-cld-imca1-icld2 | Sample 51 layer mid-latitude summer standard atmosphere with cloud flag turned on and maximum-random cloud overlap selected (with McICA) |
+| input_rrtm.MLS-cld-imca1-icld4-idcor0 | Sample 51 layer mid-latitude summer standard atmosphere with cloud flag turned on and exponential cloud overlap and constant decorrelation length selected (with McICA) |
+| input_rrtm.MLS-cld-imca1-icld5-idcor0 | Sample 51 layer mid-latitude summer standard atmosphere with cloud flag turned on and exponential-random cloud overlap and constant decorrelation length selected (with McICA) |
+| input_rrtm.MLS-cld-imca1-icld5-idcor1 | Sample 51 layer mid-latitude summer standard atmosphere with cloud flag turned on and exponential-random cloud overlap and varying decorrelation length selected (with McICA) |
+| input_rrtm.MLS-clr-aer12 | Sample 51 layer mid-latitude summer standard atmosphere with aersol flag set |
+| input_rrtm.MLS-clr-xsec | Sample 51 layer mid-latitude summer standard atmosphere with cross-section input (CFCs, etc.) |
+| input_rrtm.MLS-clr-idrv1 | Sample 51 layer mid-latitude summer standard atmosphere with derivative option set to provide modified upward fluxes for the provided change in surface temperature |
+| input_rrtm.MLW-clr | Sample 51 layer mid-latitude winter standard atmosphere |
+| input_rrtm.SAW-clr | Sample 51 layer sub-arctic winter standard atmosphere |
+| input_rrtm.TROP-clr | Sample 51 layer tropical standard atmosphere |
+| in_cld_rrtm-cld5 | Sample cloud input file |
+| in_cld_rrtm-cld7 | Sample cloud input file |
+| in_aer_rrtm-aer12 | Sample aerosol input file |
+| script.run_std_atm | UNIX script for running the full suite of example cases, which will put the output into similarly named files prefixed with `output_rrtm*` |
 
 ### INSTRUCTIONS FOR COMPILING AND RUNNING THE COLUMN MODEL:
    1) In the /build directory, link one of the makefiles from the /makefile sub-directory
       into /build/make.build. To use the optional netCDF input file, switch the keyword
       "KGSRC" in the makefile from "dat" to "nc". Compile the model with "make -f make.build"
-   2) Link the executable to, for example, "rrtmg_lw" in the /runs_std_atm directory
+   2) Link the executable to, for example, "rrtmg_lw" in the /run_examples_std_atm directory
    3) If the optional netCDF input file was selected when compiling, link the file 
-      /data/rrtmg_lw.nc into the /runs_std_atm directory.  
-   4) In the /runs_std_atm directory, run the UNIX script "./script.run_std_atm" to run
+      /data/rrtmg_lw.nc into the /run_examples_std_atm directory.  
+   4) In the /run_examples_std_atm directory, run the UNIX script "./script.run_std_atm" to run
       the full suite of example cases. To run a single case, modify INPUT_RRTM following the
       instructions in /doc/rrtmg_lw_instructions.txt", or copy one of the example input_rrtm* 
       files into INPUT_RRTM. If clouds are selected (ICLD > 0), then modify IN_CLD_RRTM or
