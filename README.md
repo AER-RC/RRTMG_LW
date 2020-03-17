@@ -10,6 +10,12 @@ This model can also utilize McICA, the Monte-Carlo Independent Column Approximat
 
 The model includes an optional feature to provide simultaneously with a normal forward calculation the change in upward flux with respect to surface temperature for each model level. This option is controlled by the input flag, `idrv`. Setting this flag to 1 will output dF/dT for total sky and clear sky in GCM mode in new output arrays `duflx_dt` and `duflxc_dt`. These can be utilized to approximate the change in upward flux for a change in surface temperature only at time intervals between full radiation calls. In single column mode, setting idrv to 1 requires the extra input of a dT change in surface temperature relative to the input surface temperature, and the provided dT will be applied to the flux derivative to output a modified upward flux profile for that dT change in surface temperature. The default `idrv` setting of 0 provides the original forward radiative transfer calculation.  
 
+## Releases
+
+[Version 5.0 is the latest version of the model](https://github.com/AER-RC/RRTMG_LW/releases/tag/v5.0)
+
+Releases before Version 5.0 are not publicly available.
+
 ## RRTMG_LW : Column Version
 
 ### DOCUMENTATION
