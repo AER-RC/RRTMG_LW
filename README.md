@@ -1,10 +1,10 @@
 # RRTMG_LW: Longwave Radiative Transfer Model for GCMs
-This package contains the source code and sample makefiles necessary to run the latest version of RRTMG\_LW, a correlated k-distribution longwave radiative transfer model developed at AER for application to GCMs. This version of RRTMG\_LW has been modified from the standard RRTM\_LW distributed by AER to enhance its performance for use within general circulation models. This code has also been modified to utilize updated FORTRAN coding features. Two modes of operation are possible: 
+This package contains the source code and sample makefiles necessary to run the latest version of RRTMG\_LW, a correlated *k*-distribution longwave radiative transfer model developed at AER for application to GCMs. This version of RRTMG\_LW has been modified from the standard RRTM\_LW distributed by AER to enhance its performance for use within general circulation models. This code has also been modified to utilize updated FORTRAN coding features. Two modes of operation are possible: 
 
 1) RRTMG_LW can be run as a [column model](https://github.com/AER-RC/RRTMG_LW#rrtmg_lw--column-version) using the [input files](https://github.com/AER-RC/RRTMG_LW#input-data) and [source modules](https://github.com/AER-RC/RRTMG_LW#source-code) described in the column version section, or 
 2) it can be implemented as a [subroutine into an atmospheric general circulation model or single column model](https://github.com/AER-RC/RRTMG_LW#rrtmg_lw--gcm-version). 
 
-The version of RRTMG\_LW provided here has been modified from the standard RRTM\_LW to enhance performance with little effect on the accuracy. The total number of g-points used has been reduced from 256 to 140. Fluxes are accurate to within 0.5 W m<sup>-2</sup> and cooling rate within 0.1 K day<sup>-1</sup> relative to the standard RRTM\_LW, which is itself accurate to within 1 W m<sup>-2</sup> of the data-validated line-by-line radiative transfer model, LBLRTM. Required absorption coefficient input data can be read in either from data stored within the code or from an external netCDF file as selected in the makefile. 
+The version of RRTMG\_LW provided here has been modified from the standard RRTM\_LW to enhance performance with little effect on the accuracy. The total number of *g*-points used has been reduced from 256 to 140. Fluxes are accurate to within 0.5 W m<sup>-2</sup> and cooling rate within 0.1 K day<sup>-1</sup> relative to the standard RRTM\_LW, which is itself accurate to within 1 W m<sup>-2</sup> of the data-validated line-by-line radiative transfer model, LBLRTM. Required absorption coefficient input data can be read in either from data stored within the code or from an external netCDF file as selected in the makefile. 
 
 This model can also utilize McICA, the Monte-Carlo Independent Column Approximation, to represent sub-grid scale cloud variability such as cloud fraction and cloud overlap. If the McICA option is selected to model a cloudy profile in column mode, then the model will run stochastically, and the output fluxes and heating rates will be an average over 200 samples. In GCM mode, the code will calcualte a single column per profile, and the statistical basis is provided by the spatial and temporal dimensions of the 3-D calculations. Several cloud overlap methods are available for partial cloudiness including maximum-random, exponential, and exponential-random. 
 
@@ -28,7 +28,7 @@ The following source files (in the `src` directory) must be used to run RRTMG\_L
 | `rrtmg_lw.1col.f90` | RRTMG_LW main module |
 | `rrtmg_lw_cldprop.f90` | Calculation of cloud optical properties |
 | `rrtmg_lw_cldprmc.f90` | Calculation of cloud optical properties (McICA) |
-| `rrtmg_lw_init.f90` | RRTMG_LW initialization routine; reduces g-intervals from 256 to 140 |
+| `rrtmg_lw_init.f90` | RRTMG_LW initialization routine; reduces *g*-intervals from 256 to 140 |
 | `rrtmg_lw_k_g.f90` | Absorption coefficient data file |
 | `rrtmg_lw_read_nc.f90` | Optional absorption coefficient data netCDF input |
 | `rrtmg_lw_rtrn.f90` | Calculation of clear and cloudy radiative transfer using random cloud overlap |
@@ -55,7 +55,7 @@ The following module files (in the `modules` directory) must be used to run RRTM
 | `rrlw_ref.f90` | reference atmosphere data arrays |
 | `rrlw_tbl.f90` | exponential look up table arrays |
 | `rrlw_vsn.f90` | version number information |
-| `rrlw_wvn.f90` | spectral band and g-interval array information |
+| `rrlw_wvn.f90` | spectral band and *g*-interval array information |
 
 ### INPUT DATA
 The following file (in the `data` directory) is the optional netCDF input file containing absorption coefficient and other input data for the model. The file is used if keyword `KGSRC` is set for netCDF input in the makefile. 
@@ -121,7 +121,7 @@ The following source files (in the `src` directory) must be used to run RRTMG\_L
 | `rrtmg_lw_rad.nomcica.f90` | Optional RRTMG_LW main module (without McICA only) |
 | `rrtmg_lw_cldprop.f90` | Calculation of cloud optical properties |
 | `rrtmg_lw_cldprmc.f90` | Calculation of cloud optical properties (McICA) |
-| `rrtmg_lw_init.f90` | RRTMG_LW initialization routine; reduces g-intervals from 256 to 140; (This has to run only once and should  be installed in the GCM initialization section) |
+| `rrtmg_lw_init.f90` | RRTMG_LW initialization routine; reduces *g*-intervals from 256 to 140; (This has to run only once and should  be installed in the GCM initialization section) |
 | `rrtmg_lw_k_g.f90` | Absorption coefficient data file |
 | `rrtmg_lw_read_nc.f90` | Optional absorption coefficient data netCDF input |
 | `rrtmg_lw_rtrn.f90` | Calculation of clear and cloudy radiative transfer using random cloud overlap |
@@ -147,7 +147,7 @@ The following module files (in the `modules` directory) must be used to run RRTM
 | `rrlw_ref.f90` | reference atmosphere data arrays |
 | `rrlw_tbl.f90` | look up table arrays |
 | `rrlw_vsn.f90` | version number information |
-| `rrlw_wvn.f90` | spectral band and g-interval array information |
+| `rrlw_wvn.f90` | spectral band and *g*-interval array information |
 
 ### INPUT DATA:
 The following file (in the `data` directory) is the optional netCDF file containing absorption coefficient and other input data for the model. The file is used if source file `rrtmg_lw_read_nc.f90` is used in place of `rrtmg_lw_k_g.f90` (only one or the other is required). 
