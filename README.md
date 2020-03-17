@@ -1,4 +1,16 @@
 # RRTMG_LW: Longwave Radiative Transfer Model for GCMs
+---
+**Contents**
+
+1. [Introduction](#intro)
+2. [Releases](#releases)
+3. [Column Version](#column)
+4. [GCM Version](#gcm)
+5. [Contact](#contact)
+6. [References](#ref)
+
+## Introduction <a name="intro"></a>
+
 This package contains the source code and sample makefiles necessary to run the latest version of RRTMG\_LW, a correlated *k*-distribution longwave radiative transfer model developed at AER for application to GCMs. This version of RRTMG\_LW has been modified from the standard RRTM\_LW distributed by AER to enhance its performance for use within general circulation models. This code has also been modified to utilize updated FORTRAN coding features. Two modes of operation are possible: 
 
 1) RRTMG_LW can be run as a [column model](https://github.com/AER-RC/RRTMG_LW#rrtmg_lw--column-version) using the [input files](https://github.com/AER-RC/RRTMG_LW#input-data) and [source modules](https://github.com/AER-RC/RRTMG_LW#source-code) described in the column version section, or 
@@ -10,13 +22,13 @@ This model can also utilize McICA, the Monte-Carlo Independent Column Approximat
 
 The model includes an optional feature to provide simultaneously with a normal forward calculation the change in upward flux with respect to surface temperature for each model level. This option is controlled by the input flag, `idrv`. Setting this flag to 1 will output dF/dT for total sky and clear sky in GCM mode in new output arrays `duflx_dt` and `duflxc_dt`. These can be utilized to approximate the change in upward flux for a change in surface temperature only at time intervals between full radiation calls. In single column mode, setting idrv to 1 requires the extra input of a dT change in surface temperature relative to the input surface temperature, and the provided dT will be applied to the flux derivative to output a modified upward flux profile for that dT change in surface temperature. The default `idrv` setting of 0 provides the original forward radiative transfer calculation.  
 
-## Releases
+## Releases <a name="releases"></a>
 
 [Version 5.0 is the latest version of the model](https://github.com/AER-RC/RRTMG_LW/releases/tag/v5.0)
 
 Releases before Version 5.0 are not publicly available.
 
-## RRTMG_LW : Column Version
+## RRTMG_LW : Column Version <a name="column"></a>
 
 ### DOCUMENTATION
 The following text files (in the `doc` directory), along with this `README` provide information on release updates and on using and running RRTMG\_LW:
@@ -116,7 +128,7 @@ Several sample input and output files are included in the `run_examples_std_atm`
 4) In the `run_examples_std_atm` directory, run the UNIX script `./script.run_std_atm` to run the full suite of example cases. To run a single case, modify `INPUT_RRTM` following the instructions in `doc/rrtmg_lw_instructions.txt`, or copy one of the example `input_rrtm*` files into `INPUT_RRTM`. If clouds are selected (`ICLD` > 0), then modify `IN_CLD_RRTM` or copy one of the `in_cld_rrtm*` files into `IN_CLD_RRTM`. If aerosols are selected (`IAER` > 0), then modify `IN_AER_RRTM` or set it to the sample file `in_aer_rrtm-aer12`.
 5) In column mode, if McICA is selected (`IMCA`=1) with partial cloudiness defined, then RRTMG\_LW will run the case 200 times to derive adequate statistics, and the average of the 200 samples will be written to the output file, `OUTPUT_RRTM`. 
 
-## RRTMG_LW : GCM version
+## RRTMG_LW : GCM version <a name="gcm"></a>
 
 ### SOURCE CODE:
 The following source files (in the `src` directory) must be used to run RRTMG\_LW as a callable subroutine:
@@ -168,7 +180,7 @@ The following file (in the `data` directory) is the optional netCDF file contain
 2) The number of model layers and the number of columns to be looped over should be passed into RRTMG\_LW through the subroutine call along with the other model profile arrays.  
 3) To utilize McICA, the sub-column generator (`mcica_subcol_gen_lw.f90`) must be implemented in the GCM so that it is called just before RRTMG\_LW. The cloud overlap method is selected using the input flag, icld. If either exponential (`ICLD`=4) or exponential-random (`ICLD`=5) cloud overlap is selected, then the subroutine `get_alpha` must be called prior to calling `mcica_subcol_lw` to define the vertical correlation parameter, `alpha`, needed for those overlap methods. Also for those methods, use the input flag `idcor` to select the use of either a constant or latitude-varying decorrelation length. If McICA is utilized, this will run only a single statistical sample per model grid box. There are two options for the random number generator used with McICA, which is selected with the variable irnd in `mcica_subcol_gen_lw.f90`. When using McICA, then the main module is `rrtmg_lw_rad.f90`. If McICA is not used, then the main module is `rrtmg_lw_rad.nomcica.f90` and the cloud overlap method is selected by setting flag `icld`. 
 
-## Maintenance and Contact Info
+## Maintenance and Contact Info <a name="contact"></a>
 Atmospheric and Environmental Research, 
 131 Hartwell Avenue, Lexington, MA 02421
 
@@ -177,7 +189,7 @@ Revision for GCMs:  Michael J. Iacono (AER)
 
 Contact:   Michael J. Iacono   (E-mail: miacono@aer.com)
 
-## References 
+## References <a name="ref"></a>
 
 * [AER Radiative Transfer Models Documentation](https://www.rtweb.aer.com)
 * [Github Wiki](https://github.com/AER-RC/RRTMG_LW/wiki)
