@@ -343,6 +343,10 @@
       enddo
 
 ! Maximum/Random cloud overlap parameter
+      faccmb1d = 0
+      faccmb2d = 0
+      faccmb1 = 0
+      faccmb2 = 0
 
       istcld(1) = 1
       istcldd(nlayers) = 1
@@ -494,7 +498,7 @@
                   rat2 = 0._rb
                endif
             endif
-            if (istcldd(lev).ne.1) then
+            if (lev .gt. 1 .and. istcldd(lev).ne.1) then
 	        faccmb1d(lev-1) = max(0.,min(cldfrac(lev+1)-cldfrac(lev), &
         	    cldfrac(lev-1)-cldfrac(lev)))
             	faccmb2d(lev-1) = max(0.,min(cldfrac(lev)-cldfrac(lev+1), &
